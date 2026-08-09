@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ─── Design Tokens ─────────────────────────────────────── */
+:root {
+  /* Brand */
+  --red:        #C8102E;
+  --red-dim:    #8B0D1F;
+  --red-alpha:  rgba(200, 16, 46, 0.12);
+  --red-glow:   rgba(200, 16, 46, 0.06);
+
+  /* Dark palette */
+  --bg:         #080808;       /* page background */
+  --bg-2:       #0e0e0e;       /* alternate sections */
+  --bg-3:       #141414;       /* cards, containers */
+  --bg-4:       #1c1c1c;       /* elevated */
+
+  /* Legacy aliases (used in older inline styles) */
+  --white:      #F0EDE8;
+  --charcoal:   #080808;
+  --charcoal-2: #0e0e0e;
+  --smoke:      #0e0e0e;
+
+  /* Text */
+  --text-primary:   #EDEBE6;
+  --text-secondary: #888888;
+  --text-dim:       rgba(237,235,230,0.35);
+
+  --muted:  #888888;
+  --border: rgba(200, 16, 46, 0.15);
+
+  /* Surfaces */
+  --card-bg:     rgba(20, 20, 20, 0.85);
+  --card-border: rgba(255,255,255,0.06);
+}
+
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  cursor: none;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a, button, input, textarea, select {
+  cursor: none;
+}
+
+::selection {
+  background: var(--red);
+  color: white;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: var(--red-dim); }
+::-webkit-scrollbar-thumb:hover { background: var(--red); }
+
+/* ─── Scroll Progress Bar ───────────────────────────────── */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--red);
+  z-index: 200;
+  transform-origin: left;
+  transition: width 0.05s linear;
+  box-shadow: 0 0 8px rgba(200,16,46,0.5);
+}
+
+/* ─── Typography Helpers ────────────────────────────────── */
+.font-bebas { font-family: 'Bebas Neue', sans-serif; }
+.font-mono  { font-family: 'JetBrains Mono', monospace; }
+.font-inter { font-family: 'Inter', sans-serif; }
+
+/* ─── Section Base ──────────────────────────────────────── */
+section {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 5rem 2.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+main { position: relative; z-index: 1; }
+
+/* ─── Chapter Header ────────────────────────────────────── */
+.chapter-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.chapter-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(80px, 12vw, 160px);
+  color: rgba(200, 16, 46, 0.07);
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  transition: color 0.4s ease;
+}
+
+.chapter-header:hover .chapter-number {
+  color: rgba(200, 16, 46, 0.12);
+}
+
+/* ─── Reveal Animations ─────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
+              transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ─── Signal Label ──────────────────────────────────────── */
+.signal-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(200,16,46,0.5);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.5rem;
+}
+
+/* ─── Red Line ──────────────────────────────────────────── */
+.red-line {
+  width: 40px;
+  height: 2px;
+  background: var(--red);
+}
+
+/* ─── Hover Reveal Underline ────────────────────────────── */
+.reveal-line {
+  display: inline-block;
+  position: relative;
+}
+.reveal-line::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--red);
+  transition: width 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.reveal-line:hover::after { width: 100%; }
+
+/* ─── Micro Hover Lift ──────────────────────────────────── */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* ─── Cards ─────────────────────────────────────────────── */
+.card-dark {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(8px);
+}
+
+/* ─── Coordinate Text ───────────────────────────────────── */
+.coord-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: rgba(200,16,46,0.25);
+  letter-spacing: 0.2em;
+}
+
+/* ─── Focus ─────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+}
+
+/* ─── Cursor ─────────────────────────────────────────────── */
+[data-cursor] { cursor: none; }
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .section-container { padding: 3.5rem 1.25rem; }
+  body, a, button { cursor: auto; }
+  #cursor-dot, #cursor-ring { display: none; }
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal, .reveal-left, .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
