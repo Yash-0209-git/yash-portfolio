@@ -23,7 +23,8 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await api.login(password);
-      login(response.token);
+      const authToken = response.access_token || response.token;
+      login(authToken);
       showToast('Logged in successfully', 'success');
       navigate('/dashboard');
     } catch (err: any) {

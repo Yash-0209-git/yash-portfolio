@@ -21,7 +21,7 @@ export const ProjectForm: React.FC = () => {
     github_url: '',
     live_url: '',
     technologies: [] as string[],
-    thumbnail: '',
+    thumbnail_url: '',
     featured: false,
     published: false,
     display_order: 0
@@ -98,7 +98,7 @@ export const ProjectForm: React.FC = () => {
     setIsUploading(true);
     try {
       const res = await api.uploadMedia(file);
-      setFormData(prev => ({ ...prev, thumbnail: res.url }));
+      setFormData(prev => ({ ...prev, thumbnail_url: res.url }));
       showToast('Thumbnail uploaded', 'success');
     } catch (err) {
       showToast('Upload failed', 'error');
@@ -232,8 +232,8 @@ export const ProjectForm: React.FC = () => {
           <div style={{ margin: '24px 0' }}>
             <label className="form-label">Thumbnail Image</label>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-              {formData.thumbnail && (
-                <img src={formData.thumbnail} alt="Thumbnail" style={{ width: '160px', height: '90px', objectFit: 'cover', border: '1px solid var(--admin-border)' }} />
+              {formData.thumbnail_url && (
+                <img src={formData.thumbnail_url} alt="Thumbnail" style={{ width: '160px', height: '90px', objectFit: 'cover', border: '1px solid var(--admin-border)' }} />
               )}
               <div>
                 <input type="file" accept="image/*" onChange={handleFileUpload} disabled={isUploading} />

@@ -17,7 +17,7 @@ export const AchievementForm: React.FC = () => {
     date: '',
     organization: '',
     category: '',
-    image: '',
+    image_url: '',
     visible: true,
     display_order: 0
   });
@@ -66,7 +66,7 @@ export const AchievementForm: React.FC = () => {
     setIsUploading(true);
     try {
       const res = await api.uploadMedia(file);
-      setFormData(prev => ({ ...prev, image: res.url }));
+      setFormData(prev => ({ ...prev, image_url: res.url }));
       showToast('Image uploaded', 'success');
     } catch (err) {
       showToast('Upload failed', 'error');
@@ -130,8 +130,8 @@ export const AchievementForm: React.FC = () => {
           <div style={{ margin: '24px 0' }}>
             <label className="form-label">Image (Optional)</label>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-              {formData.image && (
-                <img src={formData.image} alt="Achievement" style={{ width: '150px', objectFit: 'contain', border: '1px solid var(--admin-border)' }} />
+              {formData.image_url && (
+                <img src={formData.image_url} alt="Achievement" style={{ width: '150px', objectFit: 'contain', border: '1px solid var(--admin-border)' }} />
               )}
               <div>
                 <input type="file" accept="image/*" onChange={handleFileUpload} disabled={isUploading} />

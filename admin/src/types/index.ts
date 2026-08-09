@@ -64,7 +64,9 @@ export interface Settings {
 }
 
 export interface AuthResponse {
-  token: string;
+  access_token: string;
+  token_type: string;
+  token?: string;
 }
 
 export interface DashboardStats {
