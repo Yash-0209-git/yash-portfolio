@@ -41,8 +41,12 @@ const TERMINAL_LINES = [
   '> PORTFOLIO ONLINE',
 ];
 
+import SignalDefender from '../SignalDefender';
+
 const Entry: React.FC = () => {
   const [lineDrawn, setLineDrawn] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const [showArcadeGame, setShowArcadeGame] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
@@ -324,9 +328,20 @@ const Entry: React.FC = () => {
             transition: 'opacity 0.2s ease',
           }}
         >
-          INTERACT ↓
+          {clickCount > 0 ? `SECRET ARCADE [${clickCount}/3]` : 'INTERACT ↓'}
         </div>
         <div
+          onClick={() => {
+            setObjectClicked(!objectClicked);
+            setClickCount(prev => {
+              const next = prev + 1;
+              if (next >= 3) {
+                setShowArcadeGame(true);
+                return 0;
+              }
+              return next;
+            });
+          }}
           style={{
             width: objectClicked ? '90px' : objectActive ? '66px' : '50px',
             height: objectClicked ? '90px' : objectActive ? '66px' : '50px',
@@ -353,6 +368,10 @@ const Entry: React.FC = () => {
           />
         </div>
       </div>
+
+      {showArcadeGame && (
+        <SignalDefender onClose={() => setShowArcadeGame(false)} />
+      )}
 
       {/* Main content grid (2 columns on desktop) */}
       <div
