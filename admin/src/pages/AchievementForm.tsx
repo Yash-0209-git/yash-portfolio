@@ -44,16 +44,25 @@ export const AchievementForm: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      const payload = {
+        ...formData,
+        date: formData.date || null,
+        description: formData.description || null,
+        organization: formData.organization || null,
+        category: formData.category || null,
+        image_url: formData.image_url || null,
+      };
       if (isEdit) {
-        await api.updateAchievement(id!, formData);
+        await api.updateAchievement(id!, payload);
         showToast('Achievement updated', 'success');
       } else {
-        await api.createAchievement(formData);
+        await api.createAchievement(payload);
         showToast('Achievement created', 'success');
       }
       navigate('/achievements');
-    } catch (err) {
-      showToast('Failed to save achievement', 'error');
+    } catch (err: any) {
+      console.error('Achievement save error:', err);
+      showToast(err.message || 'Failed to save achievement', 'error');
     } finally {
       setIsLoading(false);
     }

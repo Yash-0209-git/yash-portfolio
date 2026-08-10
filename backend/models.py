@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, field_validator
+from typing import List, Optional, Union
 from datetime import date
 
 class LoginRequest(BaseModel):
@@ -10,7 +10,7 @@ class Token(BaseModel):
     token_type: str
 
 class ProjectBase(BaseModel):
-    slug: str
+    slug: Optional[str] = None
     title: str
     short_description: Optional[str] = None
     category: Optional[str] = 'Web App'
@@ -21,9 +21,9 @@ class ProjectBase(BaseModel):
     published: Optional[bool] = True
     github_url: Optional[str] = None
     live_url: Optional[str] = None
-    year: Optional[int] = None
+    year: Optional[Union[int, str]] = None
     status: Optional[str] = 'completed'
-    display_order: Optional[int] = 0
+    display_order: Optional[Union[int, str]] = 0
     problem: Optional[str] = None
     solution: Optional[str] = None
     challenges: Optional[str] = None
@@ -33,13 +33,12 @@ class ProjectCreate(ProjectBase):
     pass
 
 class ProjectUpdate(ProjectBase):
-    slug: Optional[str] = None
     title: Optional[str] = None
 
 class SkillBase(BaseModel):
     name: str
     category: str
-    display_order: Optional[int] = 0
+    display_order: Optional[Union[int, str]] = 0
 
 class SkillCreate(SkillBase):
     pass
@@ -51,13 +50,19 @@ class SkillUpdate(SkillBase):
 class CertificateBase(BaseModel):
     title: str
     issuer: Optional[str] = None
-    issue_date: Optional[date] = None
+    issue_date: Optional[Union[date, str]] = None
     credential_id: Optional[str] = None
     verification_url: Optional[str] = None
     image_url: Optional[str] = None
     category: Optional[str] = None
     visible: Optional[bool] = True
-    display_order: Optional[int] = 0
+    display_order: Optional[Union[int, str]] = 0
+
+    @field_validator('issue_date', mode='before')
+    def parse_empty_date(cls, v):
+        if v == "" or v == "null":
+            return None
+        return v
 
 class CertificateCreate(CertificateBase):
     pass
@@ -65,21 +70,39 @@ class CertificateCreate(CertificateBase):
 class CertificateUpdate(CertificateBase):
     title: Optional[str] = None
 
+    @field_validator('issue_date', mode='before')
+    def parse_empty_date(cls, v):
+        if v == "" or v == "null":
+            return None
+        return v
+
 class AchievementBase(BaseModel):
     title: str
     description: Optional[str] = None
-    date: Optional[date] = None
+    date: Optional[Union[date, str]] = None
     organization: Optional[str] = None
     image_url: Optional[str] = None
     category: Optional[str] = None
     visible: Optional[bool] = True
-    display_order: Optional[int] = 0
+    display_order: Optional[Union[int, str]] = 0
+
+    @field_validator('date', mode='before')
+    def parse_empty_date(cls, v):
+        if v == "" or v == "null":
+            return None
+        return v
 
 class AchievementCreate(AchievementBase):
     pass
 
 class AchievementUpdate(AchievementBase):
     title: Optional[str] = None
+
+    @field_validator('date', mode='before')
+    def parse_empty_date(cls, v):
+        if v == "" or v == "null":
+            return None
+        return v
 
 class AboutBase(BaseModel):
     name: Optional[str] = 'C Yashwanth'

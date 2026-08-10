@@ -76,16 +76,24 @@ export const ProjectForm: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      const payload = {
+        ...formData,
+        short_description: formData.short_description || null,
+        github_url: formData.github_url || null,
+        live_url: formData.live_url || null,
+        thumbnail_url: formData.thumbnail_url || null,
+      };
       if (isEdit) {
-        await api.updateProject(id!, formData);
+        await api.updateProject(id!, payload);
         showToast('Project updated', 'success');
       } else {
-        await api.createProject(formData);
+        await api.createProject(payload);
         showToast('Project created', 'success');
       }
       navigate('/projects');
-    } catch (err) {
-      showToast('Failed to save project', 'error');
+    } catch (err: any) {
+      console.error('Project save error:', err);
+      showToast(err.message || 'Failed to save project', 'error');
     } finally {
       setIsLoading(false);
     }

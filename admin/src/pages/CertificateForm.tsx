@@ -46,16 +46,26 @@ export const CertificateForm: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      const payload = {
+        ...formData,
+        issue_date: formData.issue_date || null,
+        verification_url: formData.verification_url || null,
+        credential_id: formData.credential_id || null,
+        issuer: formData.issuer || null,
+        category: formData.category || null,
+        image_url: formData.image_url || null,
+      };
       if (isEdit) {
-        await api.updateCertificate(id!, formData);
+        await api.updateCertificate(id!, payload);
         showToast('Certificate updated', 'success');
       } else {
-        await api.createCertificate(formData);
+        await api.createCertificate(payload);
         showToast('Certificate created', 'success');
       }
       navigate('/certificates');
-    } catch (err) {
-      showToast('Failed to save certificate', 'error');
+    } catch (err: any) {
+      console.error('Certificate save error:', err);
+      showToast(err.message || 'Failed to save certificate', 'error');
     } finally {
       setIsLoading(false);
     }
