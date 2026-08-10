@@ -1,28 +1,20 @@
-# C Yashwanth — Personal Portfolio & Management System
+# C Yashwanth — Personal Portfolio & Interactive Environment
 
 > **"Ideas, engineered into reality."**
 
-A full-stack, highly interactive digital portfolio environment ("The Signal") accompanied by a standalone Admin Management Panel. Built using **FastAPI**, **React**, **TypeScript**, **Supabase**, and a custom **Vanilla CSS Design System**.
+A high-performance, interactive digital portfolio environment ("The Signal") featuring an integrated **YashOS v1.0 Mini Windows OS Desktop**, custom Cyberpunk HUD cursor, interactive canvas particle grid, and zero-latency static dataset architecture.
 
 ---
 
-## ⚡ The Signal Experience — Key Features
+## ⚡ Key Features
 
-* **Interactive Environment Canvas (`SignalField`)**: A fixed GPU-accelerated `<canvas>` grid that physically distorts towards the visitor's cursor using spring physics and floating data particles.
-* **Context-Aware Inertia Cursor**: Dual-element cursor (instant dot + inertia-lagged ring) that morphs dynamically with contextual labels (`VIEW`, `EXPLORE`, `OPEN`, `ENTER`).
-* **Holographic Interactive Hero**: Parallax name typography and a blended, un-boxed portrait with radial mask feathering, hover technology HUD chips, and click navigation.
-* **Stack Neural Visualizer**: Hovering over any technology pill dynamically maps and highlights its real-world connections across the tech stack while updating a live neural telemetry status bar.
-* **Interactive Project Exploration**: 3D tilt perspective cards, tech filter tabs, and full-screen tabbed project modal (`OVERVIEW`, `SYSTEM ARCHITECTURE`, `TECHNICAL STACK`).
-* **Interactive Contact Terminal Dispatch**: Built-in CLI command prompt (`> send_email`, `> fetch_resume`, `> ping_server`) in Section 06 with native Web Audio API sound telemetry cues.
-* **Transmission Boot Intro & Side Radar**: Session-gated boot screen (`IntroSequence`) and right-edge vertical section progress indicator (`SideProgress`).
-
----
-
-## 🏗️ Architecture & Dual Persistence Engine
-
-* **FastAPI Backend**: Clean modular architecture supporting public read endpoints and JWT-protected admin mutation routes.
-* **Dual-Persistence Sync Engine**: Implements an optimistic in-memory cache synchronized with Supabase PostgreSQL. Guarantees zero 500 errors and immediate frontend reflection even if database tables are cold.
-* **Standalone Admin Panel**: Secure, dedicated dashboard for managing projects, skills, certificates, achievements, bio, and social settings.
+- **Interactive Environment Canvas (`SignalField`)**: Fixed GPU-accelerated `<canvas>` grid that physically distorts towards the visitor's cursor using spring physics and floating data particles.
+- **Cyberpunk HUD Ring & Particle Trail Cursor**: Custom laser target pointer with micro-particle trailing physics, HUD reticle lock-on, and dynamic mode indicators.
+- **Holographic Hero Section**: Blended, un-boxed hero portrait with radial mask feathering, hover technology HUD chips, and smooth-scroll navigation.
+- **YashOS v1.0 Mini Windows OS Desktop**: Secret Easter Egg OS environment unlocked via `konami` code sequence (`↑ ↑ ↓ ↓ ← → ← → B A`), complete with `This PC`, `File Manager`, `Flappy Bird.exe`, `About Me.txt`, `GitHub`, `LinkedIn`, `Instagram`, and `Gmail`.
+- **Stack Neural Visualizer**: Hovering over any technology pill dynamically maps and highlights its real-world connections across the tech stack while updating a live neural telemetry status bar.
+- **Interactive Project Exploration**: 3D tilt perspective cards, tech filter tabs, and full-screen tabbed project modal (`OVERVIEW`, `SYSTEM ARCHITECTURE`, `TECHNICAL STACK`).
+- **Interactive Contact Terminal Dispatch**: Built-in CLI command prompt (`> send_email`, `> fetch_resume`, `> ping_server`) with native Web Audio API sound telemetry cues.
 
 ---
 
@@ -30,55 +22,32 @@ A full-stack, highly interactive digital portfolio environment ("The Signal") ac
 
 | Layer | Technologies |
 |---|---|
-| **Frontend** | React 18, TypeScript, Vite, Vanilla CSS Tokens, Canvas API, Web Audio API |
-| **Backend** | Python 3.11+, FastAPI, Uvicorn, Pydantic, python-jose (JWT), Passlib |
-| **Database & Media** | Supabase PostgreSQL, Supabase Storage |
-| **Admin Panel** | React 18, TypeScript, Vite, React Router DOM |
+| **Core** | React 18, TypeScript, Vite |
+| **Design System** | Vanilla CSS Design Tokens, Glassmorphism, CSS Animations |
+| **Audio & Graphics** | HTML5 Canvas 2D API, Web Audio API Synthesizer |
+| **Deployment** | Vercel / GitHub Pages Ready |
 
 ---
 
-## 🚀 Quick Start & Installation
+## 🚀 Quick Start
 
-### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- npm
-
-### 1. Clone Repository
+### 1. Clone Repository & Install
 ```bash
 git clone https://github.com/Yash-0209-git/yash-portfolio.git
 cd yash-portfolio
-```
-
-### 2. Backend Setup
-```bash
-cd backend
-python -m venv venv
-# On Windows:
-.\venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
-pip install -r requirements.txt
-cp .env.example .env   # Update Supabase credentials in .env
-uvicorn main:app --reload --port 8000
-```
-
-### 3. Frontend Setup
-```bash
-cd ../frontend
 npm install
+```
+
+### 2. Run Locally
+```bash
 npm run dev
 ```
-> App runs at `http://localhost:5173/`
+> Open `http://localhost:5173/` in your browser!
 
-### 4. Admin Panel Setup
+### 3. Build for Production
 ```bash
-cd ../admin
-npm install
-npm run dev
+npm run build
 ```
-> Admin panel runs at `http://localhost:5174/`
 
 ---
 
@@ -86,6 +55,6 @@ npm run dev
 
 Designed & Developed by **C Yashwanth** — AI Full Stack Developer.
 
-* **GitHub**: [@Yash-0209-git](https://github.com/Yash-0209-git)
-* **LinkedIn**: [C Yashwanth](https://www.linkedin.com/in/yashwanth-c-918a53317)
-* **Email**: yashwanth02092006@gmail.com
+- **GitHub**: [@Yash-0209-git](https://github.com/Yash-0209-git)
+- **LinkedIn**: [C Yashwanth](https://www.linkedin.com/in/yashwanth-c-918a53317)
+- **Email**: yashwanth02092006@gmail.com
