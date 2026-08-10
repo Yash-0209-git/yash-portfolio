@@ -27,6 +27,32 @@ const FALLBACK_PROJECTS: Project[] = [
     solution: 'Designed and built a unified full-stack application featuring multi-role access control (Admin, Trainer, Member), automated AI diet & workout recommendation engines via Groq API & Gemini, real-time progress analytics, and instant WhatsApp notification dispatches.',
     challenges: 'Designing a secure multi-role access pipeline with optimistic dual-persistence caching, ensuring instantaneous AI response generation without blocking main event loops.',
   },
+  {
+    id: 'rag-tech-bot',
+    slug: 'rag-tech-bot',
+    title: 'RAG-Tech Bot',
+    short_description:
+      'AI chatbot that answers technical questions using a custom knowledge base and RAG — delivering accurate, context-aware responses without relying on general LLM knowledge alone.',
+    category: 'AI / ML',
+    year: 2025,
+    status: 'completed',
+    github_url: 'https://github.com/Yash-0209-git/rag-tech-bot.git',
+    technologies: [
+      'Python', 'FastAPI', 'FAISS', 'Sentence Transformers',
+      'Groq', 'Llama 3.3 70B', 'React', 'Vite', 'Three.js',
+      'Tailwind CSS', 'PyTorch',
+    ],
+    featured: true,
+    published: true,
+    display_order: 1,
+    thumbnail_url: '/projects/rag-tech-bot.png',
+    problem:
+      'Standard LLMs answer from general training data, producing hallucinations or outdated answers for domain-specific technical queries.',
+    solution:
+      'Built a full RAG pipeline with query expansion, FAISS vector retrieval, reranking, and context boosting — served through a FastAPI backend and a React + Three.js frontend.',
+    challenges:
+      'Improving retrieval accuracy on short queries, handling multi-stage RAG pipeline latency, and ensuring consistent grounded generation via Llama 3.3 70B.',
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════
