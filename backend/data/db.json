@@ -28,7 +28,7 @@
       "problem": "Gyms struggle with fragmented communication across members, trainers, and admins, resulting in low member retention, inconsistent workout plans, and unmonitored diet tracking.",
       "solution": "Designed and built a unified full-stack application featuring multi-role access control (Admin, Trainer, Member), automated AI diet & workout recommendation engines via Groq API & Gemini, real-time progress analytics, and instant WhatsApp notification dispatches.",
       "challenges": "Designing a secure multi-role access pipeline with optimistic dual-persistence caching, ensuring instantaneous AI response generation without blocking main event loops.",
-      "thumbnail_url": "/uploads/5b8010de-7127-4460-9330-9f8adfc71223.png",
+      "thumbnail_url": "/projects/leesculpt.png",
       "live_url": null
     }
   ],
