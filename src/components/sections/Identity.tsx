@@ -34,119 +34,207 @@ const PILLARS = [
 ];
 
 /* ═══════════════════════════════════════════════════════
-   RADAR PHOTO DISPLAY
+   RADAR PHOTO DISPLAY (WITH INTERACTIVE HOVER & TILT)
 ═══════════════════════════════════════════════════════ */
 const RadarDisplay: React.FC<{ src: string; scanning: boolean }> = ({ src, scanning }) => {
+  const [hovered, setHovered] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: x * 20, y: -y * 20 });
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setTilt({ x: 0, y: 0 });
+  };
+
   return (
-    <div style={{ position: 'relative', width: 290, height: 290, flexShrink: 0 }}>
-
-      {/* Outer glow aura */}
-      <div style={{
-        position: 'absolute', inset: -12,
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(200,16,46,0.15) 0%, transparent 70%)',
-        animation: 'radarAuraPulse 3s ease-in-out infinite',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Outermost ring — rotating dashed */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        borderRadius: '50%',
-        border: '1px dashed rgba(200,16,46,0.25)',
-      }} />
-
-      {/* Coordinate tick marks at cardinal points */}
-      {[0, 90, 180, 270].map(deg => {
-        const rad = (deg * Math.PI) / 180;
-        const r = 143; // radius in px from center
-        const cx = 145 + r * Math.sin(rad);
-        const cy = 145 - r * Math.cos(rad);
-        return (
-          <div key={deg} style={{
-            position: 'absolute',
-            left: cx - 2, top: cy - 2,
-            width: 5, height: 5, borderRadius: '50%',
-            backgroundColor: 'rgba(200,16,46,0.5)',
-          }} />
-        );
-      })}
-
-      {/* Radar sweep beam */}
-      <div style={{
-        position: 'absolute', inset: 8,
-        borderRadius: '50%',
-        background: 'conic-gradient(from 0deg at 50% 50%, rgba(200,16,46,0.22) 0deg, transparent 55deg, transparent 360deg)',
-        animation: 'radarSweep 3s linear infinite',
-        animationPlayState: scanning ? 'running' : 'paused',
-      }} />
-
-      {/* Middle ring — thicker, crisp */}
-      <div style={{
-        position: 'absolute', inset: 16,
-        borderRadius: '50%',
-        border: '1.5px solid rgba(200,16,46,0.35)',
-      }} />
-
-      {/* Cross-hair lines */}
-      <div style={{ position:'absolute', left:'50%', top:8, bottom:8, width:1, background:'rgba(200,16,46,0.15)', transform:'translateX(-50%)', pointerEvents:'none' }} />
-      <div style={{ position:'absolute', top:'50%', left:8, right:8, height:1, background:'rgba(200,16,46,0.15)', transform:'translateY(-50%)', pointerEvents:'none' }} />
-
-      {/* Photo circle */}
-      <div style={{
-        position: 'absolute', inset: 28,
-        borderRadius: '50%',
-        overflow: 'hidden',
-        border: '2px solid rgba(200,16,46,0.55)',
-        boxShadow: '0 0 20px rgba(200,16,46,0.3), inset 0 0 20px rgba(0,0,0,0.4)',
-      }}>
-        {src ? (
-          <img src={src} alt="C Yashwanth"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', filter: 'brightness(0.92)' }} />
-        ) : (
-          <div style={{ width:'100%', height:'100%', background:'rgba(200,16,46,0.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <span style={{ fontSize: 48, opacity: 0.4 }}>👤</span>
-          </div>
-        )}
-        {/* Scanline overlay */}
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      data-cursor="view"
+      style={{
+        position: 'relative',
+        width: 290,
+        height: 290,
+        flexShrink: 0,
+        cursor: 'pointer',
+        perspective: 1000,
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale(${hovered ? 1.05 : 1})`,
+          transition: hovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease',
+        }}
+      >
+        {/* Outer glow aura */}
         <div style={{
-          position: 'absolute', inset: 0,
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)',
+          position: 'absolute', inset: -14,
+          borderRadius: '50%',
+          background: `radial-gradient(circle, rgba(200,16,46,${hovered ? 0.35 : 0.15}) 0%, transparent 70%)`,
+          animation: 'radarAuraPulse 3s ease-in-out infinite',
+          transition: 'background 0.3s ease',
           pointerEvents: 'none',
         }} />
-      </div>
 
-      {/* Center crosshair dot */}
-      <div style={{
-        position: 'absolute', left:'50%', top:'50%',
-        transform:'translate(-50%,-50%)',
-        width: 8, height: 8, borderRadius:'50%',
-        backgroundColor: 'rgba(200,16,46,0.6)',
-        boxShadow: '0 0 8px rgba(200,16,46,0.8)',
-        pointerEvents:'none',
-      }}>
-        <animate />
-      </div>
+        {/* Outermost ring — rotating dashed */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          borderRadius: '50%',
+          border: `1px dashed ${hovered ? 'rgba(200,16,46,0.6)' : 'rgba(200,16,46,0.25)'}`,
+          transition: 'border-color 0.3s ease',
+        }} />
 
-      {/* HUD corner labels */}
-      {[
-        { top: 2, left: 2, text: 'N' },
-        { top: 2, right: 2, text: '360°' },
-        { bottom: 2, left: 2, text: 'ID:01' },
-        { bottom: 2, right: 2, text: 'LOCKED' },
-      ].map((lbl, i) => (
-        <div key={i} style={{
-          position: 'absolute',
-          top: lbl.top, bottom: lbl.bottom,
-          left: lbl.left, right: lbl.right,
-          fontFamily: 'monospace', fontSize: '6px',
-          letterSpacing: '0.1em',
-          color: 'rgba(200,16,46,0.5)',
-          lineHeight: 1,
+        {/* Coordinate tick marks at cardinal points */}
+        {[0, 90, 180, 270].map(deg => {
+          const rad = (deg * Math.PI) / 180;
+          const r = 143;
+          const cx = 145 + r * Math.sin(rad);
+          const cy = 145 - r * Math.cos(rad);
+          return (
+            <div key={deg} style={{
+              position: 'absolute',
+              left: cx - 2, top: cy - 2,
+              width: hovered ? 7 : 5,
+              height: hovered ? 7 : 5,
+              borderRadius: '50%',
+              backgroundColor: hovered ? '#C8102E' : 'rgba(200,16,46,0.5)',
+              boxShadow: hovered ? '0 0 10px #C8102E' : 'none',
+              transition: 'all 0.3s ease',
+            }} />
+          );
+        })}
+
+        {/* Radar sweep beam */}
+        <div style={{
+          position: 'absolute', inset: 8,
+          borderRadius: '50%',
+          background: `conic-gradient(from 0deg at 50% 50%, rgba(200,16,46,${hovered ? 0.45 : 0.22}) 0deg, transparent 55deg, transparent 360deg)`,
+          animation: `radarSweep ${hovered ? '1.5s' : '3s'} linear infinite`,
+          animationPlayState: scanning || hovered ? 'running' : 'paused',
+        }} />
+
+        {/* Middle ring — thicker, crisp */}
+        <div style={{
+          position: 'absolute', inset: 16,
+          borderRadius: '50%',
+          border: `1.5px solid ${hovered ? 'rgba(200,16,46,0.7)' : 'rgba(200,16,46,0.35)'}`,
+          transition: 'border-color 0.3s ease',
+        }} />
+
+        {/* Cross-hair lines */}
+        <div style={{ position:'absolute', left:'50%', top:8, bottom:8, width:1, background: hovered ? 'rgba(200,16,46,0.4)' : 'rgba(200,16,46,0.15)', transform:'translateX(-50%)', pointerEvents:'none' }} />
+        <div style={{ position:'absolute', top:'50%', left:8, right:8, height:1, background: hovered ? 'rgba(200,16,46,0.4)' : 'rgba(200,16,46,0.15)', transform:'translateY(-50%)', pointerEvents:'none' }} />
+
+        {/* Photo circle */}
+        <div style={{
+          position: 'absolute', inset: 28,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          border: `2px solid ${hovered ? '#C8102E' : 'rgba(200,16,46,0.55)'}`,
+          boxShadow: hovered
+            ? '0 0 30px rgba(200,16,46,0.6), inset 0 0 25px rgba(0,0,0,0.6)'
+            : '0 0 20px rgba(200,16,46,0.3), inset 0 0 20px rgba(0,0,0,0.4)',
+          transition: 'all 0.3s ease',
         }}>
-          {lbl.text}
+          {src ? (
+            <img src={src} alt="C Yashwanth"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'top center',
+                filter: hovered
+                  ? 'brightness(1.05) contrast(1.15)'
+                  : 'brightness(0.92) contrast(1.05)',
+                transform: hovered ? 'scale(1.12)' : 'scale(1)',
+                transition: 'transform 0.4s ease, filter 0.4s ease',
+              }}
+            />
+          ) : (
+            <div style={{ width:'100%', height:'100%', background:'rgba(200,16,46,0.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <span style={{ fontSize: 48, opacity: 0.4 }}>👤</span>
+            </div>
+          )}
+
+          {/* Scanline overlay */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)',
+            pointerEvents: 'none',
+          }} />
         </div>
-      ))}
+
+        {/* Floating HUD Tags on Hover */}
+        {hovered && (
+          <>
+            <div
+              className="font-mono"
+              style={{
+                position: 'absolute',
+                top: '-10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontSize: '8px',
+                color: 'var(--text-primary)',
+                backgroundColor: 'rgba(10,5,5,0.92)',
+                border: '1px solid var(--red)',
+                padding: '0.2rem 0.6rem',
+                borderRadius: '3px',
+                letterSpacing: '0.15em',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 0 12px rgba(200,16,46,0.4)',
+                zIndex: 10,
+              }}
+            >
+              ● IDENTITY SCAN // ACTIVE
+            </div>
+            <div
+              className="font-mono"
+              style={{
+                position: 'absolute',
+                bottom: '-12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontSize: '8px',
+                color: '#00FF66',
+                backgroundColor: 'rgba(10,5,5,0.92)',
+                border: '1px solid rgba(0,255,102,0.4)',
+                padding: '0.2rem 0.6rem',
+                borderRadius: '3px',
+                letterSpacing: '0.12em',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 0 10px rgba(0,255,102,0.3)',
+                zIndex: 10,
+              }}
+            >
+              AI FULL STACK DEV
+            </div>
+          </>
+        )}
+
+        {/* Center crosshair dot */}
+        <div style={{
+          position: 'absolute', left:'50%', top:'50%',
+          transform:'translate(-50%,-50%)',
+          width: hovered ? 10 : 8,
+          height: hovered ? 10 : 8,
+          borderRadius:'50%',
+          backgroundColor: hovered ? '#C8102E' : 'rgba(200,16,46,0.6)',
+          boxShadow: hovered ? '0 0 16px #C8102E' : '0 0 8px rgba(200,16,46,0.8)',
+          pointerEvents:'none',
+          transition: 'all 0.3s ease',
+        }} />
+      </div>
     </div>
   );
 };

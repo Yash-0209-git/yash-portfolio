@@ -516,7 +516,7 @@ const Entry: React.FC = () => {
           </div>
         </div>
 
-        {/* Right column: Blended Interactive Hero Image & HUD frame */}
+        {/* Right column: Interactive Signal Node Hub */}
         <div
           style={{
             display: 'flex',
@@ -544,7 +544,7 @@ const Entry: React.FC = () => {
             }}
           />
 
-          {/* Concentric orbit rings behind portrait */}
+          {/* Concentric orbit rings */}
           <div
             aria-hidden="true"
             style={{
@@ -556,7 +556,7 @@ const Entry: React.FC = () => {
               pointerEvents: 'none',
             }}
           >
-            {[340, 260].map((size, i) => (
+            {[340, 260, 180].map((size, i) => (
               <div
                 key={i}
                 style={{
@@ -564,7 +564,7 @@ const Entry: React.FC = () => {
                   width: size,
                   height: size,
                   borderRadius: '50%',
-                  border: `1px ${i % 2 === 0 ? 'dashed' : 'solid'} rgba(200,16,46,${0.12 - i * 0.03})`,
+                  border: `1px ${i % 2 === 0 ? 'dashed' : 'solid'} rgba(200,16,46,${0.14 - i * 0.03})`,
                   top: '50%',
                   left: '50%',
                   transform: 'translate(-50%, -50%)',
@@ -574,160 +574,37 @@ const Entry: React.FC = () => {
             ))}
           </div>
 
-          {/* Image Container — Un-boxed, full right space coverage, transparent website background blend */}
+          {/* Central Signal Core Node */}
           <div
-            data-cursor="enter"
+            data-cursor="pointer"
             onClick={() => document.getElementById('identity')?.scrollIntoView({ behavior: 'smooth' })}
             onMouseEnter={() => setImageHovered(true)}
             onMouseLeave={() => setImageHovered(false)}
             style={{
               position: 'relative',
-              width: '100%',
-              height: '100%',
-              minHeight: '500px',
-              maxHeight: '75vh',
+              width: '260px',
+              height: '260px',
+              borderRadius: '50%',
+              border: '1px solid rgba(200,16,46,0.4)',
+              background: 'radial-gradient(circle at 50% 50%, rgba(200,16,46,0.15) 0%, rgba(8,8,8,0.9) 70%)',
               cursor: 'pointer',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'transform 0.5s ease',
-              transform: imageHovered ? 'scale(1.02)' : 'scale(1)',
+              transition: 'transform 0.5s cubic-bezier(0.4,0,0.2,1), border-color 0.3s ease',
+              transform: imageHovered ? 'scale(1.08)' : 'scale(1)',
+              boxShadow: imageHovered ? '0 0 40px rgba(200,16,46,0.35)' : '0 0 20px rgba(0,0,0,0.5)',
             }}
           >
-            {/* Main Portrait Image — Seamless multi-edge mask fade to website background */}
-            <img
-              src="/profile.jpg"
-              alt="C Yashwanth — AI Full Stack Developer"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center 15%',
-                filter: imageHovered
-                  ? 'brightness(0.85) contrast(1.15) opacity(0.92)'
-                  : 'brightness(0.65) contrast(1.1) opacity(0.78)',
-                transition: 'filter 0.4s ease, transform 0.6s cubic-bezier(0.4,0,0.2,1)',
-                maskImage: 'radial-gradient(ellipse 88% 88% at 50% 45%, black 35%, rgba(0,0,0,0.75) 65%, transparent 98%)',
-                WebkitMaskImage: 'radial-gradient(ellipse 88% 88% at 50% 45%, black 35%, rgba(0,0,0,0.75) 65%, transparent 98%)',
-                pointerEvents: 'none',
-              }}
-            />
-
-            {/* Hover Tech HUD Overlay Tags */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                pointerEvents: 'none',
-                opacity: imageHovered ? 1 : 0,
-                transition: 'opacity 0.35s ease',
-              }}
-            >
-              {/* Tech Tag 1: Top-Left */}
-              <div
-                className="font-mono"
-                style={{
-                  position: 'absolute',
-                  top: '12%',
-                  left: '2%',
-                  fontSize: '9px',
-                  color: 'var(--text-primary)',
-                  backgroundColor: 'rgba(8,8,8,0.85)',
-                  border: '1px solid rgba(200,16,46,0.5)',
-                  padding: '0.3rem 0.6rem',
-                  borderRadius: '3px',
-                  letterSpacing: '0.12em',
-                  boxShadow: '0 0 14px rgba(200,16,46,0.3)',
-                  animation: imageHovered ? 'fadeInUp 0.3s ease' : 'none',
-                }}
-              >
-                ● PYTHON · FASTAPI
-              </div>
-
-              {/* Tech Tag 2: Top-Right */}
-              <div
-                className="font-mono"
-                style={{
-                  position: 'absolute',
-                  top: '18%',
-                  right: '2%',
-                  fontSize: '9px',
-                  color: 'var(--text-primary)',
-                  backgroundColor: 'rgba(8,8,8,0.85)',
-                  border: '1px solid rgba(200,16,46,0.5)',
-                  padding: '0.3rem 0.6rem',
-                  borderRadius: '3px',
-                  letterSpacing: '0.12em',
-                  boxShadow: '0 0 14px rgba(200,16,46,0.3)',
-                  animation: imageHovered ? 'fadeInUp 0.4s ease' : 'none',
-                }}
-              >
-                ● AI / LLM · GROQ
-              </div>
-
-              {/* Tech Tag 3: Bottom-Left */}
-              <div
-                className="font-mono"
-                style={{
-                  position: 'absolute',
-                  bottom: '18%',
-                  left: '2%',
-                  fontSize: '9px',
-                  color: 'var(--text-primary)',
-                  backgroundColor: 'rgba(8,8,8,0.85)',
-                  border: '1px solid rgba(200,16,46,0.5)',
-                  padding: '0.3rem 0.6rem',
-                  borderRadius: '3px',
-                  letterSpacing: '0.12em',
-                  boxShadow: '0 0 14px rgba(200,16,46,0.3)',
-                  animation: imageHovered ? 'fadeInUp 0.45s ease' : 'none',
-                }}
-              >
-                ● REACT · TS
-              </div>
-
-              {/* Tech Tag 4: Bottom-Right */}
-              <div
-                className="font-mono"
-                style={{
-                  position: 'absolute',
-                  bottom: '12%',
-                  right: '2%',
-                  fontSize: '9px',
-                  color: 'var(--text-primary)',
-                  backgroundColor: 'rgba(8,8,8,0.85)',
-                  border: '1px solid rgba(200,16,46,0.5)',
-                  padding: '0.3rem 0.6rem',
-                  borderRadius: '3px',
-                  letterSpacing: '0.12em',
-                  boxShadow: '0 0 14px rgba(200,16,46,0.3)',
-                  animation: imageHovered ? 'fadeInUp 0.5s ease' : 'none',
-                }}
-              >
-                ● POSTGRES · SUPABASE
-              </div>
-
-              {/* Center Tag: Click Action */}
-              <div
-                className="font-mono"
-                style={{
-                  position: 'absolute',
-                  bottom: '2px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  fontSize: '9px',
-                  color: 'var(--red)',
-                  backgroundColor: 'rgba(8,8,8,0.92)',
-                  border: '1px solid var(--red)',
-                  padding: '0.35rem 0.85rem',
-                  borderRadius: '999px',
-                  letterSpacing: '0.15em',
-                  boxShadow: '0 0 18px rgba(200,16,46,0.4)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                CLICK TO EXPLORE IDENTITY ↓
-              </div>
+            <div className="font-mono" style={{ fontSize: '10px', color: 'var(--red)', letterSpacing: '0.25em', marginBottom: '0.4rem' }}>
+              ● CORE SIGNAL
+            </div>
+            <div className="font-bebas" style={{ fontSize: '28px', color: 'var(--text-primary)', letterSpacing: '0.08em', lineHeight: 1 }}>
+              CY // 2026
+            </div>
+            <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(237,235,230,0.4)', letterSpacing: '0.15em', marginTop: '0.4rem' }}>
+              CLICK TO EXPLORE ↓
             </div>
           </div>
         </div>
