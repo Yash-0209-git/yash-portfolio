@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { playTransmissionSound, playBeep } from '../utils/audio';
 
-type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | null;
+import FlappyBirdApp from './FlappyBirdApp';
+
+type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | 'flappy_bird' | null;
 
 export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
   const [activeWindow, setActiveWindow] = useState<ActiveWindow>('this_pc');
@@ -110,7 +112,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           left: '2rem',
           display: 'grid',
           gridTemplateColumns: 'repeat(1, 95px)',
-          gap: '1.5rem 1rem',
+          gap: '1rem',
           zIndex: 10,
         }}
       >
@@ -129,6 +131,14 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
             setActiveFolder('root');
             openApp('file_manager');
           }}
+        />
+
+        {/* 🐤 Flappy Bird */}
+        <DesktopIcon
+          icon="🐤"
+          label="Flappy Bird.exe"
+          badge="GAME"
+          onClick={() => openApp('flappy_bird')}
         />
 
         {/* 👤 About Me */}
@@ -344,6 +354,13 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
         </WindowsFrame>
       )}
 
+      {/* WINDOW 5: FLAPPY BIRD */}
+      {activeWindow === 'flappy_bird' && (
+        <WindowsFrame title="Flappy Bird.exe — Arcade Game" onClose={() => setActiveWindow(null)}>
+          <FlappyBirdApp onClose={() => setActiveWindow(null)} />
+        </WindowsFrame>
+      )}
+
       {/* Start Menu Popover */}
       {startMenuOpen && (
         <div
@@ -369,6 +386,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           </div>
           <StartMenuItem icon="💻" label="This PC" onClick={() => openApp('this_pc')} />
           <StartMenuItem icon="📁" label="File Manager" onClick={() => openApp('file_manager')} />
+          <StartMenuItem icon="🐤" label="Flappy Bird.exe" onClick={() => openApp('flappy_bird')} />
           <StartMenuItem icon="📄" label="About Me.txt" onClick={() => openApp('about_me')} />
           <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0.4rem 0' }} />
           <StartMenuItem icon="🐙" label="GitHub Profile" onClick={() => openExternal('https://github.com/Yash-0209-git')} />
