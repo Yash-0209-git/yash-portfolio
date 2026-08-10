@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fetchProjects } from '../../api';
 import { Project } from '../../types';
 import ProjectModal from '../ui/ProjectModal';
@@ -29,256 +29,393 @@ const FALLBACK_PROJECTS: Project[] = [
   },
 ];
 
-// ── Broadcast Tower SVG ────────────────────────────────────────────────────
-const BroadcastTower: React.FC<{ active: boolean }> = ({ active }) => (
-  <svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Base legs */}
-    <line x1="60" y1="30" x2="20" y2="140" stroke="rgba(200,16,46,0.7)" strokeWidth="2.5" />
-    <line x1="60" y1="30" x2="100" y2="140" stroke="rgba(200,16,46,0.7)" strokeWidth="2.5" />
-    {/* Cross braces */}
-    <line x1="30" y1="95" x2="90" y2="95" stroke="rgba(200,16,46,0.4)" strokeWidth="1.5" />
-    <line x1="37" y1="118" x2="83" y2="118" stroke="rgba(200,16,46,0.4)" strokeWidth="1.5" />
-    <line x1="22" y1="140" x2="98" y2="140" stroke="rgba(200,16,46,0.6)" strokeWidth="2" />
-    {/* Mast */}
-    <line x1="60" y1="0" x2="60" y2="30" stroke={active ? '#C8102E' : 'rgba(200,16,46,0.7)'} strokeWidth="3" />
-    {/* Antenna tip */}
-    <circle cx="60" cy="0" r={active ? 5 : 3} fill="#C8102E"
-      style={{ filter: active ? 'drop-shadow(0 0 8px #C8102E) drop-shadow(0 0 16px #C8102E)' : 'drop-shadow(0 0 4px #C8102E)' }} />
-    {/* Diagonal signal arms */}
-    <line x1="60" y1="18" x2="42" y2="30" stroke="rgba(200,16,46,0.5)" strokeWidth="1.5" />
-    <line x1="60" y1="18" x2="78" y2="30" stroke="rgba(200,16,46,0.5)" strokeWidth="1.5" />
-  </svg>
-);
+/* ═══════════════════════════════════════════════════════
+   BROADCAST TOWER — Detailed SVG lattice tower
+═══════════════════════════════════════════════════════ */
+const BroadcastTower: React.FC<{ active: boolean }> = ({ active }) => {
+  const red = 'rgba(200,16,46,0.85)';
+  const redFaint = 'rgba(200,16,46,0.28)';
+  const redMid = 'rgba(200,16,46,0.5)';
 
-// ── Radial Signal Line (SVG-based, from tower center to card) ─────────────
-const SignalLine: React.FC<{
-  fromX: number; fromY: number;
-  toX: number; toY: number;
-  active: boolean;
-}> = ({ fromX, fromY, toX, toY, active }) => {
-  const id = `grad-${Math.round(toX)}-${Math.round(toY)}`;
   return (
     <svg
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible', zIndex: 1 }}
-      width="100%" height="100%"
+      width="110"
+      height="320"
+      viewBox="0 0 110 320"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ overflow: 'visible', display: 'block' }}
     >
-      <defs>
-        <linearGradient id={id} x1={fromX} y1={fromY} x2={toX} y2={toY} gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#C8102E" stopOpacity={active ? 0.9 : 0.35} />
-          <stop offset="100%" stopColor="#C8102E" stopOpacity={active ? 0.4 : 0.08} />
-        </linearGradient>
-      </defs>
-      <line
-        x1={fromX} y1={fromY}
-        x2={toX} y2={toY}
-        stroke={`url(#${id})`}
-        strokeWidth={active ? 2 : 1}
-        strokeDasharray={active ? 'none' : '6 4'}
-        style={{ transition: 'stroke-width 0.3s ease, opacity 0.3s ease' }}
-      />
-      {active && (
-        <circle r={3} fill="#C8102E"
-          style={{ filter: 'drop-shadow(0 0 4px #C8102E)' }}
-        >
-          <animateMotion dur="1.4s" repeatCount="indefinite"
-            path={`M ${fromX} ${fromY} L ${toX} ${toY}`} />
-        </circle>
-      )}
+      {/* ── Glow under tower base ── */}
+      <ellipse cx="55" cy="310" rx="45" ry="7"
+        fill="rgba(200,16,46,0.18)"
+        style={{ filter: 'blur(6px)' }} />
+
+      {/* ── Base concrete footing ── */}
+      <rect x="10" y="295" width="90" height="6" rx="2" fill={redMid} />
+      <rect x="18" y="290" width="74" height="5" rx="1" fill="rgba(200,16,46,0.35)" />
+
+      {/* ── Section 5: widest base legs ── */}
+      <line x1="55" y1="55" x2="13" y2="290" stroke={red} strokeWidth="2.5" />
+      <line x1="55" y1="55" x2="97" y2="290" stroke={red} strokeWidth="2.5" />
+
+      {/* Horizontal platform rings at each major section */}
+      {/* Level 1 at y=100 */}
+      <line x1="26" y1="130" x2="84" y2="130" stroke={redMid} strokeWidth="1.8" />
+      {/* Level 2 at y=175 */}
+      <line x1="20" y1="190" x2="90" y2="190" stroke={redMid} strokeWidth="1.8" />
+      {/* Level 3 at y=240 */}
+      <line x1="15" y1="248" x2="95" y2="248" stroke={redMid} strokeWidth="1.8" />
+
+      {/* ── Cross-bracing Section 1 (y 55–130) ── */}
+      <line x1="40" y1="78" x2="68" y2="130" stroke={redFaint} strokeWidth="1.2" />
+      <line x1="68" y1="78" x2="40" y2="130" stroke={redFaint} strokeWidth="1.2" />
+      <line x1="34" y1="103" x2="74" y2="103" stroke="rgba(200,16,46,0.18)" strokeWidth="1" />
+
+      {/* ── Cross-bracing Section 2 (y 130–190) ── */}
+      <line x1="26" y1="130" x2="57" y2="190" stroke={redFaint} strokeWidth="1.2" />
+      <line x1="84" y1="130" x2="53" y2="190" stroke={redFaint} strokeWidth="1.2" />
+      <line x1="23" y1="160" x2="87" y2="160" stroke="rgba(200,16,46,0.15)" strokeWidth="1" />
+
+      {/* ── Cross-bracing Section 3 (y 190–248) ── */}
+      <line x1="20" y1="190" x2="55" y2="248" stroke={redFaint} strokeWidth="1.2" />
+      <line x1="90" y1="190" x2="55" y2="248" stroke={redFaint} strokeWidth="1.2" />
+      <line x1="17" y1="220" x2="93" y2="220" stroke="rgba(200,16,46,0.12)" strokeWidth="1" />
+
+      {/* ── Cross-bracing Section 4 (y 248–290) ── */}
+      <line x1="15" y1="248" x2="55" y2="290" stroke={redFaint} strokeWidth="1.1" />
+      <line x1="95" y1="248" x2="55" y2="290" stroke={redFaint} strokeWidth="1.1" />
+      <line x1="13" y1="270" x2="97" y2="270" stroke="rgba(200,16,46,0.12)" strokeWidth="1" />
+
+      {/* ── Upper mast section ── */}
+      <line x1="55" y1="10" x2="55" y2="55" stroke={red} strokeWidth="3"
+        style={{ filter: 'drop-shadow(0 0 3px rgba(200,16,46,0.6))' }} />
+
+      {/* ── Antenna dish / cross arms ── */}
+      <line x1="35" y1="22" x2="75" y2="22" stroke={red} strokeWidth="2"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(200,16,46,0.7))' }} />
+      <line x1="42" y1="35" x2="68" y2="35" stroke="rgba(200,16,46,0.6)" strokeWidth="1.5" />
+      {/* diagonal arms */}
+      <line x1="55" y1="10" x2="35" y2="22" stroke="rgba(200,16,46,0.5)" strokeWidth="1.2" />
+      <line x1="55" y1="10" x2="75" y2="22" stroke="rgba(200,16,46,0.5)" strokeWidth="1.2" />
+
+      {/* ── Antenna tip — blinking beacon ── */}
+      <circle cx="55" cy="6" r={active ? 5.5 : 4} fill="#C8102E"
+        style={{
+          filter: active
+            ? 'drop-shadow(0 0 8px #C8102E) drop-shadow(0 0 18px rgba(200,16,46,0.7))'
+            : 'drop-shadow(0 0 5px #C8102E)',
+          transition: 'r 0.3s ease, filter 0.3s ease',
+        }}>
+        <animate attributeName="opacity" values="1;0.25;1" dur="1.6s" repeatCount="indefinite" />
+      </circle>
+
+      {/* ── Signal radiating rings from antenna (decorative) ── */}
+      {[18, 30, 43].map((r, i) => (
+        <circle key={i} cx="55" cy="6" r={r}
+          stroke="rgba(200,16,46,0.1)"
+          strokeWidth="1"
+          fill="none"
+          style={{ animation: `towerRingFade ${2 + i * 0.7}s ease-in-out infinite` }}
+        />
+      ))}
     </svg>
   );
 };
 
-// ── Project Station Card ───────────────────────────────────────────────────
-interface StationCardProps {
+/* ═══════════════════════════════════════════════════════
+   PROJECT STATION CARD
+═══════════════════════════════════════════════════════ */
+interface StationProps {
   project: Project;
   index: number;
-  angle: number;
-  radius: number;
-  centerX: number;
-  centerY: number;
-  hoveredId: string | null;
+  isHovered: boolean;
+  isTechHighlighted: boolean;
   onHover: (id: string | null) => void;
   onClick: () => void;
   hoveredTech: string | null;
   setHoveredTech: (t: string | null) => void;
 }
 
-const StationCard: React.FC<StationCardProps> = ({
-  project, index, angle, radius, centerX, centerY,
-  hoveredId, onHover, onClick, hoveredTech, setHoveredTech,
+const StationCard: React.FC<StationProps> = ({
+  project, index, isHovered, isTechHighlighted,
+  onHover, onClick, hoveredTech, setHoveredTech,
 }) => {
-  const cardW = 260;
-  const cardH = 200;
-  const rad = (angle * Math.PI) / 180;
-  const cx = centerX + radius * Math.cos(rad);
-  const cy = centerY + radius * Math.sin(rad);
-
-  const isHovered = hoveredId === project.id;
-  const isTechMatch = hoveredTech ? project.technologies.includes(hoveredTech) : false;
-  const isActive = isHovered || isTechMatch;
-
-  const cardRef = useRef<HTMLDivElement>(null);
+  const active = isHovered || isTechHighlighted;
 
   return (
-    <>
-      {/* SVG signal line from tower to card */}
-      <SignalLine
-        fromX={centerX}
-        fromY={centerY}
-        toX={cx}
-        toY={cy}
-        active={isActive}
-      />
-
-      {/* Receiving station dot at card anchor point */}
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${project.title}`}
+      onMouseEnter={() => onHover(project.id)}
+      onMouseLeave={() => onHover(null)}
+      onClick={onClick}
+      onKeyDown={e => e.key === 'Enter' && onClick()}
+      data-cursor="view"
+      style={{
+        position: 'relative',
+        marginBottom: '1.5rem',
+        cursor: 'none',
+      }}
+    >
+      {/* Connection dot on the vertical spine */}
       <div style={{
         position: 'absolute',
-        left: cx - 5,
-        top: cy - 5,
+        left: -25,
+        top: '50%',
         width: 10,
         height: 10,
         borderRadius: '50%',
-        backgroundColor: isActive ? '#C8102E' : 'rgba(200,16,46,0.4)',
-        boxShadow: isActive ? '0 0 12px #C8102E, 0 0 24px rgba(200,16,46,0.6)' : 'none',
-        zIndex: 3,
+        backgroundColor: active ? '#C8102E' : 'rgba(200,16,46,0.35)',
+        boxShadow: active ? '0 0 12px #C8102E, 0 0 24px rgba(200,16,46,0.5)' : 'none',
+        border: '1px solid rgba(200,16,46,0.5)',
+        zIndex: 2,
         transition: 'all 0.3s ease',
-        transform: isActive ? 'scale(1.6)' : 'scale(1)',
+        transform: `translateY(-50%) scale(${active ? 1.5 : 1})`,
       }} />
 
-      {/* Project Card */}
-      <div
-        ref={cardRef}
-        data-cursor="view"
-        role="button"
-        tabIndex={0}
-        aria-label={`View ${project.title}`}
-        onClick={onClick}
-        onKeyDown={e => e.key === 'Enter' && onClick()}
-        onMouseEnter={() => onHover(project.id)}
-        onMouseLeave={() => onHover(null)}
-        style={{
-          position: 'absolute',
-          left: cx - cardW / 2,
-          top: cy - cardH / 2,
-          width: cardW,
-          backgroundColor: isActive ? 'rgba(20,20,20,0.98)' : 'rgba(16,16,16,0.9)',
-          border: `1px solid ${isActive ? 'rgba(200,16,46,0.7)' : 'rgba(200,16,46,0.2)'}`,
-          borderRadius: '6px',
-          padding: '1.1rem',
-          cursor: 'none',
-          zIndex: 4,
-          backdropFilter: 'blur(12px)',
-          boxShadow: isActive
-            ? '0 0 30px rgba(200,16,46,0.35), 0 8px 32px rgba(0,0,0,0.6)'
-            : '0 4px 20px rgba(0,0,0,0.5)',
-          transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
-          transform: isActive ? 'scale(1.04) translateZ(0)' : 'scale(1) translateZ(0)',
-        }}
-      >
-        {/* HUD Corner Brackets */}
-        {(['tl','tr','bl','br'] as const).map(pos => (
-          <div key={pos} style={{
-            position: 'absolute',
-            top: pos.startsWith('t') ? 4 : undefined,
-            bottom: pos.startsWith('b') ? 4 : undefined,
-            left: pos.endsWith('l') ? 4 : undefined,
-            right: pos.endsWith('r') ? 4 : undefined,
-            width: 8, height: 8,
-            borderTop: pos.startsWith('t') ? `2px solid ${isActive ? 'var(--red)' : 'rgba(200,16,46,0.4)'}` : undefined,
-            borderBottom: pos.startsWith('b') ? `2px solid ${isActive ? 'var(--red)' : 'rgba(200,16,46,0.4)'}` : undefined,
-            borderLeft: pos.endsWith('l') ? `2px solid ${isActive ? 'var(--red)' : 'rgba(200,16,46,0.4)'}` : undefined,
-            borderRight: pos.endsWith('r') ? `2px solid ${isActive ? 'var(--red)' : 'rgba(200,16,46,0.4)'}` : undefined,
-            transition: 'border-color 0.3s ease',
-          }} />
-        ))}
+      {/* Horizontal branch line from spine to card */}
+      <div style={{
+        position: 'absolute',
+        left: -20,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        width: 24,
+        height: 1,
+        background: active
+          ? 'linear-gradient(90deg, #C8102E, rgba(200,16,46,0.4))'
+          : 'linear-gradient(90deg, rgba(200,16,46,0.35), rgba(200,16,46,0.08))',
+        transition: 'all 0.3s ease',
+        zIndex: 1,
+      }} />
 
-        {/* Station index + status */}
-        <div className="font-mono" style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          fontSize: '8px', color: 'rgba(200,16,46,0.7)', letterSpacing: '0.18em', marginBottom: '0.6rem',
-        }}>
-          <span>STATION-0{index + 1}</span>
-          <span style={{
-            display: 'flex', alignItems: 'center', gap: '0.3rem',
+      {/* Main Card */}
+      <div style={{
+        background: active
+          ? 'linear-gradient(135deg, rgba(24,8,10,0.98), rgba(20,20,22,0.96))'
+          : 'linear-gradient(135deg, rgba(18,18,20,0.95), rgba(15,15,18,0.92))',
+        border: `1px solid ${active ? 'rgba(200,16,46,0.55)' : 'rgba(200,16,46,0.15)'}`,
+        borderLeft: `3px solid ${active ? '#C8102E' : 'rgba(200,16,46,0.3)'}`,
+        borderRadius: '4px',
+        padding: '1.5rem',
+        display: 'grid',
+        gridTemplateColumns: project.thumbnail_url ? '1fr 240px' : '1fr',
+        gap: '1.5rem',
+        backdropFilter: 'blur(16px)',
+        boxShadow: active
+          ? '0 0 40px rgba(200,16,46,0.2), 0 12px 40px rgba(0,0,0,0.6)'
+          : '0 4px 24px rgba(0,0,0,0.4)',
+        transform: active ? 'translateX(6px)' : 'translateX(0)',
+        transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
+      }}>
+
+        {/* ── Left content ── */}
+        <div>
+          {/* Top meta row */}
+          <div className="font-mono" style={{
+            display: 'flex', alignItems: 'center', gap: '1rem',
+            fontSize: '9px', letterSpacing: '0.18em', marginBottom: '1rem',
+            color: 'rgba(200,16,46,0.65)',
           }}>
+            <span>STATION-0{index + 1}</span>
+            <span style={{ width: 1, height: 10, background: 'rgba(200,16,46,0.3)' }} />
             <span style={{
-              width: 5, height: 5, borderRadius: '50%',
-              backgroundColor: isActive ? '#00FF66' : 'rgba(0,255,102,0.4)',
-              boxShadow: isActive ? '0 0 6px #00FF66' : 'none',
-              display: 'inline-block',
-            }} />
-            {isActive ? 'SIGNAL LOCKED' : 'STANDBY'}
-          </span>
+              display: 'flex', alignItems: 'center', gap: '0.35rem',
+            }}>
+              <span style={{
+                display: 'inline-block', width: 5, height: 5,
+                borderRadius: '50%',
+                backgroundColor: active ? '#00FF66' : 'rgba(0,255,102,0.35)',
+                boxShadow: active ? '0 0 7px #00FF66' : 'none',
+                transition: 'all 0.3s ease',
+              }} />
+              {active ? 'SIGNAL RECEIVED' : 'STANDBY'}
+            </span>
+            <span style={{ marginLeft: 'auto', color: 'rgba(237,235,230,0.3)' }}>
+              {project.category} · {project.year}
+            </span>
+          </div>
+
+          {/* Project Title */}
+          <h3 className="font-bebas" style={{
+            fontSize: 'clamp(26px, 3vw, 36px)',
+            lineHeight: 1.0,
+            margin: '0 0 0.6rem 0',
+            color: active ? 'var(--text-primary)' : 'rgba(237,235,230,0.8)',
+            letterSpacing: '0.04em',
+            transition: 'color 0.3s ease',
+          }}>{project.title}</h3>
+
+          {/* Short description */}
+          <p style={{
+            fontSize: '13px', lineHeight: 1.65,
+            color: 'rgba(237,235,230,0.55)',
+            margin: '0 0 1.1rem 0',
+            maxWidth: '520px',
+          }}>{project.short_description}</p>
+
+          {/* Tech stack */}
+          <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+            {project.technologies.map(tech => (
+              <span key={tech} className="font-mono"
+                onMouseEnter={() => setHoveredTech(tech)}
+                onMouseLeave={() => setHoveredTech(null)}
+                style={{
+                  fontSize: '8px', padding: '0.2rem 0.5rem',
+                  border: `1px solid ${hoveredTech === tech ? '#C8102E' : 'rgba(200,16,46,0.2)'}`,
+                  backgroundColor: hoveredTech === tech ? 'rgba(200,16,46,0.18)' : 'transparent',
+                  color: hoveredTech === tech ? 'var(--text-primary)' : 'rgba(237,235,230,0.4)',
+                  borderRadius: '2px', cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  letterSpacing: '0.08em',
+                }}>{tech}</span>
+            ))}
+          </div>
+
+          {/* Action links */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {project.github_url && (
+              <a href={project.github_url} target="_blank" rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()} data-cursor="open"
+                className="font-mono"
+                style={{
+                  fontSize: '9px', letterSpacing: '0.15em',
+                  color: active ? 'var(--red)' : 'rgba(200,16,46,0.45)',
+                  textDecoration: 'none',
+                  border: `1px solid ${active ? 'rgba(200,16,46,0.5)' : 'rgba(200,16,46,0.15)'}`,
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '2px',
+                  background: active ? 'rgba(200,16,46,0.08)' : 'transparent',
+                  transition: 'all 0.3s ease',
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                }}>
+                <span>⟨/⟩</span> GITHUB
+              </a>
+            )}
+            {project.live_url && (
+              <a href={project.live_url} target="_blank" rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()} data-cursor="open"
+                className="font-mono"
+                style={{
+                  fontSize: '9px', letterSpacing: '0.15em',
+                  color: 'rgba(237,235,230,0.5)',
+                  textDecoration: 'none',
+                  transition: 'color 0.2s ease',
+                }}>
+                LIVE ↗
+              </a>
+            )}
+            <button
+              className="font-mono"
+              onClick={e => { e.stopPropagation(); onClick(); }}
+              data-cursor="view"
+              style={{
+                marginLeft: 'auto', fontSize: '9px', letterSpacing: '0.15em',
+                color: 'rgba(237,235,230,0.4)', background: 'none',
+                border: '1px solid rgba(255,255,255,0.08)', padding: '0.4rem 0.8rem',
+                borderRadius: '2px', cursor: 'none', transition: 'all 0.2s ease',
+              }}>
+              VIEW CASE →
+            </button>
+          </div>
         </div>
 
-        {/* Thumbnail */}
+        {/* ── Right: Thumbnail ── */}
         {project.thumbnail_url && (
-          <div style={{ width: '100%', height: '90px', overflow: 'hidden', borderRadius: '3px', marginBottom: '0.7rem', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <img src={project.thumbnail_url} alt={project.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover',
-                filter: isActive ? 'brightness(0.85)' : 'brightness(0.6)',
-                transition: 'filter 0.3s ease' }} />
+          <div style={{
+            borderRadius: '3px',
+            overflow: 'hidden',
+            border: `1px solid ${active ? 'rgba(200,16,46,0.35)' : 'rgba(255,255,255,0.06)'}`,
+            position: 'relative',
+            transition: 'border-color 0.3s ease',
+          }}>
+            <img
+              src={project.thumbnail_url}
+              alt={project.title}
+              style={{
+                width: '100%', height: '100%',
+                objectFit: 'cover',
+                filter: active ? 'brightness(0.9)' : 'brightness(0.55) grayscale(0.3)',
+                transition: 'filter 0.4s ease',
+              }}
+            />
+            {/* Scanline overlay */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px)',
+              pointerEvents: 'none',
+            }} />
+            {/* Thumbnail label */}
+            <div className="font-mono" style={{
+              position: 'absolute', bottom: 8, left: 8,
+              fontSize: '7px', letterSpacing: '0.15em',
+              color: 'rgba(200,16,46,0.8)',
+              background: 'rgba(8,8,8,0.85)',
+              padding: '0.2rem 0.5rem', borderRadius: '2px',
+              border: '1px solid rgba(200,16,46,0.25)',
+            }}>
+              PREVIEW
+            </div>
           </div>
         )}
-
-        {/* Title */}
-        <h3 className="font-bebas" style={{
-          fontSize: 'clamp(18px, 2vw, 22px)', margin: '0 0 0.4rem 0', lineHeight: 1.1,
-          color: isActive ? 'var(--text-primary)' : 'rgba(237,235,230,0.75)',
-        }}>{project.title}</h3>
-
-        {/* Category + Year */}
-        <div className="font-mono" style={{ fontSize: '8px', color: 'var(--red)', letterSpacing: '0.12em', marginBottom: '0.5rem', display: 'flex', gap: '0.6rem' }}>
-          <span>{project.category}</span>
-          <span style={{ opacity: 0.5 }}>·</span>
-          <span style={{ color: 'rgba(237,235,230,0.4)' }}>{project.year}</span>
-        </div>
-
-        {/* Tech tags */}
-        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-          {project.technologies.slice(0, 4).map(tech => (
-            <span key={tech} className="font-mono"
-              onMouseEnter={() => setHoveredTech(tech)}
-              onMouseLeave={() => setHoveredTech(null)}
-              style={{
-                fontSize: '7px', padding: '0.15rem 0.3rem',
-                border: `1px solid ${hoveredTech === tech ? 'var(--red)' : 'rgba(255,255,255,0.08)'}`,
-                backgroundColor: hoveredTech === tech ? 'rgba(200,16,46,0.15)' : 'transparent',
-                color: hoveredTech === tech ? 'var(--text-primary)' : 'rgba(237,235,230,0.4)',
-                cursor: 'pointer', transition: 'all 0.15s ease', borderRadius: '2px',
-              }}>{tech}</span>
-          ))}
-          {project.technologies.length > 4 && (
-            <span className="font-mono" style={{ fontSize: '7px', padding: '0.15rem 0.3rem', border: '1px solid rgba(200,16,46,0.3)', color: 'var(--red)', borderRadius: '2px' }}>
-              +{project.technologies.length - 4}
-            </span>
-          )}
-        </div>
-
-        {/* GitHub link */}
-        {isActive && project.github_url && (
-          <a href={project.github_url} target="_blank" rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()} data-cursor="open"
-            className="font-mono"
-            style={{ display: 'inline-block', marginTop: '0.6rem', fontSize: '8px', color: 'rgba(200,16,46,0.7)', textDecoration: 'none', letterSpacing: '0.1em' }}>
-            GITHUB ↗
-          </a>
-        )}
       </div>
-    </>
+    </div>
   );
 };
 
-// ── Main Work Section ──────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════
+   GHOST STATION (future project placeholder)
+═══════════════════════════════════════════════════════ */
+const GhostStation: React.FC<{ index: number }> = ({ index }) => (
+  <div style={{ position: 'relative', marginBottom: '1.5rem', opacity: 0.4 }}>
+    <div style={{
+      position: 'absolute', left: -25, top: '50%',
+      width: 8, height: 8, borderRadius: '50%',
+      border: '1px dashed rgba(200,16,46,0.3)',
+      transform: 'translateY(-50%)',
+    }} />
+    <div style={{
+      position: 'absolute', left: -17, top: '50%',
+      width: 20, height: 1,
+      background: 'linear-gradient(90deg, rgba(200,16,46,0.2), transparent)',
+      transform: 'translateY(-50%)',
+    }} />
+    <div style={{
+      border: '1px dashed rgba(200,16,46,0.15)',
+      borderLeft: '3px dashed rgba(200,16,46,0.2)',
+      borderRadius: '4px',
+      padding: '1.5rem',
+      display: 'flex', alignItems: 'center', gap: '1rem',
+    }}>
+      <div style={{
+        width: 28, height: 28, borderRadius: '50%',
+        border: '1px dashed rgba(200,16,46,0.25)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: 'rgba(200,16,46,0.3)', fontSize: '16px',
+      }}>+</div>
+      <div>
+        <div className="font-mono" style={{ fontSize: '8px', letterSpacing: '0.18em', color: 'rgba(200,16,46,0.3)', marginBottom: '0.25rem' }}>
+          STATION-0{index + 1}
+        </div>
+        <div className="font-mono" style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'rgba(237,235,230,0.2)' }}>
+          AWAITING SIGNAL TRANSMISSION
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ═══════════════════════════════════════════════════════
+   MAIN WORK SECTION
+═══════════════════════════════════════════════════════ */
 const Work: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ w: 900, h: 620 });
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
 
   const [headerRef, headerVisible] = useReveal<HTMLDivElement>({ threshold: 0.1 });
   const [sectionRef] = useReveal<HTMLElement>({ threshold: 0.05 });
@@ -297,34 +434,12 @@ const Work: React.FC = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Measure container for correct card positioning
-  const measureContainer = useCallback(() => {
-    if (containerRef.current) {
-      const r = containerRef.current.getBoundingClientRect();
-      setDimensions({ w: r.width, h: r.height });
-    }
-  }, []);
-
-  useEffect(() => {
-    measureContainer();
-    const ro = new ResizeObserver(measureContainer);
-    if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, [measureContainer]);
-
   const categories = ['ALL', ...Array.from(new Set(projects.map(p => p.category.toUpperCase())))];
   const filteredProjects = projects.filter(p =>
     selectedCategory === 'ALL' ? true : p.category.toUpperCase() === selectedCategory
   );
 
-  // Tower center in pixels
-  const cx = dimensions.w / 2;
-  const cy = dimensions.h / 2;
-  // Radius: adaptive
-  const radius = Math.min(cx - 160, cy - 120, 280);
-
-  // Assign angle per project (start at -90° = top, go clockwise)
-  const getAngle = (i: number, total: number) => -90 + (360 / Math.max(total, 1)) * i;
+  const anyHovered = hoveredId !== null;
 
   return (
     <section
@@ -335,195 +450,193 @@ const Work: React.FC = () => {
       <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, rgba(200,16,46,0.15), transparent)' }} />
 
       <div className="section-container">
-        {/* Chapter Header & Category Filter */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '2rem', marginBottom: '2.5rem' }}>
+
+        {/* ── Section Header + Filter ── */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '3rem' }}>
           <div ref={headerRef} className={`chapter-header reveal${headerVisible ? ' visible' : ''}`} style={{ marginBottom: 0 }}>
             <h2 className="font-bebas chapter-number">02</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
               <span className="font-mono signal-label">SIGNAL 02</span>
-              <span className="font-mono" style={{ fontSize: '14px', color: 'var(--text-primary)', letterSpacing: '0.18em' }}>
-                WORK
-              </span>
+              <span className="font-mono" style={{ fontSize: '14px', color: 'var(--text-primary)', letterSpacing: '0.18em' }}>WORK</span>
             </div>
           </div>
 
-          {/* Category Filter */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {categories.map(cat => (
-              <button key={cat} data-cursor="pointer" onClick={() => setSelectedCategory(cat)} className="font-mono"
+              <button key={cat} data-cursor="pointer" onClick={() => setSelectedCategory(cat)}
+                className="font-mono"
                 style={{
-                  fontSize: '9px', padding: '0.4rem 0.8rem',
+                  fontSize: '9px', padding: '0.4rem 0.9rem', cursor: 'none',
                   border: `1px solid ${selectedCategory === cat ? 'var(--red)' : 'rgba(255,255,255,0.08)'}`,
                   backgroundColor: selectedCategory === cat ? 'rgba(200,16,46,0.12)' : 'var(--bg-3)',
                   color: selectedCategory === cat ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  letterSpacing: '0.12em', cursor: 'pointer', transition: 'all 0.2s ease',
-                }}>
-                {cat}
-              </button>
+                  letterSpacing: '0.12em', transition: 'all 0.2s ease', borderRadius: '2px',
+                }}>{cat}</button>
             ))}
           </div>
         </div>
 
-        {/* Tech highlight indicator */}
+        {/* Tech highlight banner */}
         {hoveredTech && (
-          <div className="font-mono" style={{ fontSize: '9px', color: 'var(--red)', letterSpacing: '0.15em', marginBottom: '1rem', animation: 'fadeIn 0.2s ease' }}>
-            HIGHLIGHTING STATIONS USING: {hoveredTech.toUpperCase()}
+          <div className="font-mono" style={{
+            fontSize: '9px', letterSpacing: '0.15em',
+            color: 'var(--red)', marginBottom: '1.2rem',
+          }}>
+            ↳ HIGHLIGHTING STATIONS USING: <strong>{hoveredTech.toUpperCase()}</strong>
           </div>
         )}
 
-        {/* ── SIGNAL BROADCAST TOWER ORBITAL LAYOUT ── */}
-        {loading ? (
-          <div style={{ width: '100%', height: '280px', background: 'linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.8s infinite' }} />
-        ) : (
-          <div
-            ref={containerRef}
-            style={{ position: 'relative', width: '100%', minHeight: '620px', userSelect: 'none' }}
-          >
-            {/* ── Concentric Signal Rings ── */}
-            {[1, 2, 3].map((n) => (
-              <div key={n} style={{
+        {/* ── BROADCAST LAYOUT ── */}
+        <div style={{ display: 'flex', gap: 0, alignItems: 'stretch', minHeight: '480px' }}>
+
+          {/* ── LEFT: Signal Source Panel ── */}
+          <div style={{
+            flex: '0 0 200px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            borderRight: '1px solid rgba(200,16,46,0.15)',
+            paddingRight: '1.5rem',
+            position: 'relative',
+          }}>
+            {/* Ambient rings behind tower */}
+            {[80, 60, 40].map((r, i) => (
+              <div key={i} style={{
                 position: 'absolute',
-                left: cx - radius * n * 0.42,
-                top: cy - radius * n * 0.42,
-                width: radius * n * 0.84,
-                height: radius * n * 0.84,
+                top: '50px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: r * 2,
+                height: r * 2,
                 borderRadius: '50%',
-                border: `1px dashed rgba(200,16,46,${0.18 - n * 0.04})`,
+                border: `1px solid rgba(200,16,46,${0.06 - i * 0.015})`,
                 pointerEvents: 'none',
-                zIndex: 0,
-                animation: `signalRingPulse${n} ${4 + n * 2}s ease-in-out infinite`,
+                animation: `towerRingFade ${5 + i * 2}s ease-in-out infinite`,
+                animationDelay: `${i * 0.8}s`,
               }} />
             ))}
 
-            {/* Radar sweep beam that rotates around center */}
-            <div style={{
-              position: 'absolute',
-              left: cx - radius * 1.2,
-              top: cy - radius * 1.2,
-              width: radius * 2.4,
-              height: radius * 2.4,
-              borderRadius: '50%',
-              background: 'conic-gradient(from 0deg at 50% 50%, rgba(200,16,46,0.12) 0deg, transparent 55deg, transparent 360deg)',
-              animation: 'radarSweep 8s linear infinite',
-              pointerEvents: 'none',
-              zIndex: 1,
-              overflow: 'hidden',
-            }} />
-
-            {/* ── Tower Center ── */}
-            <div style={{
-              position: 'absolute',
-              left: cx,
-              top: cy,
-              transform: 'translate(-50%, -62%)',
-              zIndex: 5,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}>
-              <BroadcastTower active={hoveredId !== null} />
-
-              {/* Platform base label */}
-              <div className="font-mono" style={{
-                fontSize: '8px',
-                color: 'var(--red)',
-                letterSpacing: '0.22em',
-                backgroundColor: 'rgba(8,8,8,0.9)',
-                border: '1px solid rgba(200,16,46,0.35)',
-                padding: '0.3rem 0.8rem',
-                borderRadius: '3px',
-                boxShadow: '0 0 16px rgba(200,16,46,0.25)',
-                whiteSpace: 'nowrap',
-              }}>
-                THE SIGNAL
-              </div>
-
-              {/* Live status */}
-              <div className="font-mono" style={{ fontSize: '7px', color: 'rgba(237,235,230,0.4)', letterSpacing: '0.15em', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                <span style={{ width: 5, height: 5, backgroundColor: '#00FF66', borderRadius: '50%', boxShadow: '0 0 6px #00FF66', display: 'inline-block' }} />
-                {filteredProjects.length} STATION{filteredProjects.length !== 1 ? 'S' : ''} ACTIVE
-              </div>
+            {/* Tower */}
+            <div style={{ marginTop: '2rem', position: 'relative', zIndex: 1 }}>
+              <BroadcastTower active={anyHovered} />
             </div>
 
-            {/* ── Project Station Cards ── */}
-            {filteredProjects.map((project, i) => (
-              <StationCard
-                key={project.id}
-                project={project}
-                index={i}
-                angle={getAngle(i, filteredProjects.length)}
-                radius={radius}
-                centerX={cx}
-                centerY={cy}
-                hoveredId={hoveredId}
-                onHover={setHoveredId}
-                onClick={() => setSelectedProject(project)}
-                hoveredTech={hoveredTech}
-                setHoveredTech={setHoveredTech}
-              />
-            ))}
-
-            {/* "Incoming signal" ghost slots for future projects */}
-            {filteredProjects.length < 3 &&
-              Array.from({ length: 3 - filteredProjects.length }).map((_, gi) => {
-                const ghostAngle = getAngle(filteredProjects.length + gi, 3);
-                const ghRad = (ghostAngle * Math.PI) / 180;
-                const gx = cx + radius * Math.cos(ghRad);
-                const gy = cy + radius * Math.sin(ghRad);
-                return (
-                  <div key={`ghost-${gi}`} style={{
-                    position: 'absolute',
-                    left: gx - 80,
-                    top: gy - 60,
-                    width: 160,
-                    height: 120,
-                    border: '1px dashed rgba(200,16,46,0.15)',
-                    borderRadius: '6px',
-                    zIndex: 4,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem',
-                    pointerEvents: 'none',
-                    opacity: 0.6,
-                  }}>
-                    <div className="font-mono" style={{ fontSize: '7px', color: 'rgba(200,16,46,0.3)', letterSpacing: '0.2em' }}>STATION-0{filteredProjects.length + gi + 1}</div>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1px dashed rgba(200,16,46,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div style={{ fontSize: '10px', color: 'rgba(200,16,46,0.3)' }}>+</div>
-                    </div>
-                    <div className="font-mono" style={{ fontSize: '6px', color: 'rgba(200,16,46,0.2)', letterSpacing: '0.15em' }}>AWAITING SIGNAL</div>
+            {/* HUD Status Block */}
+            <div style={{
+              marginTop: '1.5rem',
+              width: '100%',
+              background: 'rgba(12,8,8,0.9)',
+              border: '1px solid rgba(200,16,46,0.25)',
+              borderRadius: '3px',
+              padding: '0.8rem',
+            }}>
+              <div className="font-mono" style={{
+                fontSize: '7px', letterSpacing: '0.2em',
+                color: 'var(--red)', textAlign: 'center',
+                borderBottom: '1px solid rgba(200,16,46,0.15)',
+                paddingBottom: '0.5rem', marginBottom: '0.6rem',
+              }}>THE SIGNAL</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                {[
+                  { label: 'STATUS', value: 'BROADCASTING', color: '#00FF66' },
+                  { label: 'STATIONS', value: `${filteredProjects.length} ACTIVE`, color: 'var(--red)' },
+                  { label: 'FREQ', value: '2.4GHz', color: 'rgba(237,235,230,0.5)' },
+                ].map(row => (
+                  <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="font-mono" style={{ fontSize: '6px', letterSpacing: '0.12em', color: 'rgba(237,235,230,0.3)' }}>
+                      {row.label}
+                    </span>
+                    <span className="font-mono" style={{ fontSize: '6px', letterSpacing: '0.1em', color: row.color }}>
+                      {row.value}
+                    </span>
                   </div>
-                );
-              })
-            }
+                ))}
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* ── CENTER: Vertical Spine + traveling signal ── */}
+          <div style={{
+            flex: '0 0 50px',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'stretch',
+          }}>
+            {/* Vertical spine line */}
+            <div style={{
+              position: 'absolute',
+              left: '50%',
+              top: 0,
+              bottom: 0,
+              width: 1,
+              background: 'linear-gradient(180deg, rgba(200,16,46,0.5) 0%, rgba(200,16,46,0.08) 100%)',
+            }} />
+            {/* Traveling signal dot on spine */}
+            <div style={{
+              position: 'absolute',
+              left: 'calc(50% - 3px)',
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              backgroundColor: '#C8102E',
+              boxShadow: '0 0 8px #C8102E',
+              animation: 'signalTravel 3s linear infinite',
+            }} />
+          </div>
+
+          {/* ── RIGHT: Project Receiving Stations ── */}
+          <div style={{ flex: 1, paddingLeft: '1.5rem', paddingTop: '0.5rem' }}>
+            {loading ? (
+              <div style={{
+                height: '200px',
+                background: 'linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.8s infinite',
+                borderRadius: '4px',
+              }} />
+            ) : (
+              <>
+                {filteredProjects.map((project, i) => (
+                  <StationCard
+                    key={project.id}
+                    project={project}
+                    index={i}
+                    isHovered={hoveredId === project.id}
+                    isTechHighlighted={hoveredTech ? project.technologies.includes(hoveredTech) : false}
+                    onHover={setHoveredId}
+                    onClick={() => setSelectedProject(project)}
+                    hoveredTech={hoveredTech}
+                    setHoveredTech={setHoveredTech}
+                  />
+                ))}
+
+                {/* Ghost slots */}
+                {filteredProjects.length < 3 &&
+                  Array.from({ length: 3 - filteredProjects.length }).map((_, gi) => (
+                    <GhostStation key={`ghost-${gi}`} index={filteredProjects.length + gi} />
+                  ))
+                }
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
 
       <style>{`
+        @keyframes towerRingFade {
+          0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+          50%       { opacity: 1;   transform: translateX(-50%) scale(1.06); }
+        }
+        @keyframes signalTravel {
+          0%   { top: 0%; opacity: 1; }
+          80%  { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+        }
         @keyframes shimmer {
           0%   { background-position: 200% 0; }
           100% { background-position: -200% 0; }
-        }
-        @keyframes radarSweep {
-          0%   { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes signalRingPulse1 {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50%       { opacity: 1;   transform: scale(1.03); }
-        }
-        @keyframes signalRingPulse2 {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50%       { opacity: 0.8; transform: scale(1.02); }
-        }
-        @keyframes signalRingPulse3 {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50%       { opacity: 0.5; transform: scale(1.01); }
         }
       `}</style>
     </section>
