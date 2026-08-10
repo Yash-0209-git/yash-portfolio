@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { playTransmissionSound, playBeep } from '../utils/audio';
-
+import { STATIC_PROJECTS } from '../api';
 import FlappyBirdApp from './FlappyBirdApp';
 
-type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | 'flappy_bird' | null;
+type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | 'flappy_bird' | 'projects' | null;
 
 export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
   const [activeWindow, setActiveWindow] = useState<ActiveWindow>('this_pc');
@@ -150,6 +150,14 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           icon="📄"
           label="About Me.txt"
           onClick={() => openApp('about_me')}
+        />
+
+        {/* 🗂️ Projects */}
+        <DesktopIcon
+          icon="🗂️"
+          label="Projects"
+          badge="NEW"
+          onClick={() => openApp('projects')}
         />
 
         {/* 🐙 GitHub */}
@@ -366,6 +374,85 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
         </WindowsFrame>
       )}
 
+      {/* WINDOW 6: PROJECTS */}
+      {activeWindow === 'projects' && (
+        <WindowsFrame title="Projects — Portfolio" onClose={() => setActiveWindow(null)}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', marginBottom: '0.5rem' }}>
+              {STATIC_PROJECTS.length} PROJECT{STATIC_PROJECTS.length !== 1 ? 'S' : ''} — CLICK THUMBNAIL TO OPEN GITHUB REPO
+            </div>
+            {STATIC_PROJECTS.map((project) => (
+              <div
+                key={project.id}
+                onClick={() => openExternal(project.github_url || 'https://github.com/Yash-0209-git')}
+                data-cursor="pointer"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '140px 1fr',
+                  gap: '1rem',
+                  backgroundColor: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(200,16,46,0.18)',
+                  borderRadius: '5px',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--red)';
+                  e.currentTarget.style.backgroundColor = 'rgba(200,16,46,0.08)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'rgba(200,16,46,0.18)';
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
+                }}
+              >
+                {/* Thumbnail */}
+                <div style={{ position: 'relative', height: '90px', overflow: 'hidden', backgroundColor: '#0a0a0a' }}>
+                  {project.thumbnail_url ? (
+                    <img
+                      src={project.thumbnail_url}
+                      alt={project.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.75)' }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🗂️</div>
+                  )}
+                  {/* GitHub overlay icon */}
+                  <div style={{
+                    position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', opacity: 0,
+                    background: 'rgba(200,16,46,0.6)',
+                    fontSize: '22px', transition: 'opacity 0.2s ease',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+                  >🐙</div>
+                </div>
+
+                {/* Info */}
+                <div style={{ padding: '0.75rem 0.75rem 0.75rem 0', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.35rem' }}>
+                  <div style={{ color: 'white', fontSize: '13px', fontWeight: 700 }}>{project.title}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '10px', lineHeight: 1.4 }}>
+                    {project.short_description?.slice(0, 90)}{(project.short_description?.length ?? 0) > 90 ? '...' : ''}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+                    <span style={{ fontSize: '9px', padding: '0.15rem 0.4rem', border: '1px solid rgba(200,16,46,0.35)', borderRadius: '2px', color: 'var(--red)' }}>
+                      {project.category}
+                    </span>
+                    <span style={{ fontSize: '9px', padding: '0.15rem 0.4rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '2px', color: 'rgba(255,255,255,0.4)' }}>
+                      {project.year}
+                    </span>
+                    <span style={{ fontSize: '9px', padding: '0.15rem 0.4rem', border: '1px solid rgba(0,255,102,0.3)', borderRadius: '2px', color: 'rgba(0,255,102,0.7)' }}>
+                      {project.status?.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </WindowsFrame>
+      )}
+
       {/* Start Menu Popover */}
       {startMenuOpen && (
         <div
@@ -391,6 +478,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           </div>
           <StartMenuItem icon="💻" label="This PC" onClick={() => openApp('this_pc')} />
           <StartMenuItem icon="📁" label="File Manager" onClick={() => openApp('file_manager')} />
+          <StartMenuItem icon="🗂️" label="Projects" onClick={() => openApp('projects')} />
           <StartMenuItem icon="🐤" label="Flappy Bird.exe" onClick={() => openApp('flappy_bird')} />
           <StartMenuItem icon="📄" label="About Me.txt" onClick={() => openApp('about_me')} />
           <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0.4rem 0' }} />
