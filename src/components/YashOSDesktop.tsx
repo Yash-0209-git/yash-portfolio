@@ -3,9 +3,10 @@ import { playTransmissionSound, playBeep } from '../utils/audio';
 import { STATIC_PROJECTS } from '../api';
 import FlappyBirdApp from './FlappyBirdApp';
 import TaskManagerApp from './TaskManagerApp';
+import RAGChatbotApp from './RAGChatbotApp';
 import MatrixWallpaperCanvas, { WallpaperMode } from './MatrixWallpaperCanvas';
 
-type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | 'flappy_bird' | 'projects' | 'task_manager' | 'wallpapers' | null;
+type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | 'flappy_bird' | 'projects' | 'task_manager' | 'wallpapers' | 'rag_bot' | null;
 
 export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
   const [activeWindow, setActiveWindow] = useState<ActiveWindow>('this_pc');
@@ -165,6 +166,14 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           label="Projects"
           badge="NEW"
           onClick={() => openApp('projects')}
+        />
+
+        {/* 🤖 RAG Assistant */}
+        <DesktopIcon
+          icon="🤖"
+          label="RAG Assistant"
+          badge="AI"
+          onClick={() => openApp('rag_bot')}
         />
 
         {/* ⚡ Task Manager */}
@@ -534,6 +543,13 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
         </WindowsFrame>
       )}
 
+      {/* WINDOW 9: RAG CHATBOT ASSISTANT */}
+      {activeWindow === 'rag_bot' && (
+        <WindowsFrame title="RAG Assistant.exe — Technical AI Chatbot" onClose={() => setActiveWindow(null)}>
+          <RAGChatbotApp />
+        </WindowsFrame>
+      )}
+
       {/* Start Menu Popover */}
       {startMenuOpen && (
         <div
@@ -560,6 +576,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           <StartMenuItem icon="💻" label="This PC" onClick={() => openApp('this_pc')} />
           <StartMenuItem icon="📁" label="File Manager" onClick={() => openApp('file_manager')} />
           <StartMenuItem icon="🗂️" label="Projects" onClick={() => openApp('projects')} />
+          <StartMenuItem icon="🤖" label="RAG Assistant.exe" onClick={() => openApp('rag_bot')} />
           <StartMenuItem icon="⚡" label="Task Manager.exe" onClick={() => openApp('task_manager')} />
           <StartMenuItem icon="🖼️" label="Wallpapers.exe" onClick={() => openApp('wallpapers')} />
           <StartMenuItem icon="🐤" label="Flappy Bird.exe" onClick={() => openApp('flappy_bird')} />
