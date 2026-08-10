@@ -15,8 +15,20 @@ interface Certificate {
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+const FALLBACK_CERTS: Certificate[] = [
+  {
+    id: 'hack-a-cure',
+    title: 'Hack A Cure',
+    issuer: 'VIT, Chennai (TechnoVIT\'25)',
+    issue_date: '28/10/2025',
+    category: 'Hackathon',
+    image_url: '/certificates/hack_a_cure.jpg',
+    visible: true,
+  },
+];
+
 const Certificates: React.FC = () => {
-  const [certs, setCerts] = useState<Certificate[]>([]);
+  const [certs, setCerts] = useState<Certificate[]>(FALLBACK_CERTS);
   const [loading, setLoading] = useState(true);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [headerRef, headerVisible] = useReveal<HTMLDivElement>({ threshold: 0.1 });
@@ -25,10 +37,17 @@ const Certificates: React.FC = () => {
     fetch(`${API_BASE}/api/certificates`)
       .then(r => r.json())
       .then((data: Certificate[]) => {
-        if (Array.isArray(data) && data.length > 0) setCerts(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setCerts(data);
+        } else {
+          setCerts(FALLBACK_CERTS);
+        }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setCerts(FALLBACK_CERTS);
+        setLoading(false);
+      });
   }, []);
 
   return (
