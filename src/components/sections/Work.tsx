@@ -138,9 +138,38 @@ const Work: React.FC = () => {
               animation: 'fadeIn 0.2s ease',
             }}
           >
-            HIGLIGHTING PROJECTS USING: {hoveredTech.toUpperCase()}
+            HIGHLIGHTING PROJECTS USING: {hoveredTech.toUpperCase()}
           </div>
         )}
+
+        {/* Sci-Fi Mission Control Command Center Telemetry Bar */}
+        <div
+          className="font-mono"
+          style={{
+            backgroundColor: 'rgba(8,8,8,0.92)',
+            border: '1px solid rgba(200,16,46,0.35)',
+            borderRadius: '4px',
+            padding: '0.75rem 1.25rem',
+            marginBottom: '2rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            fontSize: '9px',
+            color: 'rgba(237,235,230,0.65)',
+            letterSpacing: '0.12em',
+            boxShadow: '0 0 24px rgba(200,16,46,0.18)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ color: 'var(--red)', fontWeight: 700 }}>MISSION CONTROL // COMMAND CENTER</span>
+            <span style={{ width: '6px', height: '6px', backgroundColor: '#00FF66', borderRadius: '50%', boxShadow: '0 0 8px #00FF66' }} />
+          </div>
+          <div>● RADAR SWEEP: ACTIVE</div>
+          <div>● AI ENGINE: GROQ & GEMINI (0.14ms)</div>
+          <div>● DEPLOYED MODULES: {projects.length} ONLINE</div>
+        </div>
 
         {loading ? (
           <SkeletonLoader />
@@ -186,6 +215,10 @@ const Work: React.FC = () => {
         @keyframes shimmer {
           0%   { background-position: 200% 0; }
           100% { background-position: -200% 0; }
+        }
+        @keyframes radarSweep {
+          0%   { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </section>
@@ -258,6 +291,29 @@ const FeaturedCard: React.FC<CardProps> = ({ project, onClick, hoveredTech, setH
           boxShadow: hovered || isTechMatch ? '0 16px 48px rgba(200,16,46,0.2)' : '0 4px 24px rgba(0,0,0,0.2)',
         }}
       >
+        {/* Radar Sweep Beam on Hover */}
+        {(hovered || isTechMatch) && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '-50%',
+              left: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'conic-gradient(from 0deg at 50% 50%, rgba(200,16,46,0.18) 0deg, transparent 60deg, transparent 360deg)',
+              animation: 'radarSweep 4s linear infinite',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        )}
+
+        {/* HUD Corner Brackets */}
+        <div style={{ position: 'absolute', top: 4, left: 4, width: 8, height: 8, borderTop: '2px solid var(--red)', borderLeft: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+        <div style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderTop: '2px solid var(--red)', borderRight: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+        <div style={{ position: 'absolute', bottom: 4, left: 4, width: 8, height: 8, borderBottom: '2px solid var(--red)', borderLeft: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+        <div style={{ position: 'absolute', bottom: 4, right: 4, width: 8, height: 8, borderBottom: '2px solid var(--red)', borderRight: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+
         {/* Mouse-follow inner glow */}
         {(hovered || isTechMatch) && (
           <div
@@ -450,6 +506,29 @@ const RegularCard: React.FC<RegularCardProps> = ({ project, index, onClick, hove
           boxShadow: hovered || isTechMatch ? '0 12px 36px rgba(200,16,46,0.18)' : 'none',
         }}
       >
+        {/* Radar Sweep Beam on Hover */}
+        {(hovered || isTechMatch) && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '-50%',
+              left: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'conic-gradient(from 0deg at 50% 50%, rgba(200,16,46,0.14) 0deg, transparent 60deg, transparent 360deg)',
+              animation: 'radarSweep 4s linear infinite',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        )}
+
+        {/* HUD Corner Brackets */}
+        <div style={{ position: 'absolute', top: 4, left: 4, width: 8, height: 8, borderTop: '2px solid var(--red)', borderLeft: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+        <div style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderTop: '2px solid var(--red)', borderRight: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+        <div style={{ position: 'absolute', bottom: 4, left: 4, width: 8, height: 8, borderBottom: '2px solid var(--red)', borderLeft: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+        <div style={{ position: 'absolute', bottom: 4, right: 4, width: 8, height: 8, borderBottom: '2px solid var(--red)', borderRight: '2px solid var(--red)', opacity: hovered ? 1 : 0.35, zIndex: 2 }} />
+
         {(hovered || isTechMatch) && (
           <div
             style={{
