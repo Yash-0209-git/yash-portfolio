@@ -574,7 +574,7 @@ const Entry: React.FC = () => {
             ))}
           </div>
 
-          {/* Image Container — Un-boxed, seamlessly blended, clickable */}
+          {/* Image Container — Un-boxed, full right space coverage, transparent website background blend */}
           <div
             data-cursor="enter"
             onClick={() => document.getElementById('identity')?.scrollIntoView({ behavior: 'smooth' })}
@@ -582,17 +582,19 @@ const Entry: React.FC = () => {
             onMouseLeave={() => setImageHovered(false)}
             style={{
               position: 'relative',
-              width: 'min(100%, 460px)',
-              aspectRatio: '1/1',
+              width: '100%',
+              height: '100%',
+              minHeight: '500px',
+              maxHeight: '75vh',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'transform 0.5s ease',
-              transform: imageHovered ? 'scale(1.03)' : 'scale(1)',
+              transform: imageHovered ? 'scale(1.02)' : 'scale(1)',
             }}
           >
-            {/* Main Portrait Image — Radial mask feathered fade */}
+            {/* Main Portrait Image — Seamless multi-edge mask fade to website background */}
             <img
               src="/profile.jpg"
               alt="C Yashwanth — AI Full Stack Developer"
@@ -600,13 +602,13 @@ const Entry: React.FC = () => {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                objectPosition: 'center 20%',
+                objectPosition: 'center 15%',
                 filter: imageHovered
-                  ? 'brightness(0.72) contrast(1.15) opacity(0.85)'
-                  : 'brightness(0.5) contrast(1.1) opacity(0.65)',
+                  ? 'brightness(0.85) contrast(1.15) opacity(0.92)'
+                  : 'brightness(0.65) contrast(1.1) opacity(0.78)',
                 transition: 'filter 0.4s ease, transform 0.6s cubic-bezier(0.4,0,0.2,1)',
-                maskImage: 'radial-gradient(circle at 50% 42%, black 30%, rgba(0,0,0,0.7) 60%, transparent 88%)',
-                WebkitMaskImage: 'radial-gradient(circle at 50% 42%, black 30%, rgba(0,0,0,0.7) 60%, transparent 88%)',
+                maskImage: 'radial-gradient(ellipse 88% 88% at 50% 45%, black 35%, rgba(0,0,0,0.75) 65%, transparent 98%)',
+                WebkitMaskImage: 'radial-gradient(ellipse 88% 88% at 50% 45%, black 35%, rgba(0,0,0,0.75) 65%, transparent 98%)',
                 pointerEvents: 'none',
               }}
             />
