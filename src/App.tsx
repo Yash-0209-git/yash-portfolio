@@ -27,9 +27,8 @@ function App() {
 
       const keyStr = keyBuffer.join('');
 
-      // Match "konami", "overdrive", or Arrow key sequence
+      // Match Arrow key sequence or overdrive keyword
       if (
-        keyStr.includes('konami') ||
         keyStr.includes('overdrive') ||
         keyStr.includes('arrowuparrowuparrowdownarrowdownarrowleftarrowrightarrowleftarrowrightba')
       ) {

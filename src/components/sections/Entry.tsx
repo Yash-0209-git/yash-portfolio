@@ -39,7 +39,7 @@ const TERMINAL_LINES = [
   '> SIGNAL LOCKED ██████████ 100%',
   '> IDENTITY LOADED',
   '> PORTFOLIO ONLINE',
-  '> SECRET: TYPE "konami" OR ↑ ↑ ↓ ↓ ← → ← → B A',
+  '> SECRET CODE: ↑ ↑ ↓ ↓ ← → ← → B A',
 ];
 
 const Entry: React.FC = () => {
