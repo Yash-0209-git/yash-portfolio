@@ -39,6 +39,7 @@ const TERMINAL_LINES = [
   '> SIGNAL LOCKED ██████████ 100%',
   '> IDENTITY LOADED',
   '> PORTFOLIO ONLINE',
+  '> SECRET: TYPE "konami" OR ↑ ↑ ↓ ↓ ← → ← → B A',
 ];
 
 const Entry: React.FC = () => {
@@ -280,7 +281,7 @@ const Entry: React.FC = () => {
               className="font-mono"
               style={{
                 fontSize: '9px',
-                color: i === terminalLines.length - 1 ? 'rgba(200,16,46,0.8)' : 'rgba(200,16,46,0.35)',
+                color: i === terminalLines.length - 1 ? 'var(--red)' : 'rgba(200,16,46,0.4)',
                 letterSpacing: '0.06em',
                 lineHeight: 1.7,
                 animation: 'typeIn 0.3s ease',
@@ -292,6 +293,29 @@ const Entry: React.FC = () => {
               )}
             </div>
           ))}
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('trigger-overdrive'))}
+            data-cursor="pointer"
+            className="font-mono"
+            style={{
+              marginTop: '0.4rem',
+              background: 'none',
+              border: 'none',
+              color: 'var(--red)',
+              fontSize: '9px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              letterSpacing: '0.12em',
+              padding: 0,
+              textAlign: 'left',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              opacity: 0.8,
+            }}
+          >
+            <span>▶ [OVERDRIVE DOSSIER]: CLICK TO UNLOCK</span>
+          </button>
         </div>
       </div>
 

@@ -14,41 +14,40 @@ import Certificates from './components/sections/Certificates';
 import Achievements from './components/sections/Achievements';
 import Contact from './components/sections/Contact';
 
-const KONAMI_CODE = [
-  'ArrowUp', 'ArrowUp',
-  'ArrowDown', 'ArrowDown',
-  'ArrowLeft', 'ArrowRight',
-  'ArrowLeft', 'ArrowRight',
-  'b', 'a'
-];
-
 function App() {
   const [introComplete, setIntroComplete] = useState(() => !!sessionStorage.getItem('intro-shown'));
   const [overdrive, setOverdrive] = useState(false);
 
   useEffect(() => {
-    let inputSequence: string[] = [];
+    let keyBuffer: string[] = [];
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      inputSequence.push(key);
+      keyBuffer.push(e.key.toLowerCase());
+      if (keyBuffer.length > 20) keyBuffer.shift();
 
-      if (inputSequence.length > KONAMI_CODE.length) {
-        inputSequence.shift();
-      }
+      const keyStr = keyBuffer.join('');
 
-      const isMatch = KONAMI_CODE.every(
-        (expectedKey, index) => inputSequence[index] === expectedKey.toLowerCase()
-      );
-
-      if (isMatch) {
+      // Match "konami", "overdrive", or Arrow key sequence
+      if (
+        keyStr.includes('konami') ||
+        keyStr.includes('overdrive') ||
+        keyStr.includes('arrowuparrowuparrowdownarrowdownarrowleftarrowrightarrowleftarrowrightba') ||
+        keyStr.includes('wasa')
+      ) {
         setOverdrive(true);
-        inputSequence = [];
+        keyBuffer = [];
       }
     };
 
+    const handleCustomTrigger = () => setOverdrive(true);
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('trigger-overdrive', handleCustomTrigger);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('trigger-overdrive', handleCustomTrigger);
+    };
   }, []);
 
   return (
