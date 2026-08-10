@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { playTransmissionSound, playBeep } from '../utils/audio';
 import { STATIC_PROJECTS } from '../api';
 import FlappyBirdApp from './FlappyBirdApp';
+import TaskManagerApp from './TaskManagerApp';
+import MatrixWallpaperCanvas, { WallpaperMode } from './MatrixWallpaperCanvas';
 
-type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | 'flappy_bird' | 'projects' | null;
+type ActiveWindow = 'this_pc' | 'file_manager' | 'about_me' | 'cert_preview' | 'flappy_bird' | 'projects' | 'task_manager' | 'wallpapers' | null;
 
 export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
   const [activeWindow, setActiveWindow] = useState<ActiveWindow>('this_pc');
@@ -11,6 +13,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
   const [selectedCertImg, setSelectedCertImg] = useState('/certificates/hack_a_cure.jpg');
+  const [wallpaperMode, setWallpaperMode] = useState<WallpaperMode>('signal_mesh');
 
   useEffect(() => {
     playTransmissionSound();
@@ -49,6 +52,9 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
         animation: 'fadeIn 0.3s ease-out',
       }}
     >
+      {/* Dynamic Background Canvas (Wallpaper Engine) */}
+      <MatrixWallpaperCanvas mode={wallpaperMode} />
+
       {/* Windows CRT / Grid Mesh Overlay */}
       <div
         style={{
@@ -159,6 +165,22 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           label="Projects"
           badge="NEW"
           onClick={() => openApp('projects')}
+        />
+
+        {/* ⚡ Task Manager */}
+        <DesktopIcon
+          icon="⚡"
+          label="Task Manager"
+          badge="SYS"
+          onClick={() => openApp('task_manager')}
+        />
+
+        {/* 🖼️ Wallpapers */}
+        <DesktopIcon
+          icon="🖼️"
+          label="Wallpapers"
+          badge="MOD"
+          onClick={() => openApp('wallpapers')}
         />
 
         {/* 🐙 GitHub */}
@@ -464,6 +486,54 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
         </WindowsFrame>
       )}
 
+      {/* WINDOW 7: TASK MANAGER */}
+      {activeWindow === 'task_manager' && (
+        <WindowsFrame title="Task Manager.exe — Live Telemetry Monitor" onClose={() => setActiveWindow(null)}>
+          <TaskManagerApp />
+        </WindowsFrame>
+      )}
+
+      {/* WINDOW 8: WALLPAPER SELECTOR */}
+      {activeWindow === 'wallpapers' && (
+        <WindowsFrame title="Wallpapers — Desktop Personalization" onClose={() => setActiveWindow(null)}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>
+              SELECT DESKTOP BACKGROUND MATRIX ENGINE:
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              {[
+                { mode: 'signal_mesh', name: 'Signal Mesh', desc: 'Radial crimson telemetry grid' },
+                { mode: 'matrix_rain', name: 'Matrix Code Rain', desc: 'Falling crimson digital code stream' },
+                { mode: 'cyber_grid', name: 'Cyber Grid', desc: 'Perspective 3D moving grid' },
+                { mode: 'crt_lines', name: 'CRT Phosphor Scan', desc: 'Retro TV scanlines & phosphor bloom' },
+              ].map(item => (
+                <div
+                  key={item.mode}
+                  onClick={() => {
+                    setWallpaperMode(item.mode as WallpaperMode);
+                    playBeep(700, 0.05);
+                  }}
+                  data-cursor="pointer"
+                  style={{
+                    padding: '1rem',
+                    backgroundColor: wallpaperMode === item.mode ? 'rgba(200,16,46,0.2)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${wallpaperMode === item.mode ? 'var(--red)' : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <div style={{ color: 'white', fontWeight: 700, fontSize: '13px', marginBottom: '0.3rem' }}>
+                    {wallpaperMode === item.mode ? '● ' : ''}{item.name}
+                  </div>
+                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{item.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </WindowsFrame>
+      )}
+
       {/* Start Menu Popover */}
       {startMenuOpen && (
         <div
@@ -490,6 +560,8 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           <StartMenuItem icon="💻" label="This PC" onClick={() => openApp('this_pc')} />
           <StartMenuItem icon="📁" label="File Manager" onClick={() => openApp('file_manager')} />
           <StartMenuItem icon="🗂️" label="Projects" onClick={() => openApp('projects')} />
+          <StartMenuItem icon="⚡" label="Task Manager.exe" onClick={() => openApp('task_manager')} />
+          <StartMenuItem icon="🖼️" label="Wallpapers.exe" onClick={() => openApp('wallpapers')} />
           <StartMenuItem icon="🐤" label="Flappy Bird.exe" onClick={() => openApp('flappy_bird')} />
           <StartMenuItem icon="📄" label="About Me.txt" onClick={() => openApp('about_me')} />
           <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0.4rem 0' }} />
