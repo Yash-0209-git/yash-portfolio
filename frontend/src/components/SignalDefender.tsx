@@ -1,92 +1,160 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { playBeep, playTransmissionSound } from '../utils/audio';
 
-interface BugNode {
+interface FallingItem {
   id: number;
   x: number;
   y: number;
   speed: number;
   label: string;
   points: number;
-  radius: number;
+  isBug: boolean;
+  color: string;
 }
 
-interface Explosion {
-  id: number;
-  x: number;
-  y: number;
-  alpha: number;
-}
+const GOOD_ITEMS = [
+  { label: 'PYTHON_CORE', points: 20, color: '#60a5fa' },
+  { label: 'FASTAPI_API', points: 25, color: '#34d399' },
+  { label: 'REACT_UI', points: 15, color: '#a78bfa' },
+  { label: 'GROQ_AI', points: 40, color: '#f59e0b' },
+  { label: 'CERTIFICATE', points: 50, color: '#C8102E' },
+  { label: 'LEESCULPT', points: 100, color: '#ec4899' },
+];
 
-const BUG_TYPES = [
-  { label: '404_NOT_FOUND', points: 10, radius: 24 },
-  { label: 'NULL_POINTER', points: 20, radius: 20 },
-  { label: 'MEMORY_LEAK', points: 30, radius: 18 },
-  { label: 'SYNTAX_ERROR', points: 15, radius: 22 },
-  { label: 'RACE_CONDITION', points: 50, radius: 16 },
+const BAD_ITEMS = [
+  { label: 'BUG: 404', points: 0, color: '#ef4444' },
+  { label: 'NULL_POINTER', points: 0, color: '#ef4444' },
+  { label: 'SYNTAX_ERR', points: 0, color: '#ef4444' },
 ];
 
 export default function SignalDefender({ onClose }: { onClose: () => void }) {
   const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
   const [highScore, setHighScore] = useState(() => {
     return parseInt(localStorage.getItem('signal_defender_highscore') || '0');
   });
   const [gameOver, setGameOver] = useState(false);
-  const [bugs, setBugs] = useState<BugNode[]>([]);
-  const [explosions, setExplosions] = useState<Explosion[]>([]);
+  const [items, setItems] = useState<FallingItem[]>([]);
 
-  const bugsRef = useRef<BugNode[]>([]);
+  // Paddle state (center X)
+  const paddleXRef = useRef(window.innerWidth / 2);
+  const [paddleX, setPaddleX] = useState(window.innerWidth / 2);
+
+  const itemsRef = useRef<FallingItem[]>([]);
   const nextId = useRef(1);
+  const keysRef = useRef<{ left: boolean; right: boolean }>({ left: false, right: false });
   const animationFrameRef = useRef(0);
   const spawnTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const PADDLE_WIDTH = 130;
+  const PADDLE_HEIGHT = 16;
+  const PADDLE_Y = window.innerHeight - 80;
 
   useEffect(() => {
     playTransmissionSound();
 
-    const spawnBug = () => {
-      if (gameOver) return;
-      const type = BUG_TYPES[Math.floor(Math.random() * BUG_TYPES.length)];
-      const newBug: BugNode = {
-        id: nextId.current++,
-        x: Math.random() * (window.innerWidth - 120) + 60,
-        y: -40,
-        speed: Math.random() * 1.5 + 1.2,
-        label: type.label,
-        points: type.points,
-        radius: type.radius,
-      };
-      bugsRef.current.push(newBug);
-      setBugs([...bugsRef.current]);
+    // Keyboard listeners
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keysRef.current.left = true;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keysRef.current.right = true;
+      if (e.key === 'Escape') onClose();
     };
 
-    spawnTimerRef.current = setInterval(spawnBug, 900);
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keysRef.current.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keysRef.current.right = false;
+    };
 
-    // Main game loop
+    // Mouse/Touch drag support
+    const onMouseMove = (e: MouseEvent) => {
+      paddleXRef.current = Math.max(PADDLE_WIDTH / 2, Math.min(window.innerWidth - PADDLE_WIDTH / 2, e.clientX));
+      setPaddleX(paddleXRef.current);
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('mousemove', onMouseMove);
+
+    // Spawn falling items
+    const spawnItem = () => {
+      if (gameOver) return;
+      const isBug = Math.random() < 0.28; // 28% chance of bug
+      const pool = isBug ? BAD_ITEMS : GOOD_ITEMS;
+      const template = pool[Math.floor(Math.random() * pool.length)];
+
+      const newItem: FallingItem = {
+        id: nextId.current++,
+        x: Math.random() * (window.innerWidth - 160) + 80,
+        y: -30,
+        speed: Math.random() * 1.5 + 2.0,
+        label: template.label,
+        points: template.points,
+        isBug,
+        color: template.color,
+      };
+
+      itemsRef.current.push(newItem);
+      setItems([...itemsRef.current]);
+    };
+
+    spawnTimerRef.current = setInterval(spawnItem, 800);
+
+    // Game loop
+    let currentLives = 3;
+    let currentScore = 0;
+
     const updateGame = () => {
-      let breach = false;
-
-      bugsRef.current = bugsRef.current
-        .map(b => ({ ...b, y: b.y + b.speed }))
-        .filter(b => {
-          if (b.y > window.innerHeight - 80) {
-            breach = true;
-            return false;
-          }
-          return true;
-        });
-
-      if (breach && !gameOver) {
-        playBeep(200, 0.3, 0.1);
-        setGameOver(true);
-      } else {
-        setBugs([...bugsRef.current]);
+      // Move paddle via keys
+      const speed = 14;
+      if (keysRef.current.left) {
+        paddleXRef.current = Math.max(PADDLE_WIDTH / 2, paddleXRef.current - speed);
+        setPaddleX(paddleXRef.current);
+      }
+      if (keysRef.current.right) {
+        paddleXRef.current = Math.min(window.innerWidth - PADDLE_WIDTH / 2, paddleXRef.current + speed);
+        setPaddleX(paddleXRef.current);
       }
 
-      setExplosions(prev =>
-        prev.map(e => ({ ...e, alpha: e.alpha - 0.05 })).filter(e => e.alpha > 0)
-      );
+      const pLeft = paddleXRef.current - PADDLE_WIDTH / 2;
+      const pRight = paddleXRef.current + PADDLE_WIDTH / 2;
 
-      if (!breach) {
+      itemsRef.current = itemsRef.current.filter(item => {
+        item.y += item.speed;
+
+        // Catch check
+        if (item.y >= PADDLE_Y - 12 && item.y <= PADDLE_Y + PADDLE_HEIGHT + 10) {
+          if (item.x >= pLeft - 20 && item.x <= pRight + 20) {
+            if (item.isBug) {
+              playBeep(220, 0.25, 0.1);
+              currentLives -= 1;
+              setLives(currentLives);
+              if (currentLives <= 0) {
+                setGameOver(true);
+              }
+            } else {
+              playBeep(650 + item.points * 3, 0.05);
+              currentScore += item.points;
+              setScore(currentScore);
+              if (currentScore > highScore) {
+                setHighScore(currentScore);
+                localStorage.setItem('signal_defender_highscore', String(currentScore));
+              }
+            }
+            return false; // Collected
+          }
+        }
+
+        // Missed check (good items missed reduce lives if fell off screen)
+        if (item.y > window.innerHeight + 20) {
+          return false;
+        }
+
+        return true;
+      });
+
+      setItems([...itemsRef.current]);
+
+      if (currentLives > 0) {
         animationFrameRef.current = requestAnimationFrame(updateGame);
       }
     };
@@ -94,40 +162,19 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
     animationFrameRef.current = requestAnimationFrame(updateGame);
 
     return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('mousemove', onMouseMove);
       if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
       cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [gameOver]);
-
-  const handleShootBug = (e: React.MouseEvent, bugId: number, points: number) => {
-    e.stopPropagation();
-    playBeep(850, 0.06);
-
-    const hitBug = bugsRef.current.find(b => b.id === bugId);
-    if (hitBug) {
-      setExplosions(prev => [
-        ...prev,
-        { id: Math.random(), x: hitBug.x, y: hitBug.y, alpha: 1 },
-      ]);
-    }
-
-    bugsRef.current = bugsRef.current.filter(b => b.id !== bugId);
-    setBugs([...bugsRef.current]);
-
-    setScore(prev => {
-      const next = prev + points;
-      if (next > highScore) {
-        setHighScore(next);
-        localStorage.setItem('signal_defender_highscore', String(next));
-      }
-      return next;
-    });
-  };
+  }, [gameOver, highScore, onClose]);
 
   const handleRestart = () => {
-    bugsRef.current = [];
-    setBugs([]);
+    itemsRef.current = [];
+    setItems([]);
     setScore(0);
+    setLives(3);
     setGameOver(false);
   };
 
@@ -136,7 +183,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(8,8,8,0.95)',
+        backgroundColor: 'rgba(8,8,8,0.96)',
         zIndex: 99999,
         display: 'flex',
         flexDirection: 'column',
@@ -149,12 +196,12 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
         animation: 'fadeIn 0.25s ease',
       }}
     >
-      {/* Red CRT Scanline Effect */}
+      {/* Red CRT Scanlines */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(rgba(18,16,16,0) 50%, rgba(200,16,46,0.06) 50%)',
+          background: 'linear-gradient(rgba(18,16,16,0) 50%, rgba(200,16,46,0.05) 50%)',
           backgroundSize: '100% 4px',
           pointerEvents: 'none',
         }}
@@ -164,7 +211,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
       <div
         style={{
           position: 'absolute',
-          top: '2rem',
+          top: '1.5rem',
           left: '2rem',
           right: '2rem',
           display: 'flex',
@@ -176,14 +223,17 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
         }}
       >
         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <span style={{ color: 'var(--red)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.2em' }}>
-            ● SIGNAL DEFENDER // ARCADE MODE
+          <span style={{ color: 'var(--red)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.2em' }}>
+            ● SIGNAL CATCHER // ARCADE MODE
           </span>
           <span style={{ color: 'rgba(237,235,230,0.6)', fontSize: '11px' }}>
             SCORE: <strong style={{ color: 'white' }}>{score}</strong>
           </span>
           <span style={{ color: 'rgba(200,16,46,0.6)', fontSize: '11px' }}>
             HIGH SCORE: <strong style={{ color: 'var(--red)' }}>{highScore}</strong>
+          </span>
+          <span style={{ color: 'white', fontSize: '12px' }}>
+            LIVES: <span style={{ color: 'var(--red)' }}>{'♥'.repeat(Math.max(0, lives))}</span>
           </span>
         </div>
 
@@ -194,7 +244,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
             background: 'none',
             border: '1px solid rgba(200,16,46,0.4)',
             color: 'white',
-            fontSize: '11px',
+            fontSize: '10px',
             padding: '0.4rem 0.8rem',
             cursor: 'pointer',
             letterSpacing: '0.1em',
@@ -204,62 +254,75 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      {/* Explosions */}
-      {explosions.map(exp => (
-        <div
-          key={exp.id}
-          style={{
-            position: 'absolute',
-            top: exp.y,
-            left: exp.x,
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            border: '2px solid var(--red)',
-            boxShadow: '0 0 20px var(--red)',
-            transform: 'translate(-50%, -50%) scale(1.5)',
-            opacity: exp.alpha,
-            pointerEvents: 'none',
-            transition: 'opacity 0.2s linear',
-          }}
-        />
-      ))}
-
-      {/* Falling Bug Nodes */}
+      {/* Falling Signal Nodes */}
       {!gameOver &&
-        bugs.map(bug => (
+        items.map(item => (
           <div
-            key={bug.id}
-            data-cursor="view"
-            onClick={e => handleShootBug(e, bug.id, bug.points)}
+            key={item.id}
             style={{
               position: 'absolute',
-              top: bug.y,
-              left: bug.x,
+              top: item.y,
+              left: item.x,
               transform: 'translate(-50%, -50%)',
-              backgroundColor: 'rgba(200,16,46,0.15)',
-              border: '1px solid var(--red)',
+              backgroundColor: 'rgba(12,12,12,0.9)',
+              border: `1.5px solid ${item.color}`,
               borderRadius: '4px',
-              padding: '0.4rem 0.75rem',
-              color: 'var(--text-primary)',
-              fontSize: '10px',
-              cursor: 'pointer',
-              boxShadow: '0 0 15px rgba(200,16,46,0.4)',
-              transition: 'transform 0.05s linear',
+              padding: '0.35rem 0.75rem',
+              color: 'white',
+              fontSize: '11px',
+              boxShadow: `0 0 14px ${item.color}`,
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
+              pointerEvents: 'none',
             }}
           >
-            <span style={{ color: 'var(--red)' }}>👾</span>
-            <span>{bug.label}</span>
-            <span style={{ fontSize: '8px', color: 'rgba(200,16,46,0.6)', marginLeft: '0.2rem' }}>
-              +{bug.points}
-            </span>
+            <span>{item.isBug ? '👾' : '⚡'}</span>
+            <span>{item.label}</span>
+            {!item.isBug && (
+              <span style={{ fontSize: '9px', color: item.color, marginLeft: '0.2rem' }}>
+                +{item.points}
+              </span>
+            )}
           </div>
         ))}
 
-      {/* Game Over Screen */}
+      {/* Player Defender Paddle (Basket) */}
+      {!gameOver && (
+        <div
+          style={{
+            position: 'absolute',
+            top: PADDLE_Y,
+            left: paddleX,
+            transform: 'translateX(-50%)',
+            width: PADDLE_WIDTH,
+            height: PADDLE_HEIGHT,
+            backgroundColor: 'var(--red)',
+            borderRadius: '8px',
+            boxShadow: '0 0 25px var(--red), 0 0 40px rgba(200,16,46,0.5)',
+            border: '2px solid white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+            transition: 'transform 0.05s ease-out',
+          }}
+        >
+          <div
+            className="font-mono"
+            style={{
+              fontSize: '8px',
+              color: 'white',
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+            }}
+          >
+            [ CATCHER ]
+          </div>
+        </div>
+      )}
+
+      {/* Game Over Modal */}
       {gameOver && (
         <div
           style={{
@@ -268,19 +331,20 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
             alignItems: 'center',
             gap: '1.5rem',
             textAlign: 'center',
-            backgroundColor: 'rgba(12,12,12,0.9)',
+            backgroundColor: 'rgba(12,12,12,0.92)',
             border: '1px solid var(--red)',
             padding: '3rem 4rem',
             borderRadius: '8px',
-            boxShadow: '0 0 40px rgba(200,16,46,0.3)',
+            boxShadow: '0 0 50px rgba(200,16,46,0.3)',
             animation: 'fadeIn 0.3s ease',
+            zIndex: 20,
           }}
         >
           <h2 className="font-bebas" style={{ fontSize: '64px', color: 'var(--red)', margin: 0, lineHeight: 1 }}>
-            SYSTEM BREACHED!
+            TRANSMISSION OVER!
           </h2>
-          <p style={{ color: 'rgba(237,235,230,0.7)', fontSize: '13px', margin: 0 }}>
-            A bug breached defence parameter. Final Score: <strong>{score}</strong>
+          <p style={{ color: 'rgba(237,235,230,0.7)', fontSize: '14px', margin: 0 }}>
+            Caught corrupt signals. Final Score: <strong style={{ color: 'white' }}>{score}</strong>
           </p>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
@@ -291,13 +355,13 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
                 border: 'none',
                 color: 'white',
                 padding: '0.6rem 1.4rem',
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: 700,
                 cursor: 'pointer',
                 letterSpacing: '0.1em',
               }}
             >
-              REBOOT DEFENCE 🔄
+              PLAY AGAIN 🔄
             </button>
             <button
               onClick={onClose}
@@ -307,7 +371,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
                 border: '1px solid rgba(255,255,255,0.2)',
                 color: 'white',
                 padding: '0.6rem 1.4rem',
-                fontSize: '12px',
+                fontSize: '11px',
                 cursor: 'pointer',
                 letterSpacing: '0.1em',
               }}
@@ -318,18 +382,21 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      {/* Bottom instructions */}
+      {/* Bottom Controls Legend */}
       {!gameOver && (
         <div
           style={{
             position: 'absolute',
-            bottom: '2rem',
-            color: 'rgba(237,235,230,0.35)',
+            bottom: '1.5rem',
+            color: 'rgba(237,235,230,0.4)',
             fontSize: '10px',
-            letterSpacing: '0.2em',
+            letterSpacing: '0.18em',
+            display: 'flex',
+            gap: '1.5rem',
           }}
         >
-          CLICK FLOATING BUG NODES TO BLAST THEM WITH LASER CURSOR
+          <span>← / → OR A / D KEYS TO MOVE CATCHER</span>
+          <span>OR GLIDE MOUSE LEFT/RIGHT</span>
         </div>
       )}
     </div>
