@@ -8,6 +8,7 @@ interface Achievement {
   date?: string;
   organization?: string;
   category?: string;
+  image_url?: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -15,6 +16,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const Achievements: React.FC = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [headerRef, headerVisible] = useReveal<HTMLDivElement>({ threshold: 0.1 });
 
   useEffect(() => {
@@ -62,11 +64,69 @@ const Achievements: React.FC = () => {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
             {achievements.map((item, idx) => (
-              <TimelineItem key={item.id} item={item} index={idx} delay={idx * 80} isLast={idx === achievements.length - 1} />
+              <TimelineItem
+                key={item.id}
+                item={item}
+                index={idx}
+                delay={idx * 80}
+                isLast={idx === achievements.length - 1}
+                onImageClick={(url) => setPreviewImage(url)}
+              />
             ))}
           </div>
         )}
       </div>
+
+      {/* Full-size Image Preview Modal */}
+      {previewImage && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.92)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem',
+            backdropFilter: 'blur(8px)',
+            animation: 'fadeIn 0.2s ease',
+          }}
+          onClick={() => setPreviewImage(null)}
+        >
+          <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
+            <img
+              src={previewImage}
+              alt="Achievement Full View"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '85vh',
+                objectFit: 'contain',
+                borderRadius: '6px',
+                border: '1px solid rgba(200,16,46,0.4)',
+                boxShadow: '0 0 40px rgba(200,16,46,0.3)',
+              }}
+            />
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="font-mono"
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                right: '0',
+                background: 'none',
+                border: 'none',
+                color: 'white',
+                fontSize: '14px',
+                cursor: 'pointer',
+              }}
+            >
+              CLOSE ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
     </section>
   );
@@ -77,7 +137,8 @@ const TimelineItem: React.FC<{
   index: number;
   delay: number;
   isLast: boolean;
-}> = ({ item, index, delay, isLast }) => {
+  onImageClick: (url: string) => void;
+}> = ({ item, index, delay, isLast, onImageClick }) => {
   const [ref, visible] = useReveal<HTMLDivElement>({ threshold: 0.1, delay });
   const [hovered, setHovered] = useState(false);
 
@@ -175,6 +236,37 @@ const TimelineItem: React.FC<{
             {item.organization}
           </p>
         )}
+
+        {/* Uploaded Achievement Image */}
+        {item.image_url && (
+          <div
+            data-cursor="view"
+            onClick={() => onImageClick(item.image_url!)}
+            style={{
+              maxWidth: '320px',
+              height: '180px',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              margin: '0.75rem 0',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              cursor: 'pointer',
+            }}
+          >
+            <img
+              src={item.image_url}
+              alt={item.title}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: hovered ? 'brightness(1)' : 'brightness(0.85)',
+                transition: 'all 0.3s ease',
+              }}
+            />
+          </div>
+        )}
+
         {item.description && (
           <p
             className="font-inter"

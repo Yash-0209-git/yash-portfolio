@@ -14,30 +14,30 @@ import Achievements from './components/sections/Achievements';
 import Contact from './components/sections/Contact';
 
 function App() {
-  const [introComplete, setIntroComplete] = useState(false);
+  const [introComplete, setIntroComplete] = useState(() => !!sessionStorage.getItem('intro-shown'));
 
   return (
     <>
-      <IntroSequence onComplete={() => setIntroComplete(true)} />
-
-      {introComplete && (
-        <>
-          <Cursor />
-          <ScrollProgress />
-          <SignalField />
-          <SideProgress />
-          <main style={{ position: 'relative', zIndex: 1 }}>
-            <Entry />
-            <Identity />
-            <Work />
-            <Stack />
-            <Certificates />
-            <Achievements />
-            <Contact />
-          </main>
-          <Navigation />
-        </>
+      {!introComplete && (
+        <IntroSequence onComplete={() => setIntroComplete(true)} />
       )}
+
+      <div style={{ visibility: introComplete ? 'visible' : 'hidden' }}>
+        <Cursor />
+        <ScrollProgress />
+        <SignalField />
+        <SideProgress />
+        <main style={{ position: 'relative', zIndex: 1 }}>
+          <Entry />
+          <Identity />
+          <Work />
+          <Stack />
+          <Certificates />
+          <Achievements />
+          <Contact />
+        </main>
+        <Navigation />
+      </div>
     </>
   );
 }

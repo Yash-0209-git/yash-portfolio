@@ -353,6 +353,11 @@ const FeaturedCard: React.FC<CardProps> = ({ project, onClick, hoveredTech, setH
             zIndex: 1,
           }}
         >
+          {project.thumbnail_url && (
+            <div style={{ width: '100%', height: '140px', overflow: 'hidden', borderRadius: '4px', marginBottom: '0.5rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <img src={project.thumbnail_url} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
           <h3 className="font-bebas" style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', lineHeight: 1, margin: 0 }}>
             {project.title}
           </h3>
@@ -462,6 +467,11 @@ const RegularCard: React.FC<RegularCardProps> = ({ project, index, onClick, hove
           <span style={{ color: 'rgba(255,255,255,0.08)', fontSize: '13px' }}>0{index}</span>
           <span style={{ color: 'var(--red)', letterSpacing: '0.1em' }}>{project.category}</span>
         </div>
+        {project.thumbnail_url && (
+          <div style={{ width: '100%', height: '120px', overflow: 'hidden', borderRadius: '4px', marginBottom: '0.75rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <img src={project.thumbnail_url} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        )}
         <h3 className="font-bebas" style={{ fontSize: 'clamp(22px, 2.8vw, 30px)', margin: '0 0 0.75rem 0', lineHeight: 1.1 }}>
           {project.title}
         </h3>

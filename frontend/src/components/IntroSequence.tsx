@@ -17,7 +17,6 @@ export default function IntroSequence({ onComplete }: IntroProps) {
   const [barWidth, setBarWidth] = useState(0);
 
   useEffect(() => {
-    // Check if already shown this session
     if (sessionStorage.getItem('intro-shown')) {
       onComplete();
       return;
@@ -27,7 +26,6 @@ export default function IntroSequence({ onComplete }: IntroProps) {
       setTimeout(() => setStep(i + 1), s.delay);
     });
 
-    // Animate progress bar
     let width = 0;
     const barInterval = setInterval(() => {
       width = Math.min(100, width + 1.2);
@@ -35,7 +33,6 @@ export default function IntroSequence({ onComplete }: IntroProps) {
       if (width >= 100) clearInterval(barInterval);
     }, 20);
 
-    // Exit
     const exitTimer = setTimeout(() => {
       setExiting(true);
       setTimeout(() => {
@@ -49,6 +46,10 @@ export default function IntroSequence({ onComplete }: IntroProps) {
       clearTimeout(exitTimer);
     };
   }, [onComplete]);
+
+  if (sessionStorage.getItem('intro-shown')) {
+    return null;
+  }
 
   return (
     <div
@@ -67,7 +68,6 @@ export default function IntroSequence({ onComplete }: IntroProps) {
         pointerEvents: exiting ? 'none' : 'all',
       }}
     >
-      {/* Red cross / signal mark */}
       <div style={{ position: 'relative', width: '40px', height: '40px' }}>
         <div style={{ position: 'absolute', top: '50%', left: 0, width: '100%', height: '1px', backgroundColor: 'var(--red)', transform: 'translateY(-50%)' }} />
         <div style={{ position: 'absolute', top: 0, left: '50%', height: '100%', width: '1px', backgroundColor: 'var(--red)', transform: 'translateX(-50%)' }} />
@@ -82,7 +82,6 @@ export default function IntroSequence({ onComplete }: IntroProps) {
         />
       </div>
 
-      {/* Step lines */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'center' }}>
         {STEPS.slice(0, step).map((s, i) => (
           <div
@@ -100,7 +99,6 @@ export default function IntroSequence({ onComplete }: IntroProps) {
         ))}
       </div>
 
-      {/* Progress bar */}
       <div
         style={{
           width: '200px',
