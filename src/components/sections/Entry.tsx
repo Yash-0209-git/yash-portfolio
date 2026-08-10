@@ -42,18 +42,114 @@ const TERMINAL_LINES = [
   '> SECRET CODE: ↑ ↑ ↓ ↓ ← → ← → B A',
 ];
 
+/* ═══════════════════════════════════════════════════════
+   LIVE REACTIVE SIGNAL WAVEFORM CANVAS VISUALIZER
+═══════════════════════════════════════════════════════ */
+const SignalWaveformCanvas: React.FC<{ mouseVelocity: number; surge: boolean }> = ({ mouseVelocity, surge }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let phase = 0;
+
+    const render = () => {
+      const w = (canvas.width = canvas.offsetWidth || 800);
+      const h = (canvas.height = canvas.offsetHeight || 140);
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Base parameters
+      phase += 0.04 + mouseVelocity * 0.05 + (surge ? 0.12 : 0);
+      const midY = h / 2;
+      const baseAmp = 25 + mouseVelocity * 40 + (surge ? 45 : 0);
+
+      // 1. Draw secondary background glow wave
+      ctx.beginPath();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(200, 16, 46, 0.25)';
+
+      for (let x = 0; x < w; x += 3) {
+        const freq1 = 0.008;
+        const freq2 = 0.018;
+        const y = midY + Math.sin(x * freq1 + phase) * (baseAmp * 0.6) + Math.cos(x * freq2 - phase * 0.8) * 12;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // 2. Draw primary main signal wave (glowing red)
+      ctx.beginPath();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = surge ? '#FF2A4B' : '#C8102E';
+      ctx.shadowColor = '#C8102E';
+      ctx.shadowBlur = surge ? 22 : 12;
+
+      for (let x = 0; x < w; x += 2) {
+        const distFromCenter = Math.abs(x - w / 2) / (w / 2);
+        const centerDampen = Math.cos(distFromCenter * (Math.PI / 2));
+        const freq = 0.012;
+        const y = midY + Math.sin(x * freq + phase) * baseAmp * centerDampen + Math.sin(x * 0.035 + phase * 1.4) * (surge ? 15 : 6);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0; // reset shadow
+
+      // 3. Draw vertical spectrum peak indicator lines
+      const numBars = 32;
+      const barSpacing = w / numBars;
+      for (let i = 0; i < numBars; i++) {
+        const bx = i * barSpacing + barSpacing / 2;
+        const barAmp = Math.abs(Math.sin(i * 0.4 + phase * 0.8)) * (baseAmp * 0.7) + 4;
+        ctx.fillStyle = i % 4 === 0 ? 'rgba(200,16,46,0.6)' : 'rgba(200,16,46,0.18)';
+        ctx.fillRect(bx - 1, midY - barAmp / 2, 2, barAmp);
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => cancelAnimationFrame(animId);
+  }, [mouseVelocity, surge]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        width: '100%',
+        height: '130px',
+        display: 'block',
+        pointerEvents: 'none',
+      }}
+    />
+  );
+};
+
+/* ═══════════════════════════════════════════════════════
+   MAIN ENTRY COMPONENT
+═══════════════════════════════════════════════════════ */
 const Entry: React.FC = () => {
   const [lineDrawn, setLineDrawn] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  const [mouseVelocity, setMouseVelocity] = useState(0);
+  const [surge, setSurge] = useState(false);
   const [objectActive, setObjectActive] = useState(false);
   const [objectClicked, setObjectClicked] = useState(false);
-  const [imageHovered, setImageHovered] = useState(false);
   const [signalBars, setSignalBars] = useState([0.4, 0.6, 0.8, 0.95, 1.0]);
   const [fragments, setFragments] = useState<Fragment[]>([]);
+  const [freqReadout, setFreqReadout] = useState(440.0);
+
   const sectionRef = useRef<HTMLElement>(null);
+  const lastMousePos = useRef({ x: 0, y: 0 });
   const rafRef = useRef(0);
   const fragmentsRef = useRef<Fragment[]>([]);
   const nextId = useRef(0);
@@ -79,7 +175,8 @@ const Entry: React.FC = () => {
         0.8 + Math.random() * 0.18,
         0.92 + Math.random() * 0.08,
       ]);
-    }, 1800);
+      setFreqReadout(+(440.0 + (Math.random() - 0.5) * 8.4).toFixed(1));
+    }, 1400);
 
     return () => {
       clearTimeout(t1);
@@ -88,15 +185,22 @@ const Entry: React.FC = () => {
     };
   }, []);
 
-  // Mouse tracking
+  // Mouse tracking & velocity calculation
   const onMouseMove = useCallback((e: MouseEvent) => {
     const sec = sectionRef.current;
     if (!sec) return;
     const rect = sec.getBoundingClientRect();
-    setMousePos({
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
-    });
+    const nx = (e.clientX - rect.left) / rect.width;
+    const ny = (e.clientY - rect.top) / rect.height;
+
+    // Velocity calc
+    const dx = e.clientX - lastMousePos.current.x;
+    const dy = e.clientY - lastMousePos.current.y;
+    const speed = Math.min(Math.sqrt(dx * dx + dy * dy) / 30, 1.5);
+    setMouseVelocity(speed);
+
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+    setMousePos({ x: nx, y: ny });
     setCursorCoords({ x: Math.round(e.clientX), y: Math.round(e.clientY) });
   }, []);
 
@@ -106,6 +210,12 @@ const Entry: React.FC = () => {
     sec.addEventListener('mousemove', onMouseMove);
     return () => sec.removeEventListener('mousemove', onMouseMove);
   }, [onMouseMove]);
+
+  // Click wave surge trigger
+  const handleSectionClick = () => {
+    setSurge(true);
+    setTimeout(() => setSurge(false), 900);
+  };
 
   // Floating fragments loop
   useEffect(() => {
@@ -171,7 +281,8 @@ const Entry: React.FC = () => {
   const dx = (mousePos.x - 0.5) * 2;
   const dy = (mousePos.y - 0.5) * 2;
 
-  const handleObjectClick = () => {
+  const handleObjectClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setObjectClicked(true);
     setTimeout(() => {
       document.getElementById('identity')?.scrollIntoView({ behavior: 'smooth' });
@@ -182,11 +293,13 @@ const Entry: React.FC = () => {
     <section
       id="entry"
       ref={sectionRef}
+      onClick={handleSectionClick}
       style={{
         backgroundColor: 'var(--bg)',
         justifyContent: 'center',
         overflow: 'hidden',
         position: 'relative',
+        cursor: 'none',
       }}
     >
       {/* CRT scanlines overlay */}
@@ -328,7 +441,7 @@ const Entry: React.FC = () => {
           INTERACT ↓
         </div>
         <div
-          onClick={() => setObjectClicked(!objectClicked)}
+          onClick={(e) => { e.stopPropagation(); setObjectClicked(!objectClicked); }}
           style={{
             width: objectClicked ? '90px' : objectActive ? '66px' : '50px',
             height: objectClicked ? '90px' : objectActive ? '66px' : '50px',
@@ -356,257 +469,200 @@ const Entry: React.FC = () => {
         </div>
       </div>
 
-      {/* Main content grid (2 columns on desktop) */}
+      {/* ── CENTRALLY ALIGNED HERO CONTENT (NAME CENTERED) ── */}
       <div
         className="section-container"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '3rem',
+          display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
           position: 'relative',
           zIndex: 3,
+          maxWidth: '1000px',
+          margin: '0 auto',
+          paddingTop: '2rem',
         }}
       >
-        {/* Left column: Text & Typography */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          {/* Signal label */}
-          <div
-            className="font-mono"
-            style={{
-              fontSize: '10px',
-              color: 'rgba(200,16,46,0.35)',
-              marginBottom: '1.5rem',
-              letterSpacing: '0.35em',
-              opacity: showContent ? 1 : 0,
-              transition: 'opacity 0.5s ease',
-            }}
-          >
-            SIGNAL 00 / ENTRY
-          </div>
+        {/* Signal label */}
+        <div
+          className="font-mono"
+          style={{
+            fontSize: '11px',
+            color: 'rgba(200,16,46,0.5)',
+            marginBottom: '1.25rem',
+            letterSpacing: '0.4em',
+            opacity: showContent ? 1 : 0,
+            transition: 'opacity 0.5s ease',
+          }}
+        >
+          SIGNAL 00 / BROADCAST HUB
+        </div>
 
-          {/* Red line */}
-          <div
-            style={{
-              height: '1px',
-              backgroundColor: 'var(--red)',
-              width: lineDrawn ? '75%' : '0%',
-              transition: 'width 700ms cubic-bezier(0.4,0,0.2,1)',
-              marginBottom: '3rem',
-              boxShadow: '0 0 10px rgba(200,16,46,0.3)',
-            }}
-          />
+        {/* Centered Red Divider line */}
+        <div
+          style={{
+            height: '1px',
+            backgroundColor: 'var(--red)',
+            width: lineDrawn ? '60%' : '0%',
+            transition: 'width 700ms cubic-bezier(0.4,0,0.2,1)',
+            marginBottom: '2rem',
+            boxShadow: '0 0 12px rgba(200,16,46,0.4)',
+          }}
+        />
 
-          {/* Name — two parallax layers */}
-          <div style={{ position: 'relative' }}>
-            <h1
-              className="font-bebas"
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                fontSize: 'clamp(52px, 8vw, 105px)',
-                color: 'var(--red)',
-                lineHeight: 1,
-                opacity: showContent ? 0.07 : 0,
-                transform: `translate(${dx * 14}px, ${dy * 8}px)`,
-                transition: 'transform 0.55s ease, opacity 0.9s ease',
-                userSelect: 'none',
-                pointerEvents: 'none',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {NAME}
-            </h1>
-            <h1
-              className="font-bebas"
-              style={{
-                fontSize: 'clamp(52px, 8vw, 105px)',
-                color: 'var(--text-primary)',
-                lineHeight: 1,
-                transform: `translate(${dx * -4}px, ${dy * -2.5}px)`,
-                transition: 'transform 0.35s ease',
-                display: 'flex',
-                flexWrap: 'wrap',
-                willChange: 'transform',
-              }}
-            >
-              {NAME.split('').map((letter, i) => (
-                <span
-                  key={i}
-                  style={{
-                    opacity: showContent ? 1 : 0,
-                    transform: showContent ? 'translateY(0)' : 'translateY(28px)',
-                    transition: `opacity 400ms ease ${i * 36}ms, transform 420ms ease ${i * 36}ms`,
-                    display: 'inline-block',
-                    minWidth: letter === ' ' ? '0.55em' : 'auto',
-                  }}
-                >
-                  {letter}
-                </span>
-              ))}
-            </h1>
-          </div>
-
-          {/* Role */}
-          <h2
-            className="font-inter"
+        {/* Centered Name — two parallax layers */}
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <h1
+            className="font-bebas"
+            aria-hidden="true"
             style={{
-              fontSize: 'clamp(16px, 2vw, 24px)',
-              fontWeight: 300,
-              color: 'var(--text-secondary)',
-              marginTop: '1.25rem',
-              opacity: showContent ? 1 : 0,
-              transform: showContent
-                ? `translate(${dx * -6}px, ${dy * -3.5}px)`
-                : 'translateY(16px)',
-              transition: `opacity 500ms ease 500ms, transform ${showContent ? '0.45s ease' : '500ms ease 500ms'}`,
+              position: 'absolute',
+              top: 0,
+              fontSize: 'clamp(64px, 11vw, 140px)',
+              color: 'var(--red)',
+              lineHeight: 0.95,
+              opacity: showContent ? 0.08 : 0,
+              transform: `translate(${dx * 14}px, ${dy * 8}px)`,
+              transition: 'transform 0.55s ease, opacity 0.9s ease',
+              userSelect: 'none',
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
               letterSpacing: '0.04em',
             }}
           >
-            AI Full Stack Developer
-          </h2>
-
-          {/* Tagline */}
-          <p
-            className="font-mono"
+            {NAME}
+          </h1>
+          <h1
+            className="font-bebas"
             style={{
-              fontSize: '12px',
-              color: 'var(--red)',
-              marginTop: '1.75rem',
-              opacity: showContent ? 1 : 0,
-              transition: 'opacity 600ms ease 900ms',
-              letterSpacing: '0.06em',
-            }}
-          >
-            Ideas, engineered into reality.
-          </p>
-
-          {/* Quick stat strip */}
-          <div
-            style={{
+              fontSize: 'clamp(64px, 11vw, 140px)',
+              color: 'var(--text-primary)',
+              lineHeight: 0.95,
+              transform: `translate(${dx * -4}px, ${dy * -2.5}px)`,
+              transition: 'transform 0.35s ease',
               display: 'flex',
-              gap: '2rem',
-              marginTop: '2.5rem',
-              opacity: showContent ? 1 : 0,
-              transition: 'opacity 0.8s ease 1.8s',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              willChange: 'transform',
+              letterSpacing: '0.04em',
             }}
           >
-            {[
-              { val: '1+', label: 'PROJECTS' },
-              { val: '10+', label: 'TECHNOLOGIES' },
-              { val: '∞', label: 'CURIOSITY' },
-            ].map(stat => (
-              <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                <span
-                  className="font-bebas"
-                  style={{ fontSize: '26px', color: 'var(--text-primary)', lineHeight: 1 }}
-                >
-                  {stat.val}
-                </span>
-                <span
-                  className="font-mono"
-                  style={{ fontSize: '8px', color: 'rgba(200,16,46,0.4)', letterSpacing: '0.2em' }}
-                >
-                  {stat.label}
-                </span>
-              </div>
+            {NAME.split('').map((letter, i) => (
+              <span
+                key={i}
+                style={{
+                  opacity: showContent ? 1 : 0,
+                  transform: showContent ? 'translateY(0)' : 'translateY(28px)',
+                  transition: `opacity 400ms ease ${i * 36}ms, transform 420ms ease ${i * 36}ms`,
+                  display: 'inline-block',
+                  minWidth: letter === ' ' ? '0.4em' : 'auto',
+                }}
+              >
+                {letter}
+              </span>
             ))}
+          </h1>
+        </div>
+
+        {/* ── LIVE INTERACTIVE SIGNAL WAVEFORM CANVAS ── */}
+        <div style={{
+          width: '100%',
+          maxWidth: '850px',
+          margin: '0.5rem 0 1.25rem 0',
+          opacity: showContent ? 1 : 0,
+          transition: 'opacity 1s ease 0.6s',
+          position: 'relative',
+        }}>
+          <SignalWaveformCanvas mouseVelocity={mouseVelocity} surge={surge} />
+
+          {/* Waveform Telemetry HUD Strip */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '0.4rem 1rem',
+            backgroundColor: 'rgba(10,5,5,0.75)',
+            border: '1px solid rgba(200,16,46,0.2)',
+            borderRadius: '3px',
+            marginTop: '-0.5rem',
+          }}>
+            <div className="font-mono" style={{ fontSize: '8px', color: 'var(--red)', letterSpacing: '0.15em', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: surge ? '#FF2A4B' : '#00FF66', boxShadow: '0 0 6px #00FF66' }} />
+              FREQUENCY: {freqReadout}Hz
+            </div>
+            <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(237,235,230,0.5)', letterSpacing: '0.12em' }}>
+              AMPLITUDE: {Math.round(40 + mouseVelocity * 50)}% {surge ? '⚡ SURGE' : ''}
+            </div>
+            <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(200,16,46,0.6)', letterSpacing: '0.12em' }}>
+              CLICK CANVAS TO SURGE ↵
+            </div>
           </div>
         </div>
 
-        {/* Right column: Interactive Signal Node Hub */}
+        {/* Role */}
+        <h2
+          className="font-inter"
+          style={{
+            fontSize: 'clamp(18px, 2.5vw, 28px)',
+            fontWeight: 300,
+            color: 'var(--text-secondary)',
+            margin: '0.25rem 0 0 0',
+            opacity: showContent ? 1 : 0,
+            transform: showContent ? `translate(${dx * -4}px, ${dy * -2}px)` : 'translateY(16px)',
+            transition: `opacity 500ms ease 500ms, transform ${showContent ? '0.45s ease' : '500ms ease 500ms'}`,
+            letterSpacing: '0.06em',
+          }}
+        >
+          AI Full Stack Developer
+        </h2>
+
+        {/* Tagline */}
+        <p
+          className="font-mono"
+          style={{
+            fontSize: '13px',
+            color: 'var(--red)',
+            marginTop: '1.25rem',
+            opacity: showContent ? 1 : 0,
+            transition: 'opacity 600ms ease 900ms',
+            letterSpacing: '0.1em',
+          }}
+        >
+          Ideas, engineered into reality.
+        </p>
+
+        {/* Quick stat strip */}
         <div
           style={{
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'relative',
+            gap: '3rem',
+            marginTop: '2.5rem',
             opacity: showContent ? 1 : 0,
-            transform: showContent ? `translate(${dx * 12}px, ${dy * 8}px)` : 'scale(0.92) translateY(20px)',
-            transition: 'opacity 1s ease 0.6s, transform 0.6s ease',
+            transition: 'opacity 0.8s ease 1.5s',
           }}
         >
-          {/* Ambient red backglow */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              width: '320px',
-              height: '320px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(200,16,46,0.22) 0%, rgba(200,16,46,0.06) 55%, transparent 75%)',
-              filter: 'blur(20px)',
-              pointerEvents: 'none',
-              transform: `scale(${imageHovered ? 1.15 : 1})`,
-              transition: 'transform 0.5s ease',
-            }}
-          />
-
-          {/* Concentric orbit rings */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              width: '340px',
-              height: '340px',
-              borderRadius: '50%',
-              border: '1px stroke rgba(200,16,46,0.12)',
-              pointerEvents: 'none',
-            }}
-          >
-            {[340, 260, 180].map((size, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  width: size,
-                  height: size,
-                  borderRadius: '50%',
-                  border: `1px ${i % 2 === 0 ? 'dashed' : 'solid'} rgba(200,16,46,${0.14 - i * 0.03})`,
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  animation: `orbitSpin${i} ${20 - i * 5}s linear infinite`,
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Central Signal Core Node */}
-          <div
-            data-cursor="pointer"
-            onClick={() => document.getElementById('identity')?.scrollIntoView({ behavior: 'smooth' })}
-            onMouseEnter={() => setImageHovered(true)}
-            onMouseLeave={() => setImageHovered(false)}
-            style={{
-              position: 'relative',
-              width: '260px',
-              height: '260px',
-              borderRadius: '50%',
-              border: '1px solid rgba(200,16,46,0.4)',
-              background: 'radial-gradient(circle at 50% 50%, rgba(200,16,46,0.15) 0%, rgba(8,8,8,0.9) 70%)',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'transform 0.5s cubic-bezier(0.4,0,0.2,1), border-color 0.3s ease',
-              transform: imageHovered ? 'scale(1.08)' : 'scale(1)',
-              boxShadow: imageHovered ? '0 0 40px rgba(200,16,46,0.35)' : '0 0 20px rgba(0,0,0,0.5)',
-            }}
-          >
-            <div className="font-mono" style={{ fontSize: '10px', color: 'var(--red)', letterSpacing: '0.25em', marginBottom: '0.4rem' }}>
-              ● CORE SIGNAL
+          {[
+            { val: '2+', label: 'PROJECTS SHIPPED' },
+            { val: '15+', label: 'TECHNOLOGIES' },
+            { val: '∞', label: 'CURIOSITY' },
+          ].map(stat => (
+            <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+              <span
+                className="font-bebas"
+                style={{ fontSize: '32px', color: 'var(--text-primary)', lineHeight: 1 }}
+              >
+                {stat.val}
+              </span>
+              <span
+                className="font-mono"
+                style={{ fontSize: '8.5px', color: 'rgba(200,16,46,0.5)', letterSpacing: '0.2em' }}
+              >
+                {stat.label}
+              </span>
             </div>
-            <div className="font-bebas" style={{ fontSize: '28px', color: 'var(--text-primary)', letterSpacing: '0.08em', lineHeight: 1 }}>
-              CY // 2026
-            </div>
-            <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(237,235,230,0.4)', letterSpacing: '0.15em', marginTop: '0.4rem' }}>
-              CLICK TO EXPLORE ↓
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -717,14 +773,6 @@ const Entry: React.FC = () => {
         @keyframes rotateInner {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
-        }
-        @keyframes orbitSpin0 {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to   { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @keyframes orbitSpin1 {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to   { transform: translate(-50%, -50%) rotate(-360deg); }
         }
         @keyframes scrollDrop {
           0%   { top: -40%; opacity: 1; }
