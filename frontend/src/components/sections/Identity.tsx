@@ -129,13 +129,38 @@ const Identity: React.FC = () => {
           />
 
           {/* Quick Telemetry Status */}
-          <div style={{ marginTop: '2.5rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <div style={{ marginTop: '2.5rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
             <div className="font-mono" style={{ fontSize: '8px', color: 'var(--red)', letterSpacing: '0.15em' }}>
               ● BASED IN INDIA
             </div>
             <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(237,235,230,0.4)', letterSpacing: '0.15em' }}>
               STATUS: OPEN TO WORK
             </div>
+            <a
+              href="/C_Yashwanth_Resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-cursor="open"
+              className="font-mono"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                backgroundColor: 'var(--red)',
+                color: 'white',
+                padding: '0.55rem 1rem',
+                borderRadius: '3px',
+                fontSize: '10px',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textDecoration: 'none',
+                marginTop: '0.5rem',
+                boxShadow: '0 0 16px rgba(200,16,46,0.35)',
+                transition: 'transform 0.2s ease',
+              }}
+            >
+              DOWNLOAD RESUME 📄
+            </a>
           </div>
         </div>
 
@@ -145,8 +170,33 @@ const Identity: React.FC = () => {
           className={`reveal${rightVisible ? ' visible' : ''}`}
           style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '800px' }}
         >
-          <div className="font-mono signal-label" style={{ fontSize: '10px' }}>
-            — ABOUT ME
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="font-mono signal-label" style={{ fontSize: '10px' }}>
+              — ABOUT ME
+            </div>
+            <a
+              href="/C_Yashwanth_Resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-cursor="open"
+              className="font-mono"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                backgroundColor: 'rgba(200,16,46,0.12)',
+                border: '1px solid var(--red)',
+                color: 'white',
+                padding: '0.4rem 0.85rem',
+                borderRadius: '3px',
+                fontSize: '9px',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textDecoration: 'none',
+              }}
+            >
+              DOWNLOAD RESUME 📄
+            </a>
           </div>
 
           <div>

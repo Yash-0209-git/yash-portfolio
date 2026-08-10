@@ -295,20 +295,21 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
                   <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>AI Full Stack Developer Dossier</div>
                 </div>
                 <button
-                  onClick={() => openExternal('https://github.com/Yash-0209-git')}
+                  onClick={() => openExternal('/C_Yashwanth_Resume.pdf')}
                   data-cursor="pointer"
                   style={{
-                    backgroundColor: 'transparent',
-                    border: '1px solid var(--red)',
+                    backgroundColor: 'var(--red)',
+                    border: 'none',
                     color: 'white',
                     padding: '0.4rem 0.9rem',
                     fontSize: '11px',
                     borderRadius: '3px',
                     cursor: 'pointer',
                     marginLeft: 'auto',
+                    fontWeight: 700,
                   }}
                 >
-                  VIEW ON GITHUB 🚀
+                  DOWNLOAD RESUME 📄
                 </button>
               </div>
             )}

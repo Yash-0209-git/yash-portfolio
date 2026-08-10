@@ -70,7 +70,7 @@ export const STATIC_SETTINGS: Settings = {
   github_url: 'https://github.com/Yash-0209-git',
   linkedin_url: 'https://www.linkedin.com/in/yashwanth-c-918a53317',
   instagram_handle: 'yashhwanth__',
-  resume_url: '',
+  resume_url: '/C_Yashwanth_Resume.pdf',
 };
 
 export const fetchProjects = async (): Promise<Project[]> => STATIC_PROJECTS;
