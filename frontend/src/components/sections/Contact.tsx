@@ -44,7 +44,7 @@ const Contact: React.FC = () => {
   const instaVal    = rawInsta.replace('@', '');
 
   const links = [
-    { label: 'EMAIL',     value: emailVal,                                         href: `mailto:${emailVal}` },
+    { label: 'EMAIL',     value: emailVal,                                         href: `https://mail.google.com/mail/?view=cm&fs=1&to=${emailVal}` },
     { label: 'GITHUB',    value: githubVal.replace('https://', '').replace('www.', ''),   href: githubVal },
     { label: 'LINKEDIN',  value: linkedinVal.replace('https://', '').replace('www.', ''), href: linkedinVal },
     { label: 'INSTAGRAM', value: `@${instaVal}`,                                  href: `https://instagram.com/${instaVal}` },
@@ -57,8 +57,8 @@ const Contact: React.FC = () => {
     let response = '';
 
     if (cleanCmd.includes('send_email') || cleanCmd === 'email' || cleanCmd === 'mail') {
-      response = `[200 OK] DISPATCHING EMAIL CLIENT → ${emailVal}`;
-      window.location.href = `mailto:${emailVal}`;
+      response = `[200 OK] DISPATCHING GMAIL WEB COMPOSE → ${emailVal}`;
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${emailVal}`, '_blank');
     } else if (cleanCmd.includes('fetch_resume') || cleanCmd === 'resume') {
       if (settings.resume_url) {
         response = `[200 OK] OPENING RESUME DOCUMENT...`;

@@ -177,7 +177,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           icon="✉️"
           label="Gmail"
           badge="MAIL"
-          onClick={() => openExternal('mailto:yashwanth02092006@gmail.com')}
+          onClick={() => openExternal('https://mail.google.com/mail/?view=cm&fs=1&to=yashwanth02092006@gmail.com')}
         />
       </div>
 
@@ -392,7 +392,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
           <StartMenuItem icon="🐙" label="GitHub Profile" onClick={() => openExternal('https://github.com/Yash-0209-git')} />
           <StartMenuItem icon="💼" label="LinkedIn Profile" onClick={() => openExternal('https://www.linkedin.com/in/yashwanth-c-918a53317')} />
           <StartMenuItem icon="📸" label="Instagram Profile" onClick={() => openExternal('https://instagram.com/yashhwanth__')} />
-          <StartMenuItem icon="✉️" label="Send Email" onClick={() => openExternal('mailto:yashwanth02092006@gmail.com')} />
+          <StartMenuItem icon="✉️" label="Send Email" onClick={() => openExternal('https://mail.google.com/mail/?view=cm&fs=1&to=yashwanth02092006@gmail.com')} />
         </div>
       )}
 
