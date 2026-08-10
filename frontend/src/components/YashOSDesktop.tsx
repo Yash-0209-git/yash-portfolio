@@ -104,15 +104,19 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      {/* Desktop App Icons Grid */}
+      {/* Desktop App Icons Grid — Windows multi-column wrap layout */}
       <div
         style={{
           position: 'absolute',
-          top: '60px',
-          left: '2rem',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(1, 95px)',
-          gap: '1rem',
+          top: '50px',
+          left: '1.5rem',
+          bottom: '54px',
+          display: 'flex',
+          flexDirection: 'column',
+          flexWrap: 'wrap',
+          alignContent: 'flex-start',
+          gap: '0.4rem 1.25rem',
+          maxHeight: 'calc(100vh - 108px)',
           zIndex: 10,
         }}
       >
@@ -475,11 +479,12 @@ function DesktopIcon({ icon, label, badge, onClick }: { icon: string; label: str
       onClick={onClick}
       data-cursor="pointer"
       style={{
+        width: '88px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0.6rem 0.4rem',
+        padding: '0.45rem 0.2rem',
         borderRadius: '6px',
         cursor: 'pointer',
         transition: 'background-color 0.2s ease, transform 0.15s ease',
