@@ -84,7 +84,7 @@ export const STATIC_CERTS: Certificate[] = [
 export const STATIC_ACHIEVEMENTS: Achievement[] = [];
 
 export const STATIC_ABOUT: About = {
-  name: 'C Yashwanth',
+  name: 'Yashwanth',
   role: 'AI Full Stack Developer',
   tagline: 'Ideas, engineered into reality.',
   bio: 'An AI/ML-focused developer who enjoys building practical, intelligent software that solves real-world problems. I work across Python, FastAPI, React, PostgreSQL, and AI/LLM technologies, with a strong interest in backend architecture, intelligent automation, and building polished user experiences.',

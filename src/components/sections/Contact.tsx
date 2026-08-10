@@ -354,7 +354,7 @@ const Contact: React.FC = () => {
           }}
         >
           <span className="font-mono" style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)', letterSpacing: '0.05em' }}>
-            © 2026 C Yashwanth
+            © 2026 Yashwanth
           </span>
           <span className="font-mono" style={{ fontSize: '9px', color: 'rgba(200,16,46,0.2)', letterSpacing: '0.15em' }}>
             ALL SIGNALS RECEIVED.

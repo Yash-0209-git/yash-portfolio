@@ -147,7 +147,7 @@ const RadarDisplay: React.FC<{ src: string; scanning: boolean }> = ({ src, scann
           transition: 'all 0.3s ease',
         }}>
           {src ? (
-            <img src={src} alt="C Yashwanth"
+            <img src={src} alt="Yashwanth"
               style={{
                 width: '100%',
                 height: '100%',
@@ -396,7 +396,7 @@ const Identity: React.FC = () => {
 
   useEffect(() => {
     fetchAbout().then(data => setAbout(data || {
-      name: 'C Yashwanth',
+      name: 'Yashwanth',
       role: 'AI Full Stack Developer',
       tagline: 'Ideas, engineered into reality.',
       bio: FULL_BIO,
@@ -472,7 +472,7 @@ const Identity: React.FC = () => {
                 SIGNAL ORIGIN
               </div>
               {[
-                { key: 'ENTITY',   val: about?.name || 'C YASHWANTH' },
+                { key: 'ENTITY',   val: about?.name || 'YASHWANTH' },
                 { key: 'ROLE',     val: about?.role || 'AI FULL STACK DEV' },
                 { key: 'ORIGIN',   val: 'INDIA' },
                 { key: 'COORDS',   val: '12.97°N · 77.59°E' },
@@ -497,7 +497,7 @@ const Identity: React.FC = () => {
             {/* Name & Role */}
             <div>
               <h3 className="font-bebas" style={{ fontSize:'clamp(36px, 5vw, 60px)', color:'var(--text-primary)', margin:0, lineHeight:1 }}>
-                {about?.name || 'C Yashwanth'}
+                {about?.name || 'Yashwanth'}
               </h3>
               <p className="font-mono" style={{ fontSize:'11px', color:'var(--red)', marginTop:'0.4rem', letterSpacing:'0.15em' }}>
                 {about?.role || 'AI Full Stack Developer'}
@@ -600,7 +600,7 @@ const Identity: React.FC = () => {
               </div>
               <pre className="font-mono" style={{ fontSize:'10px', color:'rgba(237,235,230,0.65)', margin:0, lineHeight:1.65, overflowX:'auto' }}>
 {`{
-  "developer": "${about?.name || 'C Yashwanth'}",
+  "developer": "${about?.name || 'Yashwanth'}",
   "role":      "${about?.role || 'AI Full Stack Developer'}",
   "backend":   ["Python", "FastAPI", "SQLAlchemy", "PostgreSQL"],
   "frontend":  ["React 18", "TypeScript", "Vite"],

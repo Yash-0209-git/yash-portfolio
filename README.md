@@ -1,4 +1,4 @@
-# C Yashwanth — Personal Portfolio & Interactive Environment
+# Yashwanth — Personal Portfolio & Interactive Environment
 
 > **"Ideas, engineered into reality."**
 
@@ -53,8 +53,8 @@ npm run build
 
 ## 📄 License & Attribution
 
-Designed & Developed by **C Yashwanth** — AI Full Stack Developer.
+Designed & Developed by **Yashwanth** — AI Full Stack Developer.
 
 - **GitHub**: [@Yash-0209-git](https://github.com/Yash-0209-git)
-- **LinkedIn**: [C Yashwanth](https://www.linkedin.com/in/yashwanth-c-918a53317)
+- **LinkedIn**: [Yashwanth](https://www.linkedin.com/in/yashwanth-c-918a53317)
 - **Email**: yashwanth02092006@gmail.com

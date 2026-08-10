@@ -333,7 +333,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
       {activeWindow === 'about_me' && (
         <WindowsFrame title="About Me.txt — Notepad" onClose={() => setActiveWindow(null)}>
           <div style={{ fontSize: '13px', color: 'rgba(237,235,230,0.9)', lineHeight: 1.7 }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--red)', fontSize: '18px' }}>C YASHWANTH // AI FULL STACK DEVELOPER</h3>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--red)', fontSize: '18px' }}>YASHWANTH // AI FULL STACK DEVELOPER</h3>
             <p style={{ margin: '0 0 1rem 0', color: 'rgba(255,255,255,0.7)' }}>
               Ideas, engineered into reality.
             </p>

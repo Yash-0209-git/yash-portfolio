@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 
-const NAME = 'C YASHWANTH';
+const NAME = 'YASHWANTH';
 
 // Floating terminal fragments — theme-consistent signal/tech data
 const FRAGMENTS = [
