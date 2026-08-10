@@ -51,6 +51,36 @@ body {
   cursor: none;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* ─── Ambient Glowing Background Mesh ──────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(circle 650px at 15% 20%, rgba(200, 16, 46, 0.16), transparent 75%),
+    radial-gradient(circle 750px at 85% 65%, rgba(200, 16, 46, 0.12), transparent 75%),
+    radial-gradient(circle 550px at 50% 90%, rgba(200, 16, 46, 0.14), transparent 75%);
+  animation: ambientGlowPulse 12s ease-in-out infinite alternate;
+}
+
+@keyframes ambientGlowPulse {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08) translateY(-20px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.85;
+  }
 }
 
 a, button, input, textarea, select {

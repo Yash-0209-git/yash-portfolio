@@ -30,16 +30,30 @@ interface Particle {
   alpha: number;
 }
 
+interface Spark {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  color: string;
+  alpha: number;
+}
+
 export default function Cursor() {
   const dotRef = useRef({ x: -100, y: -100 });
   const ringRef = useRef({ x: -100, y: -100 });
   const particlesRef = useRef<Particle[]>([]);
+  const sparksRef = useRef<Spark[]>([]);
   const nextParticleId = useRef(0);
+  const nextSparkId = useRef(0);
   const rafRef = useRef(0);
 
   const [dotPos, setDotPos] = useState({ x: -100, y: -100 });
   const [ringPos, setRingPos] = useState({ x: -100, y: -100 });
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [sparks, setSparks] = useState<Spark[]>([]);
   const [mode, setMode] = useState<CursorMode>('default');
   const [hidden, setHidden] = useState(true);
   const [clicked, setClicked] = useState(false);
@@ -65,19 +79,39 @@ export default function Cursor() {
       dotRef.current = { x: e.clientX, y: e.clientY };
       setHidden(false);
 
-      // Spawn Cyberpunk trailing particles
       const now = performance.now();
-      if (now - lastSpawnTime > 35) {
+      if (now - lastSpawnTime > 30) {
         lastSpawnTime = now;
         particlesRef.current.push({
           id: nextParticleId.current++,
           x: e.clientX,
           y: e.clientY,
           size: Math.random() * 3 + 2,
-          alpha: 0.8,
+          alpha: 0.85,
         });
         if (particlesRef.current.length > 12) {
           particlesRef.current.shift();
+        }
+
+        // Spawn energetic sparks on movement or hover
+        const isHovering = mode !== 'default';
+        const sparkCount = isHovering ? 3 : 1;
+        for (let i = 0; i < sparkCount; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 3.5 + 1.5;
+          sparksRef.current.push({
+            id: nextSparkId.current++,
+            x: e.clientX,
+            y: e.clientY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: Math.random() * 3 + 1.5,
+            color: Math.random() > 0.3 ? '#C8102E' : '#FF4D6D',
+            alpha: 1,
+          });
+        }
+        if (sparksRef.current.length > 25) {
+          sparksRef.current.splice(0, sparksRef.current.length - 25);
         }
       }
     };
@@ -85,7 +119,24 @@ export default function Cursor() {
     const onLeave = () => setHidden(true);
     const onEnter = () => setHidden(false);
     const onOver = (e: MouseEvent) => setMode(detectMode(e.target as HTMLElement));
-    const onDown = () => setClicked(true);
+    const onDown = (e: MouseEvent) => {
+      setClicked(true);
+      // Burst of 12 sparks on click
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2 + Math.random() * 0.5;
+        const speed = Math.random() * 5 + 3;
+        sparksRef.current.push({
+          id: nextSparkId.current++,
+          x: e.clientX,
+          y: e.clientY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 4 + 2,
+          color: Math.random() > 0.4 ? '#C8102E' : '#FFFFFF',
+          alpha: 1,
+        });
+      }
+    };
     const onUp = () => setClicked(false);
 
     window.addEventListener('mousemove', onMove);
@@ -95,7 +146,7 @@ export default function Cursor() {
     document.addEventListener('mousedown', onDown);
     document.addEventListener('mouseup', onUp);
 
-    // Animation Loop: Inertia spring + Particle decay
+    // Animation Loop: Inertia spring + Particle & Spark decay
     const loop = () => {
       ringRef.current = {
         x: ringRef.current.x + (dotRef.current.x - ringRef.current.x) * 0.14,
@@ -107,9 +158,22 @@ export default function Cursor() {
         .map(p => ({ ...p, alpha: p.alpha - 0.04 }))
         .filter(p => p.alpha > 0);
 
+      // Physics update & decay sparks
+      sparksRef.current = sparksRef.current
+        .map(s => ({
+          ...s,
+          x: s.x + s.vx,
+          y: s.y + s.vy,
+          vx: s.vx * 0.92,
+          vy: s.vy * 0.92,
+          alpha: s.alpha - 0.045,
+        }))
+        .filter(s => s.alpha > 0);
+
       setDotPos({ ...dotRef.current });
       setRingPos({ ...ringRef.current });
       setParticles([...particlesRef.current]);
+      setSparks([...sparksRef.current]);
 
       rafRef.current = requestAnimationFrame(loop);
     };
@@ -124,7 +188,7 @@ export default function Cursor() {
       document.removeEventListener('mouseup', onUp);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [detectMode]);
+  }, [detectMode, mode]);
 
   if (hidden && dotPos.x < 0) return null;
 
@@ -135,6 +199,28 @@ export default function Cursor() {
 
   return (
     <>
+      {/* Laser Spark Embers */}
+      {sparks.map(s => (
+        <div
+          key={s.id}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: s.size,
+            height: s.size,
+            borderRadius: '50%',
+            backgroundColor: s.color,
+            boxShadow: `0 0 8px ${s.color}, 0 0 16px ${s.color}`,
+            transform: `translate3d(${s.x - s.size / 2}px, ${s.y - s.size / 2}px, 0)`,
+            opacity: hidden ? 0 : s.alpha,
+            pointerEvents: 'none',
+            zIndex: 199998,
+            willChange: 'transform, opacity',
+          }}
+        />
+      ))}
+
       {/* Particle Trail */}
       {particles.map(p => (
         <div
