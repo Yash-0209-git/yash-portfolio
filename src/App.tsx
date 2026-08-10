@@ -64,7 +64,7 @@ function App() {
           <YashOSDesktop onClose={() => setOverdrive(false)} />
         )}
 
-        <main style={{ position: 'relative', zIndex: 1 }}>
+        <main style={{ position: 'relative' }}>
           <Entry />
           <Identity />
           <Work />
