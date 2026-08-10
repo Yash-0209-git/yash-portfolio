@@ -6,8 +6,7 @@ const SECTIONS = [
   { id: 'work',         num: '02' },
   { id: 'stack',        num: '03' },
   { id: 'certificates', num: '04' },
-  { id: 'achievements', num: '05' },
-  { id: 'contact',      num: '06' },
+  { id: 'contact',      num: '05' },
 ];
 
 export default function SideProgress() {

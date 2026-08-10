@@ -10,6 +10,7 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
   const [activeFolder, setActiveFolder] = useState<'root' | 'certs' | 'documents'>('root');
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [selectedCertImg, setSelectedCertImg] = useState('/certificates/hack_a_cure.jpg');
 
   useEffect(() => {
     playTransmissionSound();
@@ -270,32 +271,42 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
             )}
 
             {activeFolder === 'certs' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', backgroundColor: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: '4px', border: '1px solid rgba(200,16,46,0.3)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ fontSize: '32px' }}>📜</div>
-                    <div>
-                      <strong style={{ color: 'white', fontSize: '13px' }}>Hack_A_Cure_VIT_Chennai.jpg</strong>
-                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>TechnoVIT'25 · Issued: 28/10/2025</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                {[
+                  { title: 'Xmedia_Solutions_Internship.png', desc: 'Internship Programme · Issued: 24/07/2026', url: '/certificates/xmedia_internship.png' },
+                  { title: 'Vibe_Hack_2.0_BuildwithIndia.jpg', desc: 'Hack With India Finale at Google · 2026', url: '/certificates/vibe_hack_2.jpg' },
+                  { title: 'Hack_A_Cure_VIT_Chennai.jpg', desc: 'TechnoVIT\'25 · Issued: 28/10/2025', url: '/certificates/hack_a_cure.jpg' },
+                ].map((c) => (
+                  <div key={c.title} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', backgroundColor: 'rgba(255,255,255,0.04)', padding: '0.85rem 1rem', borderRadius: '4px', border: '1px solid rgba(200,16,46,0.25)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                      <div style={{ fontSize: '28px' }}>📜</div>
+                      <div>
+                        <strong style={{ color: 'white', fontSize: '12.5px' }}>{c.title}</strong>
+                        <div style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.5)' }}>{c.desc}</div>
+                      </div>
                     </div>
+                    <button
+                      onClick={() => {
+                        setSelectedCertImg(c.url);
+                        openApp('cert_preview');
+                      }}
+                      data-cursor="pointer"
+                      style={{
+                        backgroundColor: 'var(--red)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.35rem 0.8rem',
+                        fontSize: '10px',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                        marginLeft: 'auto',
+                        fontWeight: 700,
+                      }}
+                    >
+                      VIEW IMAGE 🖼️
+                    </button>
                   </div>
-                  <button
-                    onClick={() => openApp('cert_preview')}
-                    data-cursor="pointer"
-                    style={{
-                      backgroundColor: 'var(--red)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '0.4rem 0.9rem',
-                      fontSize: '11px',
-                      borderRadius: '3px',
-                      cursor: 'pointer',
-                      marginLeft: 'auto',
-                    }}
-                  >
-                    PREVIEW IMAGE 🖼️
-                  </button>
-                </div>
+                ))}
               </div>
             )}
 
@@ -353,15 +364,15 @@ export default function YashOSDesktop({ onClose }: { onClose: () => void }) {
 
       {/* WINDOW 4: CERTIFICATE PREVIEW MODAL */}
       {activeWindow === 'cert_preview' && (
-        <WindowsFrame title="Photo Viewer — Hack_A_Cure_VIT.jpg" onClose={() => setActiveWindow('file_manager')}>
+        <WindowsFrame title="Photo Viewer — Certificate Credential" onClose={() => setActiveWindow('file_manager')}>
           <div style={{ textAlign: 'center' }}>
             <img
-              src="/certificates/hack_a_cure.jpg"
-              alt="Hack A Cure Certificate"
-              style={{ maxWidth: '100%', maxHeight: '420px', borderRadius: '4px', border: '1px solid var(--red)' }}
+              src={selectedCertImg}
+              alt="Certificate Preview"
+              style={{ maxWidth: '100%', maxHeight: '430px', borderRadius: '4px', border: '1px solid var(--red)' }}
             />
-            <div style={{ marginTop: '0.75rem', fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>
-              VIT Chennai — TechnoVIT'25 International Technical Fest (Issued: Oct 28, 2025)
+            <div style={{ marginTop: '0.75rem', fontSize: '11.5px', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
+              VERIFIED DECRYPTED CREDENTIAL FILE
             </div>
           </div>
         </WindowsFrame>

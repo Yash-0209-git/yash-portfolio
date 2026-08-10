@@ -7,8 +7,7 @@ const SECTIONS = [
   { id: 'work',         num: '02', title: 'WORK' },
   { id: 'stack',        num: '03', title: 'STACK' },
   { id: 'certificates', num: '04', title: 'PROOF' },
-  { id: 'achievements', num: '05', title: 'JOURNEY' },
-  { id: 'contact',      num: '06', title: 'CONTACT' },
+  { id: 'contact',      num: '05', title: 'CONTACT' },
 ];
 
 const Navigation: React.FC = () => {

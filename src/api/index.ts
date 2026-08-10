@@ -71,6 +71,25 @@ export const STATIC_SKILLS: Skill[] = [
 
 export const STATIC_CERTS: Certificate[] = [
   {
+    id: 'xmedia-internship',
+    title: 'Development Team Internship',
+    issuer: 'M/s. Xmedia Solutions, Ambattur',
+    issue_date: '24/07/2026',
+    credential_id: '241501251',
+    category: 'Internship',
+    image_url: '/certificates/xmedia_internship.png',
+    visible: true,
+  },
+  {
+    id: 'vibe-hack-2',
+    title: 'Vibe Hack 2.0 (BuildwithIndia Finale)',
+    issuer: 'Hack With India (Finale at Google Office)',
+    issue_date: '2026',
+    category: 'Hackathon',
+    image_url: '/certificates/vibe_hack_2.jpg',
+    visible: true,
+  },
+  {
     id: 'hack-a-cure',
     title: 'Hack A Cure',
     issuer: 'VIT, Chennai (TechnoVIT\'25)',

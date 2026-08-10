@@ -11,7 +11,6 @@ import Identity from './components/sections/Identity';
 import Work from './components/sections/Work';
 import Stack from './components/sections/Stack';
 import Certificates from './components/sections/Certificates';
-import Achievements from './components/sections/Achievements';
 import Contact from './components/sections/Contact';
 
 function App() {
@@ -70,7 +69,6 @@ function App() {
           <Work />
           <Stack />
           <Certificates />
-          <Achievements />
           <Contact />
         </main>
         <Navigation />
