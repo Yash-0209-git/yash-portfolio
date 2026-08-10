@@ -151,7 +151,7 @@ export default function Cursor() {
             transform: `translate3d(${p.x - p.size / 2}px, ${p.y - p.size / 2}px, 0)`,
             opacity: hidden ? 0 : p.alpha,
             pointerEvents: 'none',
-            zIndex: 9998,
+            zIndex: 199998,
             willChange: 'transform, opacity',
           }}
         />
@@ -170,7 +170,7 @@ export default function Cursor() {
           boxShadow: '0 0 10px rgba(200,16,46,0.9), 0 0 20px rgba(200,16,46,0.6)',
           transform: `translate3d(${dotPos.x - 4}px, ${dotPos.y - 4}px, 0) scale(${clicked ? 0.6 : 1})`,
           pointerEvents: 'none',
-          zIndex: 10000,
+          zIndex: 200000,
           opacity: hidden ? 0 : 1,
           transition: 'transform 0.08s ease, opacity 0.2s ease',
           willChange: 'transform',
@@ -193,7 +193,7 @@ export default function Cursor() {
             : '0 0 15px rgba(200,16,46,0.15)',
           transform: `translate3d(${ringPos.x - size / 2}px, ${ringPos.y - size / 2}px, 0) scale(${scale})`,
           pointerEvents: 'none',
-          zIndex: 9999,
+          zIndex: 199999,
           opacity: hidden ? 0 : 0.95,
           transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1), height 0.22s cubic-bezier(0.4,0,0.2,1), background-color 0.2s ease, border 0.2s ease, opacity 0.2s ease',
           display: 'flex',

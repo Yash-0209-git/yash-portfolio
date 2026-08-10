@@ -293,29 +293,6 @@ const Entry: React.FC = () => {
               )}
             </div>
           ))}
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('trigger-overdrive'))}
-            data-cursor="pointer"
-            className="font-mono"
-            style={{
-              marginTop: '0.4rem',
-              background: 'none',
-              border: 'none',
-              color: 'var(--red)',
-              fontSize: '9px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              letterSpacing: '0.12em',
-              padding: 0,
-              textAlign: 'left',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              opacity: 0.8,
-            }}
-          >
-            <span>▶ [OVERDRIVE DOSSIER]: CLICK TO UNLOCK</span>
-          </button>
         </div>
       </div>
 

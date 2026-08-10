@@ -5,7 +5,7 @@ import SignalField from './components/SignalField';
 import ScrollProgress from './components/ScrollProgress';
 import IntroSequence from './components/IntroSequence';
 import SideProgress from './components/SideProgress';
-import ClassifiedDossier from './components/ClassifiedDossier';
+import YashOSDesktop from './components/YashOSDesktop';
 import Entry from './components/sections/Entry';
 import Identity from './components/sections/Identity';
 import Work from './components/sections/Work';
@@ -31,8 +31,7 @@ function App() {
       if (
         keyStr.includes('konami') ||
         keyStr.includes('overdrive') ||
-        keyStr.includes('arrowuparrowuparrowdownarrowdownarrowleftarrowrightarrowleftarrowrightba') ||
-        keyStr.includes('wasa')
+        keyStr.includes('arrowuparrowuparrowdownarrowdownarrowleftarrowrightarrowleftarrowrightba')
       ) {
         setOverdrive(true);
         keyBuffer = [];
@@ -63,7 +62,7 @@ function App() {
         <SideProgress />
 
         {overdrive && (
-          <ClassifiedDossier onClose={() => setOverdrive(false)} />
+          <YashOSDesktop onClose={() => setOverdrive(false)} />
         )}
 
         <main style={{ position: 'relative', zIndex: 1 }}>
