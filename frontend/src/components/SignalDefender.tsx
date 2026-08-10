@@ -46,9 +46,9 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
   const animationFrameRef = useRef(0);
   const spawnTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const PADDLE_WIDTH = 130;
-  const PADDLE_HEIGHT = 16;
-  const PADDLE_Y = window.innerHeight - 80;
+  const PADDLE_WIDTH = 140;
+  const PADDLE_HEIGHT = 18;
+  const PADDLE_Y = window.innerHeight - 90;
 
   useEffect(() => {
     playTransmissionSound();
@@ -65,7 +65,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keysRef.current.right = false;
     };
 
-    // Mouse/Touch drag support
+    // Mouse drag support
     const onMouseMove = (e: MouseEvent) => {
       paddleXRef.current = Math.max(PADDLE_WIDTH / 2, Math.min(window.innerWidth - PADDLE_WIDTH / 2, e.clientX));
       setPaddleX(paddleXRef.current);
@@ -78,15 +78,15 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
     // Spawn falling items
     const spawnItem = () => {
       if (gameOver) return;
-      const isBug = Math.random() < 0.28; // 28% chance of bug
+      const isBug = Math.random() < 0.25; // 25% chance of bug
       const pool = isBug ? BAD_ITEMS : GOOD_ITEMS;
       const template = pool[Math.floor(Math.random() * pool.length)];
 
       const newItem: FallingItem = {
         id: nextId.current++,
-        x: Math.random() * (window.innerWidth - 160) + 80,
+        x: Math.random() * (window.innerWidth - 200) + 100,
         y: -30,
-        speed: Math.random() * 1.5 + 2.0,
+        speed: Math.random() * 1.5 + 2.2,
         label: template.label,
         points: template.points,
         isBug,
@@ -97,15 +97,18 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
       setItems([...itemsRef.current]);
     };
 
-    spawnTimerRef.current = setInterval(spawnItem, 800);
+    // Immediate initial spawn
+    spawnItem();
+    spawnItem();
+
+    spawnTimerRef.current = setInterval(spawnItem, 750);
 
     // Game loop
     let currentLives = 3;
     let currentScore = 0;
 
     const updateGame = () => {
-      // Move paddle via keys
-      const speed = 14;
+      const speed = 16;
       if (keysRef.current.left) {
         paddleXRef.current = Math.max(PADDLE_WIDTH / 2, paddleXRef.current - speed);
         setPaddleX(paddleXRef.current);
@@ -121,9 +124,9 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
       itemsRef.current = itemsRef.current.filter(item => {
         item.y += item.speed;
 
-        // Catch check
-        if (item.y >= PADDLE_Y - 12 && item.y <= PADDLE_Y + PADDLE_HEIGHT + 10) {
-          if (item.x >= pLeft - 20 && item.x <= pRight + 20) {
+        // Catch collision check
+        if (item.y >= PADDLE_Y - 20 && item.y <= PADDLE_Y + PADDLE_HEIGHT + 15) {
+          if (item.x >= pLeft - 25 && item.x <= pRight + 25) {
             if (item.isBug) {
               playBeep(220, 0.25, 0.1);
               currentLives -= 1;
@@ -140,12 +143,12 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
                 localStorage.setItem('signal_defender_highscore', String(currentScore));
               }
             }
-            return false; // Collected
+            return false; // Caught & removed
           }
         }
 
-        // Missed check (good items missed reduce lives if fell off screen)
-        if (item.y > window.innerHeight + 20) {
+        // Remove off-screen items
+        if (item.y > window.innerHeight + 40) {
           return false;
         }
 
@@ -185,10 +188,6 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
         inset: 0,
         backgroundColor: 'rgba(8,8,8,0.96)',
         zIndex: 99999,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         fontFamily: 'JetBrains Mono, monospace',
         userSelect: 'none',
         overflow: 'hidden',
@@ -264,7 +263,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
               top: item.y,
               left: item.x,
               transform: 'translate(-50%, -50%)',
-              backgroundColor: 'rgba(12,12,12,0.9)',
+              backgroundColor: 'rgba(12,12,12,0.92)',
               border: `1.5px solid ${item.color}`,
               borderRadius: '4px',
               padding: '0.35rem 0.75rem',
@@ -275,6 +274,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
               alignItems: 'center',
               gap: '0.4rem',
               pointerEvents: 'none',
+              zIndex: 5,
             }}
           >
             <span>{item.isBug ? '👾' : '⚡'}</span>
@@ -287,7 +287,7 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
           </div>
         ))}
 
-      {/* Player Defender Paddle (Basket) */}
+      {/* Player Defender Catcher Paddle */}
       {!gameOver && (
         <div
           style={{
@@ -298,20 +298,20 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
             width: PADDLE_WIDTH,
             height: PADDLE_HEIGHT,
             backgroundColor: 'var(--red)',
-            borderRadius: '8px',
-            boxShadow: '0 0 25px var(--red), 0 0 40px rgba(200,16,46,0.5)',
+            borderRadius: '6px',
+            boxShadow: '0 0 25px var(--red), 0 0 45px rgba(200,16,46,0.6)',
             border: '2px solid white',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             pointerEvents: 'none',
-            transition: 'transform 0.05s ease-out',
+            zIndex: 8,
           }}
         >
           <div
             className="font-mono"
             style={{
-              fontSize: '8px',
+              fontSize: '9px',
               color: 'white',
               fontWeight: 700,
               letterSpacing: '0.15em',
@@ -326,12 +326,16 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
       {gameOver && (
         <div
           style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '1.5rem',
             textAlign: 'center',
-            backgroundColor: 'rgba(12,12,12,0.92)',
+            backgroundColor: 'rgba(12,12,12,0.95)',
             border: '1px solid var(--red)',
             padding: '3rem 4rem',
             borderRadius: '8px',
@@ -388,15 +392,18 @@ export default function SignalDefender({ onClose }: { onClose: () => void }) {
           style={{
             position: 'absolute',
             bottom: '1.5rem',
+            left: 0,
+            right: 0,
             color: 'rgba(237,235,230,0.4)',
             fontSize: '10px',
             letterSpacing: '0.18em',
             display: 'flex',
-            gap: '1.5rem',
+            justifyContent: 'center',
+            gap: '2rem',
           }}
         >
           <span>← / → OR A / D KEYS TO MOVE CATCHER</span>
-          <span>OR GLIDE MOUSE LEFT/RIGHT</span>
+          <span>OR GLIDE MOUSE LEFT / RIGHT</span>
         </div>
       )}
     </div>
