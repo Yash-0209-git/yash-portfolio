@@ -19,7 +19,7 @@ let audioCtx: AudioContext | null = null;
 let isMuted = false; // Enabled by default; user can mute/unmute anytime
 let bgmAudio: HTMLAudioElement | null = null;
 let bgmStarted = false;
-let currentVolume = 0.85; // DEFAULT 85% VOLUME
+let currentVolume = 0.34; // DEFAULT 34% VOLUME
 let currentTrackIndex = 0; // Default: Annihilate (index 0)
 
 function initBgm() {
