@@ -24,6 +24,31 @@ export const STATIC_PROJECTS: Project[] = [
     thumbnail_url: '/projects/leesculpt.png',
   },
   {
+    id: 'code-sage-ai',
+    slug: 'code-sage-ai',
+    title: 'CodeSage AI',
+    short_description:
+      'An intelligent Codebase Analysis & RAG Debugging Platform that extracts repository .zip files, detects project architecture, flags bugs & security issues, generates feature roadmaps, and provides an interactive Deep AI RAG assistant for full repository Q&A.',
+    category: 'AI / Developer Tools',
+    year: 2026,
+    status: 'completed',
+    github_url: 'https://github.com/Yash-0209-git/code-sage-ai.git',
+    technologies: [
+      'Python', 'FastAPI', 'React', 'TypeScript', 'RAG',
+      'Groq API', 'Llama 3.3 70B', 'ZIP Parsing', 'AST Parser', 'Tailwind CSS',
+    ],
+    featured: true,
+    published: true,
+    display_order: 1,
+    problem:
+      'Developers and code reviewers spend hours understanding unfamiliar codebases, tracing architectural symbols, detecting hidden bugs, and configuring environment setup.',
+    solution:
+      'CodeSage AI automates full repository comprehension by parsing uploaded .zip project archives, extracting AST file symbols, detecting architectural type, running automated issue detection, and providing an interactive Deep AI RAG chatbot for immediate repository Q&A.',
+    challenges:
+      'Efficiently parsing multi-file ZIP archives in memory, extracting AST symbols without code execution, and indexing repository context for low-latency RAG vector search.',
+    thumbnail_url: '/projects/code-sage-ai.png',
+  },
+  {
     id: 'rag-tech-bot',
     slug: 'rag-tech-bot',
     title: 'RAG-Tech Bot',
@@ -40,7 +65,7 @@ export const STATIC_PROJECTS: Project[] = [
     ],
     featured: true,
     published: true,
-    display_order: 1,
+    display_order: 2,
     problem:
       'Standard LLMs answer from general training data, producing hallucinations or outdated answers for domain-specific technical queries.',
     solution:

@@ -12,8 +12,13 @@ interface Message {
 const KNOWLEDGE_BASE = [
   {
     keywords: ['project', 'projects', 'built', 'work', 'portfolio'],
-    answer: 'Yashwanth has engineered standout full-stack AI applications:\n\n1. 🏋️ **LeeSculpt Gym Application** (2026) — AI-powered Gym Management System with personalized fitness tracking, automated diet guidance via Groq & Gemini API, and WhatsApp notifications.\n2. 🤖 **RAG-Tech Bot** (2025) — Technical QA Chatbot featuring query expansion, FAISS vector retrieval, reranking, and Llama 3.3 70B generation.',
+    answer: 'Yashwanth has engineered standout full-stack AI applications:\n\n1. 🏋️ **LeeSculpt Gym Application** (2026) — AI-powered Gym Management System with personalized fitness tracking, automated diet guidance via Groq & Gemini API, and WhatsApp notifications.\n2. 🔮 **CodeSage AI** (2026) — Intelligent Codebase Analysis & RAG Debugging Platform that extracts repository .zip files, detects project architecture, flags bugs & security issues, and provides an interactive Deep AI RAG assistant.\n3. 🤖 **RAG-Tech Bot** (2025) — Technical QA Chatbot featuring query expansion, FAISS vector retrieval, reranking, and Llama 3.3 70B generation.',
     sources: ['PROJECT_INDEX.DB', 'STATIC_PROJECTS.TS'],
+  },
+  {
+    keywords: ['codesage', 'sage', 'code-sage', 'zip', 'analyzer', 'repository', 'ast', 'debugging'],
+    answer: '🔮 **CodeSage AI (2026)**:\n- **Problem**: Developers spend hours understanding unfamiliar codebases, tracing architectural symbols, and finding hidden bugs.\n- **Solution**: Upload complete project .zip folders to extract files, detect project architecture types, extract AST symbols, run issue detection, generate feature roadmaps, and chat with a Deep AI RAG assistant.\n- **Tech Stack**: Python, FastAPI, React, TypeScript, RAG, Groq API, Llama 3.3 70B, ZIP Parsing, AST Parser, Tailwind CSS.',
+    sources: ['CODESAGE_AI_DOCS.MD', 'AST_PARSER_ENGINE.PY'],
   },
   {
     keywords: ['leesculpt', 'gym', 'health', 'fitness'],
@@ -215,6 +220,7 @@ export default function RAGChatbotApp() {
       <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
         {[
           'Tell me about LeeSculpt',
+          'Tell me about CodeSage AI',
           'What is RAG-Tech Bot?',
           'What is Yashwanth\'s tech stack?',
           'Internship details',
