@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fetchAbout } from '../../api';
 import { About } from '../../types';
 import { useReveal } from '../../hooks/useReveal';
@@ -7,44 +7,62 @@ import { playBeep } from '../../utils/audio';
 const FULL_BIO =
   'An AI/ML-focused developer who enjoys building practical, intelligent software that solves real-world problems. I work across Python, FastAPI, React, PostgreSQL, and AI/LLM technologies, with a strong interest in backend architecture, intelligent automation, and building polished user experiences.';
 
-const TRAITS = [
-  { label: 'BACKEND ARCHITECTURE', level: 5, max: 5 },
-  { label: 'AI & LLM INTEGRATION', level: 5, max: 5 },
-  { label: 'FRONTEND ENGINEERING', level: 4, max: 5 },
-  { label: 'SYSTEM DESIGN',        level: 4, max: 5 },
-  { label: 'PROBLEM SOLVING',      level: 5, max: 5 },
+const CAPABILITIES = [
+  { label: 'BACKEND ARCHITECTURE (FASTAPI / ASYNC)', percent: 98, status: 'OPTIMAL' },
+  { label: 'AI & RAG PIPELINES (GROQ / FAISS / LLAMA 3.3)', percent: 96, status: 'OPTIMAL' },
+  { label: 'FULL-STACK UI (REACT 18 / TYPESCRIPT)', percent: 94, status: 'ACTIVE' },
+  { label: 'DATABASE & DATA SCHEMAS (POSTGRESQL / SUPABASE)', percent: 92, status: 'ACTIVE' },
+  { label: 'SYSTEM LATENCY & API PERFORMANCE', percent: 99, status: 'LOW LATENCY' },
 ];
 
-const PILLARS = [
+const DISPATCHES = [
   {
-    num: '01', title: 'BACKEND ARCHITECTURE', subtitle: 'FastAPI & Async Systems',
-    desc: 'Low-latency REST APIs, stateless JWT auth pipelines, and resilient database queries with PostgreSQL & SQLAlchemy.',
-    tech: ['Python', 'FastAPI', 'PostgreSQL', 'SQLAlchemy'],
+    date: '2026.07',
+    title: 'Development Team Internship',
+    org: 'M/s. Xmedia Solutions, Ambattur',
+    desc: 'Completed 30-day intensive internship in backend API development, software engineering, and system optimization.',
+    badge: 'INTERNSHIP',
   },
   {
-    num: '02', title: 'AI & LLM INTEGRATION', subtitle: 'Intelligent Automation',
-    desc: 'Integrating Groq API, Gemini LLM models, and RAG pipelines into full-stack applications with real-time AI guidance.',
-    tech: ['Groq API', 'Google Gemini', 'RAG', 'AI Workflows'],
+    date: '2026.01',
+    title: 'Vibe Hack 2.0 (BuildwithIndia Finale)',
+    org: 'Hack With India (Finale at Google Office)',
+    desc: 'Selected among the top 5,000 teams out of 25,000 participating teams across India.',
+    badge: 'TOP 5K FINALE',
   },
   {
-    num: '03', title: 'EDITORIAL UI', subtitle: 'React & Interactive Systems',
-    desc: 'Brutalist, dynamic interfaces with smooth physics, custom cursors, and responsive state synchronization.',
-    tech: ['React 18', 'TypeScript', 'Vanilla CSS', 'Vite'],
+    date: '2025.10',
+    title: 'Hack A Cure',
+    org: 'VIT Chennai (TechnoVIT\'25)',
+    desc: 'Developed AI-assisted healthcare diagnostics workflow under competition constraints.',
+    badge: 'HACKATHON',
+  },
+  {
+    date: '2024 - PRESENT',
+    title: 'Rajalakshmi Engineering College (REC)',
+    org: 'Department of Artificial Intelligence & Machine Learning',
+    desc: 'Specializing in machine learning algorithms, database architectures, and full-stack software development.',
+    badge: 'EDUCATION',
   },
 ];
+
+const RING_1_NODES = ['PYTHON', 'FASTAPI', 'REACT', 'TYPESCRIPT'];
+const RING_2_NODES = ['RAG PIPELINES', 'GROQ API', 'LLAMA 3.3', 'FAISS VECTOR'];
+const RING_3_NODES = ['FULL STACK', 'BACKEND ARCH', 'INTELLIGENT AI'];
 
 /* ═══════════════════════════════════════════════════════
-   RADAR PHOTO DISPLAY (WITH INTERACTIVE HOVER & TILT)
+   ORBITING NEURAL IDENTITY CORE (IDEA 2)
 ═══════════════════════════════════════════════════════ */
-const RadarDisplay: React.FC<{ src: string; scanning: boolean }> = ({ src, scanning }) => {
-  const [hovered, setHovered] = useState(false);
+const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
+  const [activeNode, setActiveNode] = useState<string | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [hovered, setHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: x * 20, y: -y * 20 });
+    setTilt({ x: x * 18, y: -y * 18 });
   };
 
   const handleMouseLeave = () => {
@@ -57,588 +75,582 @@ const RadarDisplay: React.FC<{ src: string; scanning: boolean }> = ({ src, scann
       onMouseEnter={() => setHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      data-cursor="view"
       style={{
         position: 'relative',
-        width: 290,
-        height: 290,
-        flexShrink: 0,
-        cursor: 'pointer',
-        perspective: 1000,
+        width: '360px',
+        height: '360px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        userSelect: 'none',
       }}
     >
+      {/* ── Outer Ring 3 (Slow Clockwise Rotation) ── */}
       <div
         style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale(${hovered ? 1.05 : 1})`,
-          transition: hovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease',
+          position: 'absolute',
+          width: '350px',
+          height: '350px',
+          borderRadius: '50%',
+          border: '1px dashed rgba(200, 16, 46, 0.25)',
+          animation: 'spinClockwise 28s linear infinite',
         }}
       >
-        {/* Outer glow aura */}
-        <div style={{
-          position: 'absolute', inset: -14,
-          borderRadius: '50%',
-          background: `radial-gradient(circle, rgba(200,16,46,${hovered ? 0.35 : 0.15}) 0%, transparent 70%)`,
-          animation: 'radarAuraPulse 3s ease-in-out infinite',
-          transition: 'background 0.3s ease',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Outermost ring — rotating dashed */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          borderRadius: '50%',
-          border: `1px dashed ${hovered ? 'rgba(200,16,46,0.6)' : 'rgba(200,16,46,0.25)'}`,
-          transition: 'border-color 0.3s ease',
-        }} />
-
-        {/* Coordinate tick marks at cardinal points */}
-        {[0, 90, 180, 270].map(deg => {
-          const rad = (deg * Math.PI) / 180;
-          const r = 143;
-          const cx = 145 + r * Math.sin(rad);
-          const cy = 145 - r * Math.cos(rad);
+        {RING_3_NODES.map((node, i) => {
+          const angle = (i * 360) / RING_3_NODES.length;
           return (
-            <div key={deg} style={{
-              position: 'absolute',
-              left: cx - 2, top: cy - 2,
-              width: hovered ? 7 : 5,
-              height: hovered ? 7 : 5,
-              borderRadius: '50%',
-              backgroundColor: hovered ? '#C8102E' : 'rgba(200,16,46,0.5)',
-              boxShadow: hovered ? '0 0 10px #C8102E' : 'none',
-              transition: 'all 0.3s ease',
-            }} />
+            <div
+              key={node}
+              onMouseEnter={() => { setActiveNode(node); playBeep(750, 0.05); }}
+              onMouseLeave={() => setActiveNode(null)}
+              data-cursor="pointer"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: `rotate(${angle}deg) translate(175px) rotate(-${angle}deg)`,
+                backgroundColor: activeNode === node ? 'var(--red)' : 'rgba(15,15,15,0.9)',
+                color: activeNode === node ? 'white' : 'rgba(200,16,46,0.85)',
+                border: '1px solid var(--red)',
+                padding: '0.15rem 0.45rem',
+                borderRadius: '3px',
+                fontSize: '8.5px',
+                fontFamily: 'JetBrains Mono, monospace',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                boxShadow: activeNode === node ? '0 0 12px rgba(200,16,46,0.6)' : 'none',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {node}
+            </div>
           );
         })}
+      </div>
 
-        {/* Radar sweep beam */}
-        <div style={{
-          position: 'absolute', inset: 8,
+      {/* ── Middle Ring 2 (Counter-Clockwise Rotation) ── */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '280px',
+          height: '280px',
           borderRadius: '50%',
-          background: `conic-gradient(from 0deg at 50% 50%, rgba(200,16,46,${hovered ? 0.45 : 0.22}) 0deg, transparent 55deg, transparent 360deg)`,
-          animation: `radarSweep ${hovered ? '1.5s' : '3s'} linear infinite`,
-          animationPlayState: scanning || hovered ? 'running' : 'paused',
-        }} />
+          border: '1px solid rgba(200, 16, 46, 0.2)',
+          animation: 'spinCounter 20s linear infinite',
+        }}
+      >
+        {RING_2_NODES.map((node, i) => {
+          const angle = (i * 360) / RING_2_NODES.length;
+          return (
+            <div
+              key={node}
+              onMouseEnter={() => { setActiveNode(node); playBeep(800, 0.05); }}
+              onMouseLeave={() => setActiveNode(null)}
+              data-cursor="pointer"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: `rotate(${angle}deg) translate(140px) rotate(-${angle}deg)`,
+                backgroundColor: activeNode === node ? 'var(--red)' : 'rgba(15,15,15,0.9)',
+                color: activeNode === node ? 'white' : 'rgba(255,255,255,0.7)',
+                border: '1px solid rgba(200,16,46,0.4)',
+                padding: '0.15rem 0.4rem',
+                borderRadius: '3px',
+                fontSize: '8px',
+                fontFamily: 'JetBrains Mono, monospace',
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                boxShadow: activeNode === node ? '0 0 10px rgba(200,16,46,0.5)' : 'none',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {node}
+            </div>
+          );
+        })}
+      </div>
 
-        {/* Middle ring — thicker, crisp */}
-        <div style={{
-          position: 'absolute', inset: 16,
+      {/* ── Inner Ring 1 (Fast Clockwise Rotation) ── */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '210px',
+          height: '210px',
           borderRadius: '50%',
-          border: `1.5px solid ${hovered ? 'rgba(200,16,46,0.7)' : 'rgba(200,16,46,0.35)'}`,
-          transition: 'border-color 0.3s ease',
-        }} />
+          border: '1px dashed rgba(200, 16, 46, 0.3)',
+          animation: 'spinClockwise 14s linear infinite',
+        }}
+      >
+        {RING_1_NODES.map((node, i) => {
+          const angle = (i * 360) / RING_1_NODES.length;
+          return (
+            <div
+              key={node}
+              onMouseEnter={() => { setActiveNode(node); playBeep(850, 0.05); }}
+              onMouseLeave={() => setActiveNode(null)}
+              data-cursor="pointer"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: `rotate(${angle}deg) translate(105px) rotate(-${angle}deg)`,
+                backgroundColor: activeNode === node ? 'var(--red)' : 'rgba(20,20,25,0.95)',
+                color: activeNode === node ? 'white' : 'var(--red)',
+                border: '1px solid var(--red)',
+                padding: '0.12rem 0.35rem',
+                borderRadius: '2px',
+                fontSize: '7.5px',
+                fontFamily: 'JetBrains Mono, monospace',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                boxShadow: activeNode === node ? '0 0 10px rgba(200,16,46,0.6)' : 'none',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {node}
+            </div>
+          );
+        })}
+      </div>
 
-        {/* Cross-hair lines */}
-        <div style={{ position:'absolute', left:'50%', top:8, bottom:8, width:1, background: hovered ? 'rgba(200,16,46,0.4)' : 'rgba(200,16,46,0.15)', transform:'translateX(-50%)', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', top:'50%', left:8, right:8, height:1, background: hovered ? 'rgba(200,16,46,0.4)' : 'rgba(200,16,46,0.15)', transform:'translateY(-50%)', pointerEvents:'none' }} />
-
-        {/* Photo circle */}
-        <div style={{
-          position: 'absolute', inset: 28,
+      {/* ── Central 3D Tilt Profile Photo Frame ── */}
+      <div
+        style={{
+          position: 'relative',
+          width: '155px',
+          height: '155px',
           borderRadius: '50%',
           overflow: 'hidden',
-          border: `2px solid ${hovered ? '#C8102E' : 'rgba(200,16,46,0.55)'}`,
-          boxShadow: hovered
-            ? '0 0 30px rgba(200,16,46,0.6), inset 0 0 25px rgba(0,0,0,0.6)'
-            : '0 0 20px rgba(200,16,46,0.3), inset 0 0 20px rgba(0,0,0,0.4)',
-          transition: 'all 0.3s ease',
-        }}>
-          {src ? (
-            <img src={src} alt="Yashwanth"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'top center',
-                filter: hovered
-                  ? 'brightness(1.05) contrast(1.15)'
-                  : 'brightness(0.92) contrast(1.05)',
-                transform: hovered ? 'scale(1.12)' : 'scale(1)',
-                transition: 'transform 0.4s ease, filter 0.4s ease',
-              }}
-            />
-          ) : (
-            <div style={{ width:'100%', height:'100%', background:'rgba(200,16,46,0.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <span style={{ fontSize: 48, opacity: 0.4 }}>👤</span>
-            </div>
-          )}
+          border: '2px solid var(--red)',
+          boxShadow: '0 0 24px rgba(200, 16, 46, 0.4)',
+          transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale(${hovered ? 1.05 : 1})`,
+          transition: hovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease',
+          zIndex: 5,
+        }}
+      >
+        <img
+          src={src}
+          alt="Yashwanth Profile"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'contrast(1.05) brightness(0.95)',
+          }}
+        />
 
-          {/* Scanline overlay */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)',
-            pointerEvents: 'none',
-          }} />
-        </div>
+        {/* Live Scan Sweep Line */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: 'linear-gradient(90deg, transparent, #FF2A4B, transparent)',
+            boxShadow: '0 0 8px #FF2A4B',
+            animation: 'photoScanSweep 2.8s ease-in-out infinite',
+          }}
+        />
 
-        {/* Floating HUD Tags on Hover */}
-        {hovered && (
-          <>
-            <div
-              className="font-mono"
-              style={{
-                position: 'absolute',
-                top: '-10px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                fontSize: '8px',
-                color: 'var(--text-primary)',
-                backgroundColor: 'rgba(10,5,5,0.92)',
-                border: '1px solid var(--red)',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '3px',
-                letterSpacing: '0.15em',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 0 12px rgba(200,16,46,0.4)',
-                zIndex: 10,
-              }}
-            >
-              ● IDENTITY SCAN // ACTIVE
-            </div>
-            <div
-              className="font-mono"
-              style={{
-                position: 'absolute',
-                bottom: '-12px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                fontSize: '8px',
-                color: '#00FF66',
-                backgroundColor: 'rgba(10,5,5,0.92)',
-                border: '1px solid rgba(0,255,102,0.4)',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '3px',
-                letterSpacing: '0.12em',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 0 10px rgba(0,255,102,0.3)',
-                zIndex: 10,
-              }}
-            >
-              AI FULL STACK DEV
-            </div>
-          </>
-        )}
-
-        {/* Center crosshair dot */}
-        <div style={{
-          position: 'absolute', left:'50%', top:'50%',
-          transform:'translate(-50%,-50%)',
-          width: hovered ? 10 : 8,
-          height: hovered ? 10 : 8,
-          borderRadius:'50%',
-          backgroundColor: hovered ? '#C8102E' : 'rgba(200,16,46,0.6)',
-          boxShadow: hovered ? '0 0 16px #C8102E' : '0 0 8px rgba(200,16,46,0.8)',
-          pointerEvents:'none',
-          transition: 'all 0.3s ease',
-        }} />
+        {/* Corner HUD Brackets */}
+        <div className="font-mono" style={{ position: 'absolute', top: 4, left: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>┌</div>
+        <div className="font-mono" style={{ position: 'absolute', top: 4, right: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>┐</div>
+        <div className="font-mono" style={{ position: 'absolute', bottom: 4, left: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>└</div>
+        <div className="font-mono" style={{ position: 'absolute', bottom: 4, right: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>┘</div>
       </div>
-    </div>
-  );
-};
 
-/* ═══════════════════════════════════════════════════════
-   SIGNAL STRENGTH BAR (like WiFi bars, but vertical)
-═══════════════════════════════════════════════════════ */
-const SignalBar: React.FC<{ label: string; level: number; max: number; animate: boolean; delay: number }> =
-  ({ label, level, max, animate, delay }) => {
-  const [filled, setFilled] = useState(0);
-
-  useEffect(() => {
-    if (!animate) return;
-    const t = setTimeout(() => {
-      let i = 0;
-      const interval = setInterval(() => {
-        i++;
-        setFilled(i);
-        if (i >= level) clearInterval(interval);
-      }, 80);
-      return () => clearInterval(interval);
-    }, delay);
-    return () => clearTimeout(t);
-  }, [animate, level, delay]);
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-      {/* Bars */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '20px' }}>
-        {Array.from({ length: max }).map((_, i) => (
-          <div key={i} style={{
-            width: 6,
-            height: `${40 + i * 12}%`,
-            borderRadius: '1px',
-            backgroundColor: i < filled ? '#C8102E' : 'rgba(200,16,46,0.15)',
-            boxShadow: i < filled ? '0 0 5px rgba(200,16,46,0.5)' : 'none',
-            transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
-          }} />
-        ))}
-      </div>
-      {/* Label */}
-      <span style={{ fontFamily:'monospace', fontSize:'8px', letterSpacing:'0.12em', color:'rgba(237,235,230,0.5)' }}>
-        {label}
-      </span>
-    </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════
-   DOWNLOAD RESUME WITH PROGRESS BAR
-═══════════════════════════════════════════════════════ */
-const DownloadButton: React.FC = () => {
-  const [progress, setProgress] = useState<number | null>(null);
-
-  const handleClick = () => {
-    if (progress !== null) return;
-    playBeep(600, 0.06);
-    setProgress(0);
-    let p = 0;
-    const interval = setInterval(() => {
-      p += 7 + Math.random() * 11;
-      if (p >= 100) {
-        p = 100;
-        clearInterval(interval);
-        setProgress(100);
-        setTimeout(() => {
-          window.open('/C_Yashwanth_Resume.pdf', '_blank');
-          setProgress(null);
-        }, 300);
-      }
-      setProgress(Math.round(p));
-    }, 55);
-  };
-
-  return (
-    <button onClick={handleClick} data-cursor="pointer"
-      style={{
-        position: 'relative', overflow: 'hidden',
-        backgroundColor: progress !== null ? 'rgba(200,16,46,0.15)' : 'var(--red)',
-        border: '1px solid var(--red)',
-        color: 'white', fontFamily:'monospace',
-        fontSize: '9px', fontWeight: 700,
-        letterSpacing: '0.12em',
-        padding: '0.65rem 1.2rem', borderRadius: '3px',
-        cursor: 'pointer', width: '100%',
-        transition: 'background-color 0.3s ease',
-        boxShadow: progress === null ? '0 0 16px rgba(200,16,46,0.35)' : 'none',
-      }}>
-      {/* Fill bar */}
-      {progress !== null && (
-        <div style={{
-          position: 'absolute', inset: 0, left: 0,
-          width: `${progress}%`,
-          backgroundColor: 'rgba(200,16,46,0.4)',
-          transition: 'width 0.05s linear',
-        }} />
-      )}
-      <span style={{ position: 'relative', zIndex: 1 }}>
-        {progress === null
-          ? '📡 TRANSMIT RESUME'
-          : progress === 100
-          ? '✓ TRANSFER COMPLETE'
-          : `TRANSMITTING... ${progress}%`
-        }
-      </span>
-    </button>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════
-   STAT COUNTER (reused from original)
-═══════════════════════════════════════════════════════ */
-const StatCounter: React.FC<{ target: number; label: string; suffix: string; visible: boolean; delay: number }> =
-  ({ target, label, suffix, visible, delay }) => {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    if (!visible || started) return;
-    const t = setTimeout(() => {
-      setStarted(true);
-      const steps = 40;
-      const inc = target / steps;
-      let cur = 0;
-      const iv = setInterval(() => {
-        cur = Math.min(cur + inc, target);
-        setCount(Math.round(cur));
-        if (cur >= target) clearInterval(iv);
-      }, 1200 / steps);
-    }, delay);
-    return () => clearTimeout(t);
-  }, [visible, started, target, delay]);
-
-  return (
-    <div style={{ display:'flex', flexDirection:'column', gap:'0.2rem' }}>
-      <span className="font-bebas" style={{ fontSize:'34px', color:'var(--text-primary)', lineHeight:1 }}>
-        {count}{suffix}
-      </span>
-      <span className="font-mono" style={{ fontSize:'7.5px', color:'rgba(200,16,46,0.4)', letterSpacing:'0.2em' }}>
-        {label}
-      </span>
-    </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════
-   MAIN IDENTITY SECTION
-═══════════════════════════════════════════════════════ */
-const Identity: React.FC = () => {
-  const [about, setAbout] = useState<About | null>(null);
-  const [typedBio, setTypedBio] = useState('');
-  const [activePillar, setActivePillar] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
-  const bioRef = useRef(false);
-
-  const [sectionRef, sectionVisible] = useReveal<HTMLElement>({ threshold: 0.15 });
-  const [leftRef, leftVisible] = useReveal<HTMLDivElement>({ threshold: 0.1 });
-  const [rightRef, rightVisible] = useReveal<HTMLDivElement>({ threshold: 0.1, delay: 100 });
-
-  useEffect(() => {
-    fetchAbout().then(data => setAbout(data || {
-      name: 'Yashwanth',
-      role: 'AI Full Stack Developer',
-      tagline: 'Ideas, engineered into reality.',
-      bio: FULL_BIO,
-      profile_photo_url: '/profile.jpg',
-    }));
-  }, []);
-
-  // Typewriter effect — fires once when section visible
-  useEffect(() => {
-    if (!sectionVisible || bioRef.current) return;
-    bioRef.current = true;
-    const bio = about?.bio || FULL_BIO;
-    let i = 0;
-    const iv = setInterval(() => {
-      i += 2;
-      setTypedBio(bio.slice(0, i));
-      if (i >= bio.length) clearInterval(iv);
-    }, 22);
-    return () => clearInterval(iv);
-  }, [sectionVisible, about]);
-
-  const handleCopySpecs = () => {
-    navigator.clipboard.writeText(JSON.stringify({
-      name: about?.name, role: about?.role,
-      stack: ['Python', 'FastAPI', 'React', 'TypeScript', 'PostgreSQL', 'Groq API'],
-      location: 'India', status: 'Transmitting',
-    }, null, 2));
-    setCopied(true);
-    playBeep(800, 0.05);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <section
-      id="identity"
-      ref={sectionRef as React.RefObject<HTMLElement>}
-      style={{ backgroundColor: 'var(--bg-2)', position: 'relative', overflow: 'hidden' }}
-    >
-      <div style={{ height:'1px', background:'linear-gradient(90deg, transparent, rgba(200,16,46,0.2), transparent)' }} />
-
-      <div className="section-container">
-
-        {/* Chapter header */}
-        <div ref={leftRef} className={`chapter-header reveal${leftVisible ? ' visible' : ''}`} style={{ marginBottom: '3rem' }}>
-          <h2 className="font-bebas chapter-number">01</h2>
-          <div style={{ display:'flex', flexDirection:'column', gap:'0.2rem' }}>
-            <span className="font-mono signal-label">SIGNAL 01</span>
-            <span className="font-mono" style={{ fontSize:'14px', color:'var(--text-primary)', letterSpacing:'0.18em' }}>ABOUT ME</span>
-          </div>
-        </div>
-
-        {/* ── MAIN CONTENT: two columns ── */}
-        <div style={{ display:'grid', gridTemplateColumns:'300px 1fr', gap:'clamp(2rem, 5vw, 5rem)', alignItems:'start' }}>
-
-          {/* ── LEFT COLUMN ── */}
-          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'1.5rem', position:'sticky', top:'2rem' }}>
-
-            {/* Radar Photo */}
-            <RadarDisplay
-              src={about?.profile_photo_url || '/profile.jpg'}
-              scanning={sectionVisible}
-            />
-
-            {/* Signal Origin HUD */}
-            <div style={{
-              width: '100%',
-              background: 'rgba(10,6,6,0.9)',
-              border: '1px solid rgba(200,16,46,0.25)',
-              borderRadius: '4px',
-              padding: '0.9rem 1rem',
-            }}>
-              <div className="font-mono" style={{ fontSize:'7px', letterSpacing:'0.22em', color:'var(--red)', marginBottom:'0.7rem', borderBottom:'1px solid rgba(200,16,46,0.15)', paddingBottom:'0.5rem' }}>
-                SIGNAL ORIGIN
-              </div>
-              {[
-                { key: 'ENTITY',   val: about?.name || 'YASHWANTH' },
-                { key: 'ROLE',     val: about?.role || 'AI FULL STACK DEV' },
-                { key: 'ORIGIN',   val: 'INDIA' },
-                { key: 'COORDS',   val: '12.97°N · 77.59°E' },
-                { key: 'FREQ',     val: '2.4 GHz' },
-                { key: 'STATUS',   val: '● TRANSMITTING', color: '#00FF66' },
-              ].map(row => (
-                <div key={row.key} style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.4rem', gap:'0.5rem' }}>
-                  <span className="font-mono" style={{ fontSize:'7px', letterSpacing:'0.1em', color:'rgba(237,235,230,0.3)', flexShrink:0 }}>{row.key}</span>
-                  <span className="font-mono" style={{ fontSize:'7px', letterSpacing:'0.08em', color: row.color || 'rgba(237,235,230,0.75)', textAlign:'right' }}>{row.val}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Download Resume with transfer progress */}
-            <DownloadButton />
-          </div>
-
-          {/* ── RIGHT COLUMN ── */}
-          <div ref={rightRef} className={`reveal${rightVisible ? ' visible' : ''}`}
-            style={{ display:'flex', flexDirection:'column', gap:'2rem' }}>
-
-            {/* Name & Role */}
-            <div>
-              <h3 className="font-bebas" style={{ fontSize:'clamp(36px, 5vw, 60px)', color:'var(--text-primary)', margin:0, lineHeight:1 }}>
-                {about?.name || 'Yashwanth'}
-              </h3>
-              <p className="font-mono" style={{ fontSize:'11px', color:'var(--red)', marginTop:'0.4rem', letterSpacing:'0.15em' }}>
-                {about?.role || 'AI Full Stack Developer'}
-              </p>
-            </div>
-
-            {/* ── TYPEWRITER BIO ── */}
-            <div style={{
-              background: 'rgba(8,5,5,0.7)',
-              border: '1px solid rgba(200,16,46,0.2)',
-              borderLeft: '3px solid rgba(200,16,46,0.6)',
-              borderRadius: '3px',
-              padding: '1.1rem 1.2rem',
-              position: 'relative',
-            }}>
-              <div className="font-mono" style={{ fontSize:'7px', letterSpacing:'0.22em', color:'rgba(200,16,46,0.55)', marginBottom:'0.6rem' }}>
-                INCOMING TRANSMISSION ▼
-              </div>
-              <p style={{ fontSize:'13.5px', lineHeight:1.8, color:'rgba(237,235,230,0.75)', margin:0, fontWeight:300, minHeight:'4.5rem' }}>
-                {typedBio}
-                <span style={{ display:'inline-block', width:'2px', height:'14px', backgroundColor:'var(--red)', marginLeft:'2px', verticalAlign:'middle', animation:'cursorBlink 0.8s ease infinite' }} />
-              </p>
-            </div>
-
-            {/* ── SIGNAL STRENGTH BARS ── */}
-            <div>
-              <div className="font-mono" style={{ fontSize:'7.5px', letterSpacing:'0.22em', color:'rgba(200,16,46,0.4)', marginBottom:'1rem' }}>
-                CAPABILITY SIGNALS
-              </div>
-              <div style={{ display:'flex', flexDirection:'column', gap:'0.65rem' }}>
-                {TRAITS.map((t, i) => (
-                  <SignalBar key={t.label} label={t.label} level={t.level} max={t.max}
-                    animate={sectionVisible} delay={i * 120} />
-                ))}
-              </div>
-            </div>
-
-            {/* ── CORE ENGINEERING PILLARS ── */}
-            <div>
-              <div className="font-mono" style={{ fontSize:'7.5px', letterSpacing:'0.22em', color:'rgba(200,16,46,0.4)', marginBottom:'1rem' }}>
-                CORE ENGINEERING PILLARS
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'0.85rem' }}>
-                {PILLARS.map((p, idx) => (
-                  <div key={p.num} data-cursor="view"
-                    onMouseEnter={() => { setActivePillar(idx); playBeep(450 + idx * 100, 0.04); }}
-                    onMouseLeave={() => setActivePillar(null)}
-                    style={{
-                      background: activePillar === idx ? 'rgba(200,16,46,0.08)' : 'var(--bg-3)',
-                      border: `1px solid ${activePillar === idx ? 'rgba(200,16,46,0.5)' : 'rgba(255,255,255,0.05)'}`,
-                      borderLeft: `2px solid ${activePillar === idx ? 'var(--red)' : 'rgba(200,16,46,0.25)'}`,
-                      borderRadius: '4px', padding: '1rem',
-                      transition: 'all 0.25s ease',
-                      transform: activePillar === idx ? 'translateY(-3px)' : 'translateY(0)',
-                      boxShadow: activePillar === idx ? '0 8px 24px rgba(200,16,46,0.18)' : 'none',
-                      cursor: 'pointer',
-                    }}>
-                    <div className="font-mono" style={{ fontSize:'8px', color:'var(--red)', letterSpacing:'0.12em', marginBottom:'0.4rem' }}>
-                      {p.num} // {p.subtitle.toUpperCase()}
-                    </div>
-                    <h4 className="font-bebas" style={{ fontSize:'16px', color:'var(--text-primary)', margin:'0 0 0.4rem 0', lineHeight:1.1 }}>
-                      {p.title}
-                    </h4>
-                    <p style={{ fontSize:'11px', color:'rgba(237,235,230,0.5)', lineHeight:1.6, margin:'0 0 0.7rem 0' }}>
-                      {p.desc}
-                    </p>
-                    <div style={{ display:'flex', gap:'0.25rem', flexWrap:'wrap' }}>
-                      {p.tech.map(t => (
-                        <span key={t} className="font-mono" style={{
-                          fontSize:'7px', padding:'0.1rem 0.35rem',
-                          backgroundColor: activePillar === idx ? 'rgba(200,16,46,0.15)' : 'rgba(255,255,255,0.03)',
-                          border:'1px solid rgba(200,16,46,0.2)',
-                          color: activePillar === idx ? 'var(--text-primary)' : 'rgba(237,235,230,0.4)',
-                        }}>{t}</span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── SYSTEM SPECS JSON ── */}
-            <div style={{
-              background: 'rgba(8,5,5,0.7)',
-              border: '1px solid rgba(200,16,46,0.2)',
-              borderRadius: '4px', padding: '1rem 1.1rem',
-            }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.6rem' }}>
-                <span className="font-mono" style={{ fontSize:'8px', color:'var(--red)', letterSpacing:'0.15em' }}>
-                  DEVELOPER_OBJECT.JSON
-                </span>
-                <button data-cursor="pointer" onClick={handleCopySpecs} className="font-mono"
-                  style={{
-                    background:'rgba(200,16,46,0.12)', border:'1px solid rgba(200,16,46,0.35)',
-                    color:'var(--text-primary)', fontSize:'8px', padding:'0.2rem 0.6rem',
-                    cursor:'pointer', borderRadius:'3px', letterSpacing:'0.08em',
-                  }}>
-                  {copied ? 'COPIED ✓' : 'COPY'}
-                </button>
-              </div>
-              <pre className="font-mono" style={{ fontSize:'10px', color:'rgba(237,235,230,0.65)', margin:0, lineHeight:1.65, overflowX:'auto' }}>
-{`{
-  "developer": "${about?.name || 'Yashwanth'}",
-  "role":      "${about?.role || 'AI Full Stack Developer'}",
-  "backend":   ["Python", "FastAPI", "SQLAlchemy", "PostgreSQL"],
-  "frontend":  ["React 18", "TypeScript", "Vite"],
-  "ai_stack":  ["Groq API", "Google Gemini", "RAG Pipelines"],
-  "status":    "TRANSMITTING ●"
-}`}
-              </pre>
-            </div>
-
-            {/* ── STAT COUNTERS ── */}
-            <div style={{ display:'flex', gap:'2.5rem', flexWrap:'wrap' }}>
-              {[
-                { target: 2, label: 'PROJECTS SHIPPED', suffix: '+' },
-                { target: 15, label: 'TECHNOLOGIES', suffix: '+' },
-                { target: 2026, label: 'YEAR ACTIVE', suffix: '' },
-              ].map((s, i) => (
-                <StatCounter key={s.label} target={s.target} label={s.label}
-                  suffix={s.suffix} visible={rightVisible} delay={i * 180} />
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* Floating HUD status tags around frame */}
+      <div
+        className="font-mono"
+        style={{
+          position: 'absolute',
+          bottom: '-10px',
+          fontSize: '8px',
+          color: 'var(--red)',
+          backgroundColor: 'rgba(10,5,5,0.9)',
+          padding: '0.2rem 0.5rem',
+          border: '1px solid rgba(200,16,46,0.4)',
+          borderRadius: '3px',
+          letterSpacing: '0.12em',
+          zIndex: 10,
+        }}
+      >
+        ● TRANSMITTING // BASE: INDIA
       </div>
 
       <style>{`
-        @keyframes radarSweep {
+        @keyframes spinClockwise {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
         }
-        @keyframes radarAuraPulse {
-          0%,100% { opacity:0.6; transform:scale(1); }
-          50%      { opacity:1;   transform:scale(1.05); }
+        @keyframes spinCounter {
+          from { transform: rotate(360deg); }
+          to   { transform: rotate(0deg); }
         }
-        @keyframes cursorBlink {
-          0%,100% { opacity:1; }
-          50%     { opacity:0; }
+        @keyframes photoScanSweep {
+          0%   { top: 0%; opacity: 0; }
+          15%  { opacity: 1; }
+          85%  { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
         }
       `}</style>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════
+   MAIN IDENTITY COMPONENT (IDEA 2 INTEGRATED)
+═══════════════════════════════════════════════════════ */
+const Identity: React.FC = () => {
+  const [about, setAbout] = useState<About | null>(null);
+  const [activeTab, setActiveTab] = useState<'PHILOSOPHY' | 'CAPABILITIES' | 'DISPATCHES'>('PHILOSOPHY');
+  const [decrypting, setDecrypting] = useState(false);
+  const [decryptProgress, setDecryptProgress] = useState(0);
+
+  const [ref, isRevealed] = useReveal({ threshold: 0.15 });
+
+  useEffect(() => {
+    fetchAbout().then(data => {
+      if (data) setAbout(data);
+    });
+  }, []);
+
+  const handleDecryptResume = () => {
+    if (decrypting) return;
+    setDecrypting(true);
+    playBeep(880, 0.08);
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 18) + 8;
+      if (progress >= 100) {
+        progress = 100;
+        setDecryptProgress(100);
+        clearInterval(interval);
+        setTimeout(() => {
+          setDecrypting(false);
+          setDecryptProgress(0);
+          window.open('/S_Thavaneshwaran_Resume.pdf', '_blank');
+        }, 400);
+      } else {
+        setDecryptProgress(progress);
+        playBeep(400 + progress * 5, 0.02);
+      }
+    }, 60);
+  };
+
+  const bioText = about?.bio || FULL_BIO;
+  const photoUrl = about?.profile_photo_url || '/certificates/profile.jpg';
+
+  return (
+    <section
+      id="about"
+      ref={ref as React.RefObject<HTMLDivElement>}
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        backgroundColor: 'var(--smoke)',
+        color: 'var(--charcoal)',
+        padding: '6rem 2rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Background Section Ambient Glow */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(200, 16, 46, 0.05) 0%, transparent 60%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+
+        {/* Section Header */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem', marginBottom: '4rem' }}>
+          <span
+            className="font-bebas"
+            style={{
+              fontSize: 'clamp(80px, 12vw, 160px)',
+              lineHeight: 0.8,
+              color: 'rgba(200, 16, 46, 0.12)',
+              userSelect: 'none',
+            }}
+          >
+            01
+          </span>
+          <div style={{ paddingBottom: '0.75rem' }}>
+            <span
+              className="font-mono"
+              style={{
+                fontSize: '11px',
+                color: 'var(--red)',
+                letterSpacing: '0.25em',
+                display: 'block',
+                marginBottom: '0.25rem',
+              }}
+            >
+              — SIGNAL 01 // IDENTITY PROFILE
+            </span>
+            <h2
+              className="font-inter"
+              style={{
+                fontSize: 'clamp(28px, 4vw, 48px)',
+                fontWeight: 700,
+                margin: 0,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Yashwanth
+            </h2>
+            <span
+              className="font-mono"
+              style={{
+                fontSize: '12px',
+                color: 'var(--muted)',
+                letterSpacing: '0.12em',
+              }}
+            >
+              {about?.role || 'AI Full Stack Developer'}
+            </span>
+          </div>
+        </div>
+
+        {/* Two-Column Core Layout */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+            gap: '4rem',
+            alignItems: 'center',
+            opacity: isRevealed ? 1 : 0,
+            transform: isRevealed ? 'translateY(0)' : 'translateY(32px)',
+            transition: 'opacity 0.7s ease, transform 0.7s ease',
+          }}
+        >
+
+          {/* ── LEFT COLUMN: ORBITING NEURAL IDENTITY CORE ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+            <OrbitingNeuralCore src={photoUrl} />
+
+            <div className="font-mono" style={{ fontSize: '10px', color: 'var(--muted)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.5 }}>
+              HOVER ORBITING TECH NODES TO INSPECT SYSTEM CAPABILITIES
+            </div>
+          </div>
+
+          {/* ── RIGHT COLUMN: COMMAND LOG TERMINAL (YASHWANTH.SYS) ── */}
+          <div
+            style={{
+              backgroundColor: 'var(--charcoal)',
+              color: 'white',
+              borderRadius: '8px',
+              border: '1px solid rgba(200, 16, 46, 0.3)',
+              overflow: 'hidden',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
+            }}
+          >
+            {/* Terminal Header Bar */}
+            <div
+              style={{
+                backgroundColor: 'rgba(20, 20, 26, 0.95)',
+                borderBottom: '1px solid rgba(200, 16, 46, 0.25)',
+                padding: '0.6rem 1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div className="font-mono" style={{ fontSize: '11px', color: 'var(--red)', fontWeight: 700, letterSpacing: '0.15em' }}>
+                YASHWANTH.SYS v2.0 // COMMAND LOG
+              </div>
+
+              {/* Tab selector buttons */}
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                {(['PHILOSOPHY', 'CAPABILITIES', 'DISPATCHES'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => { setActiveTab(tab); playBeep(700, 0.04); }}
+                    data-cursor="pointer"
+                    style={{
+                      backgroundColor: activeTab === tab ? 'rgba(200,16,46,0.25)' : 'transparent',
+                      border: `1px solid ${activeTab === tab ? 'var(--red)' : 'transparent'}`,
+                      color: activeTab === tab ? 'white' : 'rgba(255,255,255,0.4)',
+                      padding: '0.2rem 0.55rem',
+                      fontSize: '9.5px',
+                      fontFamily: 'JetBrains Mono, monospace',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Terminal Content Body */}
+            <div style={{ padding: '1.75rem', minHeight: '340px' }}>
+
+              {/* ── TAB 1: PHILOSOPHY & NARRATIVE ── */}
+              {activeTab === 'PHILOSOPHY' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', animation: 'fadeIn 0.3s ease' }}>
+                  <div className="font-mono" style={{ fontSize: '10px', color: 'var(--red)', letterSpacing: '0.15em' }}>
+                    {'> INITIALIZING NARRATIVE LOG...'}
+                  </div>
+
+                  <p
+                    className="font-inter"
+                    style={{
+                      fontSize: '14.5px',
+                      lineHeight: 1.7,
+                      color: 'rgba(255, 255, 255, 0.88)',
+                      margin: 0,
+                    }}
+                  >
+                    {bioText}
+                  </p>
+
+                  <div style={{ height: '1px', backgroundColor: 'rgba(200, 16, 46, 0.2)', margin: '0.5rem 0' }} />
+
+                  {/* Pillars grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.85rem' }}>
+                    {[
+                      { title: 'BACKEND ARCH', desc: 'FastAPI & Async PostgreSQL pipelines' },
+                      { title: 'AI & RAG ENGINE', desc: 'Groq API, FAISS & Llama 3.3 70B' },
+                      { title: 'EDITORIAL UI', desc: 'React 18 & interactive physics' },
+                    ].map((p, idx) => (
+                      <div key={idx} style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(200,16,46,0.2)', padding: '0.75rem', borderRadius: '4px' }}>
+                        <div className="font-mono" style={{ fontSize: '10px', color: 'var(--red)', fontWeight: 700, marginBottom: '0.2rem' }}>{p.title}</div>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.3 }}>{p.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── TAB 2: CAPABILITIES TELEMETRY ── */}
+              {activeTab === 'CAPABILITIES' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem', animation: 'fadeIn 0.3s ease' }}>
+                  <div className="font-mono" style={{ fontSize: '10px', color: 'var(--red)', letterSpacing: '0.15em' }}>
+                    {'> SYSTEM CAPABILITY TELEMETRY GAUGES'}
+                  </div>
+
+                  {CAPABILITIES.map(cap => (
+                    <div key={cap.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>
+                        <span style={{ color: 'rgba(255,255,255,0.85)' }}>{cap.label}</span>
+                        <span style={{ color: 'var(--red)', fontWeight: 700 }}>{cap.percent}% · {cap.status}</span>
+                      </div>
+                      <div style={{ height: '6px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', position: 'relative' }}>
+                        <div
+                          style={{
+                            height: '100%',
+                            width: `${cap.percent}%`,
+                            backgroundColor: 'var(--red)',
+                            boxShadow: '0 0 10px rgba(200,16,46,0.7)',
+                            transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ── TAB 3: DISPATCHES & CAREER NODES ── */}
+              {activeTab === 'DISPATCHES' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', animation: 'fadeIn 0.3s ease' }}>
+                  <div className="font-mono" style={{ fontSize: '10px', color: 'var(--red)', letterSpacing: '0.15em' }}>
+                    {'> CHRONOLOGICAL CAREER DISPATCHES'}
+                  </div>
+
+                  {DISPATCHES.map((d, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '70px 1fr',
+                        gap: '0.85rem',
+                        backgroundColor: 'rgba(255,255,255,0.02)',
+                        borderLeft: '2px solid var(--red)',
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '0 4px 4px 0',
+                      }}
+                    >
+                      <div className="font-mono" style={{ fontSize: '10px', color: 'var(--red)', fontWeight: 700 }}>
+                        [{d.date}]
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 700, fontSize: '12.5px', color: 'white' }}>{d.title}</span>
+                          <span className="font-mono" style={{ fontSize: '8px', padding: '0.1rem 0.35rem', backgroundColor: 'rgba(200,16,46,0.2)', border: '1px solid var(--red)', borderRadius: '2px', color: 'var(--red)' }}>
+                            {d.badge}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontFamily: 'JetBrains Mono, monospace' }}>{d.org}</div>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginTop: '0.15rem', lineHeight: 1.3 }}>{d.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </div>
+
+            {/* Terminal Footer with Hex Decrypter Resume Download */}
+            <div
+              style={{
+                backgroundColor: 'rgba(15, 15, 20, 0.95)',
+                borderTop: '1px solid rgba(200, 16, 46, 0.2)',
+                padding: '0.85rem 1.75rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '0.75rem',
+              }}
+            >
+              <div className="font-mono" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>
+                DOCUMENT DOSSIER: ENCRYPTED [.PDF]
+              </div>
+
+              <button
+                onClick={handleDecryptResume}
+                data-cursor="pointer"
+                disabled={decrypting}
+                style={{
+                  backgroundColor: decrypting ? 'rgba(200,16,46,0.3)' : 'var(--red)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.5rem 1.1rem',
+                  borderRadius: '3px',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  cursor: decrypting ? 'wait' : 'pointer',
+                  boxShadow: '0 0 16px rgba(200,16,46,0.4)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {decrypting ? `DECRYPTING DOSSIER: ${decryptProgress}%...` : 'DECRYPT RESUME [.PDF] ➔'}
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
     </section>
   );
 };
