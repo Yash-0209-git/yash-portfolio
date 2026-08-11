@@ -253,7 +253,7 @@ const Navigation: React.FC = () => {
           }}
         >
           <span className="font-mono" style={{ fontSize: '10px' }}>
-            {muted ? 'MUTED' : 'AUDIO'}
+            {muted ? 'MUTED' : 'BGM 🎵'}
           </span>
         </button>
       </nav>

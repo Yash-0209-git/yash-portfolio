@@ -13,11 +13,14 @@ import Stack from './components/sections/Stack';
 import Certificates from './components/sections/Certificates';
 import Contact from './components/sections/Contact';
 
+import { setupBgmAutoplay } from './utils/audio';
+
 function App() {
   const [introComplete, setIntroComplete] = useState(() => !!sessionStorage.getItem('intro-shown'));
   const [overdrive, setOverdrive] = useState(false);
 
   useEffect(() => {
+    setupBgmAutoplay();
     let keyBuffer: string[] = [];
 
     const handleKeyDown = (e: KeyboardEvent) => {
