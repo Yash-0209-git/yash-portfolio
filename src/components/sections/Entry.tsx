@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { setBgmVolume, getBgmVolume, getRealtimeAudioData } from '../../utils/audio';
+import { setBgmVolume, getBgmVolume, getRealtimeAudioData, playBeep } from '../../utils/audio';
+import { ProposalEstimatorModal } from '../ui/ProposalEstimatorModal';
 
 const NAME = 'YASHWANTH';
 
@@ -210,6 +211,7 @@ const Entry: React.FC = () => {
   const [surge, setSurge] = useState(false);
   const [bgmVolumeState, setBgmVolumeState] = useState(() => getBgmVolume());
   const [telemetry, setTelemetry] = useState<RealtimeTelemetry>({ bass: 0, mid: 0, treble: 0, peak: 0 });
+  const [estimatorOpen, setEstimatorOpen] = useState(false);
   const [objectActive, setObjectActive] = useState(false);
   const [objectClicked, setObjectClicked] = useState(false);
   const [signalBars, setSignalBars] = useState([0.4, 0.6, 0.8, 0.95, 1.0]);
@@ -658,15 +660,26 @@ const Entry: React.FC = () => {
           </h1>
         </div>
 
-        {/* ── REALTIME 360° CIRCULAR CYBER-RADAR FREQUENCY SPECTRUM CANVAS ── */}
-        <div style={{
-          width: '100%',
-          maxWidth: '850px',
-          margin: '0.5rem 0 1.25rem 0',
-          opacity: showContent ? 1 : 0,
-          transition: 'opacity 1s ease 0.6s',
-          position: 'relative',
-        }}>
+        {/* ── REALTIME 360° CIRCULAR CYBER-RADAR FREQUENCY SPECTRUM CANVAS (ORB INTERACTION) ── */}
+        <div
+          onClick={() => {
+            playBeep(920, 0.08);
+            setSurge(true);
+            setTimeout(() => setSurge(false), 800);
+            setEstimatorOpen(true);
+          }}
+          data-cursor="pointer"
+          title="Click Cyber-Orb to Build a Project Proposal with Yashwanth"
+          style={{
+            width: '100%',
+            maxWidth: '850px',
+            margin: '0.5rem 0 1.25rem 0',
+            opacity: showContent ? 1 : 0,
+            transition: 'opacity 1s ease 0.6s',
+            position: 'relative',
+            cursor: 'pointer',
+          }}
+        >
           <CircularRadarCanvas
             mouseVelocity={mouseVelocity}
             surge={surge}
@@ -695,7 +708,11 @@ const Entry: React.FC = () => {
             </div>
 
             {/* Interactive Amplitude & BGM Volume Slider */}
-            <div className="font-mono" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '9px', color: 'rgba(237,235,230,0.85)' }}>
+            <div
+              className="font-mono"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '9px', color: 'rgba(237,235,230,0.85)' }}
+              onClick={e => e.stopPropagation()}
+            >
               <span>AMPLITUDE / BGM VOL:</span>
               <button
                 onClick={() => handleVolumeChange(Math.max(0, bgmVolumeState - 0.1))}
@@ -723,8 +740,8 @@ const Entry: React.FC = () => {
               </span>
             </div>
 
-            <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(200,16,46,0.6)', letterSpacing: '0.12em' }}>
-              CLICK CANVAS TO SURGE ↵
+            <div className="font-mono" style={{ fontSize: '8px', color: 'var(--red)', letterSpacing: '0.12em', fontWeight: 700 }}>
+              CLICK ORB TO BUILD PROJECT PROPOSAL ↵
             </div>
           </div>
         </div>
@@ -896,6 +913,12 @@ const Entry: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Interactive Cyber-Orb Project Proposal Estimator Modal */}
+      <ProposalEstimatorModal
+        isOpen={estimatorOpen}
+        onClose={() => setEstimatorOpen(false)}
+      />
 
       <style>{`
         @keyframes rotateInner {
