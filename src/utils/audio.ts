@@ -1,15 +1,31 @@
-// Web Audio API & Background Music Utility
-// Plays Annihilate.mp3 as portfolio BGM (Default Volume: 0.85, plays immediately on entry)
+// Web Audio API & Background Music Utility with Multi-Track Playlist
+// Default Track: Annihilate (Default Volume: 0.85, plays immediately on entry)
+
+export interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  src: string;
+}
+
+export const BGM_PLAYLIST: Track[] = [
+  { id: 'annihilate', title: 'Annihilate', artist: 'Metro Boomin', src: '/audio/annihilate.mp3' },
+  { id: 'sunflower', title: 'Sunflower', artist: 'Post Malone & Swae Lee', src: '/audio/sunflower.mp3' },
+  { id: 'formula', title: 'Formula', artist: 'Labrinth', src: '/audio/formula.mp3' },
+  { id: 'earned_it', title: 'Earned It', artist: 'The Weeknd', src: '/audio/earned_it.mp3' },
+];
 
 let audioCtx: AudioContext | null = null;
 let isMuted = false; // Enabled by default; user can mute/unmute anytime
 let bgmAudio: HTMLAudioElement | null = null;
 let bgmStarted = false;
 let currentVolume = 0.85; // DEFAULT 85% VOLUME
+let currentTrackIndex = 0; // Default: Annihilate (index 0)
 
 function initBgm() {
   if (typeof window === 'undefined' || bgmAudio) return;
-  bgmAudio = new Audio('/bgm.mp3');
+  const track = BGM_PLAYLIST[currentTrackIndex];
+  bgmAudio = new Audio(track.src);
   bgmAudio.loop = true;
   bgmAudio.volume = currentVolume; // 0.85 Volume
 }
@@ -28,6 +44,52 @@ function getAudioContext(): AudioContext | null {
     audioCtx.resume();
   }
   return audioCtx;
+}
+
+export function getCurrentTrack(): Track {
+  return BGM_PLAYLIST[currentTrackIndex];
+}
+
+export function getPlaylist(): Track[] {
+  return BGM_PLAYLIST;
+}
+
+export function selectTrack(indexOrId: number | string): Track {
+  initBgm();
+  let idx = 0;
+  if (typeof indexOrId === 'number') {
+    idx = (indexOrId + BGM_PLAYLIST.length) % BGM_PLAYLIST.length;
+  } else {
+    const found = BGM_PLAYLIST.findIndex(t => t.id === indexOrId);
+    if (found !== -1) idx = found;
+  }
+
+  currentTrackIndex = idx;
+  const track = BGM_PLAYLIST[currentTrackIndex];
+
+  if (bgmAudio) {
+    const wasPlaying = !bgmAudio.paused && !isMuted;
+    bgmAudio.pause();
+    bgmAudio.src = track.src;
+    bgmAudio.volume = currentVolume;
+    bgmAudio.load();
+
+    if (wasPlaying || !isMuted) {
+      bgmAudio.play().then(() => {
+        bgmStarted = true;
+      }).catch(() => {});
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('bgm-track-changed', { detail: track }));
+  }
+
+  return track;
+}
+
+export function nextTrack(): Track {
+  return selectTrack(currentTrackIndex + 1);
 }
 
 export function setBgmVolume(val: number) {

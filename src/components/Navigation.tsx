@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { toggleAudioMute, getAudioMuted } from '../utils/audio';
+import { toggleAudioMute, getAudioMuted, getCurrentTrack, getPlaylist, selectTrack, Track } from '../utils/audio';
 
 const SECTIONS = [
   { id: 'entry',        num: '00', title: 'ENTRY' },
@@ -16,6 +16,8 @@ const Navigation: React.FC = () => {
   const [pulsing, setPulsing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [muted, setMuted] = useState(() => getAudioMuted());
+  const [currentTrack, setCurrentTrackState] = useState<Track>(() => getCurrentTrack());
+  const [playlistOpen, setPlaylistOpen] = useState(false);
   const pulseTimer = useRef<ReturnType<typeof setTimeout>>(setTimeout(() => {}, 0));
 
   useEffect(() => {
@@ -235,7 +237,102 @@ const Navigation: React.FC = () => {
           </svg>
         </button>
 
-        {/* Phase 6 — Sound Telemetry Toggle */}
+        {/* Change Song Button */}
+        <div style={{ position: 'relative' }}>
+          <button
+            data-cursor="pointer"
+            onClick={() => setPlaylistOpen(!playlistOpen)}
+            title={`Change BGM Track (Current: ${currentTrack.title})`}
+            style={{
+              background: 'var(--charcoal-2)',
+              border: `1px solid ${playlistOpen ? 'var(--red)' : 'rgba(255,255,255,0.12)'}`,
+              borderRadius: '20px',
+              padding: '0.4rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: 'pointer',
+              color: 'white',
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: '10px',
+              fontWeight: 600,
+              boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{ color: 'var(--red)' }}>🎵</span>
+            <span>{currentTrack.title}</span>
+            <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.4)', transform: playlistOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+          </button>
+
+          {/* Playlist Popover Menu */}
+          {playlistOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '48px',
+                right: 0,
+                backgroundColor: 'rgba(12, 12, 16, 0.95)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(200, 16, 46, 0.4)',
+                borderRadius: '8px',
+                padding: '0.5rem',
+                minWidth: '220px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(200,16,46,0.2)',
+                zIndex: 99999,
+                animation: 'fadeIn 0.2s ease',
+              }}
+            >
+              <div className="font-mono" style={{ fontSize: '9px', color: 'var(--red)', letterSpacing: '0.15em', padding: '0.25rem 0.5rem 0.4rem', borderBottom: '1px solid rgba(200,16,46,0.2)', marginBottom: '0.35rem', fontWeight: 700 }}>
+                SELECT BGM TRACK
+              </div>
+
+              {getPlaylist().map((track, idx) => {
+                const isActive = currentTrack.id === track.id;
+                return (
+                  <button
+                    key={track.id}
+                    onClick={() => {
+                      selectTrack(idx);
+                      setCurrentTrackState(track);
+                      setPlaylistOpen(false);
+                    }}
+                    data-cursor="pointer"
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      backgroundColor: isActive ? 'rgba(200, 16, 46, 0.2)' : 'transparent',
+                      border: `1px solid ${isActive ? 'var(--red)' : 'transparent'}`,
+                      borderRadius: '4px',
+                      padding: '0.4rem 0.6rem',
+                      marginBottom: '0.25rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '11px', color: isActive ? 'white' : 'rgba(255,255,255,0.85)', fontWeight: isActive ? 700 : 500, fontFamily: 'Inter, sans-serif' }}>
+                        {track.title} {track.id === 'annihilate' ? '(Default)' : ''}
+                      </span>
+                      <span className="font-mono" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>
+                        {track.artist}
+                      </span>
+                    </div>
+
+                    {isActive && (
+                      <span style={{ color: 'var(--red)', fontSize: '10px', fontWeight: 700 }}>● PLAYING</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Mute Telemetry Toggle */}
         <button
           data-cursor="pointer"
           onClick={handleAudioToggle}
@@ -256,7 +353,7 @@ const Navigation: React.FC = () => {
           }}
         >
           <span className="font-mono" style={{ fontSize: '10px' }}>
-            {muted ? 'MUTED' : 'BGM 🎵'}
+            {muted ? 'MUTED' : 'ON 🎵'}
           </span>
         </button>
       </nav>
