@@ -56,6 +56,23 @@ const FALLBACK_PROJECTS: Project[] = [
     solution: 'Engineered a complete RAG (Retrieval-Augmented Generation) system with multi-stage query expansion, FAISS vector retrieval, sentence transformer reranking, hands-free Voice Input & Speech Synthesis, and grounded generation via Llama 3.3 70B.',
     challenges: 'Optimizing multi-stage RAG vector retrieval latency, improving sentence transformer reranking accuracy, and integrating low-latency Web Speech API voice synthesis.',
   },
+  {
+    id: 'autotrack',
+    slug: 'autotrack',
+    title: 'AutoTrack',
+    short_description:
+      'A modern full-stack vehicle service and workshop management system featuring real-time job status tracking, customer records, vehicle history management, automated invoicing/PDF generation, and feedback analytics.',
+    category: 'Web App',
+    year: 2026,
+    status: 'completed',
+    github_url: 'https://github.com/Yash-0209-git/autotrack12.git',
+    technologies: ['React 18', 'TypeScript', 'Vite', 'Tailwind CSS', 'Supabase', 'TanStack Query', 'Lucide React', 'Framer Motion', 'jsPDF', 'html2canvas'],
+    featured: true, published: true, display_order: 3,
+    thumbnail_url: '/projects/autotrack.png',
+    problem: 'Automotive workshops struggle with manual paperwork, fragmented vehicle service histories, delayed billing, and a lack of real-time job status visibility for workshop admins and vehicle owners.',
+    solution: 'Engineered an all-in-one vehicle service management platform featuring Supabase real-time database persistence, interactive service status tracking (Pending, In Progress, Completed), automated PDF invoice generation via jsPDF & html2canvas, and customer feedback analytics.',
+    challenges: 'Managing relational Supabase state across vehicle-owner linkages, implementing client-side PDF document compilation with html2canvas and jsPDF, and optimizing real-time query caching with TanStack React Query v5.',
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════

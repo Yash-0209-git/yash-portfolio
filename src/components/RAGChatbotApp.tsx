@@ -12,8 +12,13 @@ interface Message {
 const KNOWLEDGE_BASE = [
   {
     keywords: ['project', 'projects', 'built', 'work', 'portfolio'],
-    answer: 'Yashwanth has engineered standout full-stack AI applications:\n\n1. 🏋️ **LeeSculpt Gym Application** (2026) — AI-powered Gym Management System with personalized fitness tracking, automated diet guidance via Groq & Gemini API, and WhatsApp notifications.\n2. 🔮 **CodeSage AI** (2026) — Intelligent Codebase Analysis & RAG Debugging Platform that extracts repository .zip files, detects project architecture, flags bugs & security issues, and provides an interactive Deep AI RAG assistant.\n3. 🤖 **RAG-Tech Bot** (2025) — Technical QA Chatbot featuring query expansion, FAISS vector retrieval, reranking, and Llama 3.3 70B generation.',
+    answer: 'Yashwanth has engineered standout full-stack AI applications:\n\n1. 🚗 **AutoTrack** (2026) — Full-stack Vehicle Service & Workshop Management System with real-time job status tracking, customer records, Supabase persistence, and automated PDF invoicing.\n2. 🏋️ **LeeSculpt Gym Application** (2026) — AI-powered Gym Management System with personalized fitness tracking, automated diet guidance via Groq & Gemini API, and WhatsApp notifications.\n3. 🔮 **CodeSage AI** (2026) — Intelligent Codebase Analysis & RAG Debugging Platform that extracts repository .zip files, detects project architecture, flags bugs & security issues, and provides an interactive Deep AI RAG assistant.\n4. 🤖 **RAG-Tech Assistant** (2025) — Technical QA Chatbot featuring query expansion, FAISS vector retrieval, reranking, and Llama 3.3 70B generation.',
     sources: ['PROJECT_INDEX.DB', 'STATIC_PROJECTS.TS'],
+  },
+  {
+    keywords: ['autotrack', 'auto', 'vehicle', 'workshop', 'service', 'car', 'billing', 'invoice'],
+    answer: '🚗 **AutoTrack (2026)**:\n- **Problem**: Automotive workshops struggle with manual paperwork, fragmented vehicle histories, delayed billing, and a lack of real-time job status visibility.\n- **Solution**: Full-stack workshop management system featuring Supabase real-time database persistence, interactive service order status tracking (Pending, In Progress, Completed), automated PDF invoice generation via jsPDF & html2canvas, and customer feedback analytics.\n- **Tech Stack**: React 18, TypeScript, Vite, Tailwind CSS, Supabase, TanStack Query v5, Framer Motion, jsPDF, html2canvas.',
+    sources: ['AUTOTRACK_DOCS.MD', 'SUPABASE_SERVICE_SCHEMA.SQL'],
   },
   {
     keywords: ['codesage', 'sage', 'code-sage', 'zip', 'analyzer', 'repository', 'ast', 'debugging'],
