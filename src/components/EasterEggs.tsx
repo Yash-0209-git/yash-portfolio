@@ -3,16 +3,35 @@ import { playBeep } from '../utils/audio';
 
 const MATRIX_CHARS = '0123456789ABCDEFFASTAPIPYTHONREACTRAGGROQLLAMACODESAGELEESCULPTYASHWANTH';
 
+interface PhysicsElement {
+  el: HTMLElement;
+  origTransform: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rotation: number;
+  vRot: number;
+  isDragging: boolean;
+  dragStartX: number;
+  dragStartY: number;
+  lastX: number;
+  lastY: number;
+  lastTime: number;
+}
+
 export default function EasterEggs() {
   const [matrixActive, setMatrixActive] = useState(false);
   const [zeroGActive, setZeroGActive] = useState(false);
-  const [countdown, setCountdown] = useState(10);
+  const [countdown, setCountdown] = useState(15);
   const matrixCanvasRef = useRef<HTMLCanvasElement>(null);
+  const physicsItemsRef = useRef<PhysicsElement[]>([]);
+  const animFrameRef = useRef<number>(0);
+  const activeDragRef = useRef<PhysicsElement | null>(null);
 
   // ── 1. GLOBAL KEYBOARD LISTENERS FOR 'M' AND 'CTRL+SHIFT+G' ──
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore key events when typing inside inputs or textareas
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
@@ -28,7 +47,7 @@ export default function EasterEggs() {
         });
       }
 
-      // 'Ctrl + Shift + G' -> Toggle Zero-G Physics
+      // 'Ctrl + Shift + G' -> Toggle Zero-G Physics Surge
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'g' || e.key === 'G')) {
         e.preventDefault();
         triggerZeroG();
@@ -39,31 +58,200 @@ export default function EasterEggs() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // ── 2. ZERO-G PHYSICS SURGE LOGIC ──
+  // ── 2. INTERACTIVE ZERO-G TOSS PHYSICS ENGINE ──
   const triggerZeroG = () => {
     if (zeroGActive) return;
     setZeroGActive(true);
-    setCountdown(10);
+    setCountdown(15);
     playBeep(1200, 0.12);
 
-    // Apply zero-g class to body
     document.body.classList.add('zero-g-mode');
 
+    // Query interactive floating targets across the portfolio
+    const selectors = [
+      '.project-card',
+      '.vault-card',
+      'h1',
+      'h2',
+      '.font-share-tech',
+      '.font-mono',
+      'button',
+      '.broadcast-card',
+    ];
+    const elements = Array.from(document.querySelectorAll<HTMLElement>(selectors.join(',')))
+      .filter(el => !el.closest('.zero-g-hud-toast') && !el.closest('.matrix-hud'));
+
+    const items: PhysicsElement[] = [];
+
+    elements.forEach(el => {
+      // Give initial random zero-g floating velocity
+      const initialVx = (Math.random() - 0.5) * 3.5;
+      const initialVy = (Math.random() - 0.5) * 3.5;
+      const initialVRot = (Math.random() - 0.5) * 1.5;
+
+      const physicsItem: PhysicsElement = {
+        el,
+        origTransform: el.style.transform || '',
+        x: (Math.random() - 0.5) * 40,
+        y: (Math.random() - 0.5) * 40,
+        vx: initialVx,
+        vy: initialVy,
+        rotation: (Math.random() - 0.5) * 8,
+        vRot: initialVRot,
+        isDragging: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        lastX: 0,
+        lastY: 0,
+        lastTime: performance.now(),
+      };
+
+      el.style.cursor = 'grab';
+      el.style.willChange = 'transform';
+      items.push(physicsItem);
+    });
+
+    physicsItemsRef.current = items;
+
+    // Attach global Mouse & Touch Drag/Toss Handlers
+    const handleMouseDown = (e: MouseEvent | TouchEvent) => {
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+      const target = e.target as HTMLElement;
+      const hit = items.find(item => item.el.contains(target) || item.el === target);
+
+      if (hit) {
+        hit.isDragging = true;
+        hit.dragStartX = clientX - hit.x;
+        hit.dragStartY = clientY - hit.y;
+        hit.lastX = clientX;
+        hit.lastY = clientY;
+        hit.lastTime = performance.now();
+        hit.vx = 0;
+        hit.vy = 0;
+        hit.el.style.cursor = 'grabbing';
+        hit.el.style.zIndex = '99999';
+        activeDragRef.current = hit;
+        playBeep(750, 0.05);
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+      const active = activeDragRef.current;
+      if (!active || !active.isDragging) return;
+
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      const now = performance.now();
+      const dt = Math.max(1, now - active.lastTime);
+
+      // Instantaneous toss velocity
+      active.vx = ((clientX - active.lastX) / dt) * 16;
+      active.vy = ((clientY - active.lastY) / dt) * 16;
+      active.vRot = active.vx * 0.15;
+
+      active.x = clientX - active.dragStartX;
+      active.y = clientY - active.dragStartY;
+
+      active.lastX = clientX;
+      active.lastY = clientY;
+      active.lastTime = now;
+    };
+
+    const handleMouseUp = () => {
+      const active = activeDragRef.current;
+      if (active) {
+        active.isDragging = false;
+        active.el.style.cursor = 'grab';
+        active.el.style.zIndex = '';
+        if (Math.abs(active.vx) > 2 || Math.abs(active.vy) > 2) {
+          playBeep(920 + Math.abs(active.vx) * 20, 0.08); // Toss sound effect
+        }
+        activeDragRef.current = null;
+      }
+    };
+
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchstart', handleMouseDown);
+    window.addEventListener('touchmove', handleMouseMove);
+    window.addEventListener('touchend', handleMouseUp);
+
+    // 60FPS Physics Simulation Loop
+    const updatePhysics = () => {
+      items.forEach(item => {
+        if (!item.isDragging) {
+          // Move elements by velocity
+          item.x += item.vx;
+          item.y += item.vy;
+          item.rotation += item.vRot;
+
+          // Space air drag friction
+          item.vx *= 0.985;
+          item.vy *= 0.985;
+          item.vRot *= 0.985;
+
+          // Ambient micro zero-g drift
+          item.vx += (Math.random() - 0.5) * 0.15;
+          item.vy += (Math.random() - 0.5) * 0.15;
+
+          // Viewport boundary bounces
+          const bounds = 250;
+          if (Math.abs(item.x) > bounds) {
+            item.vx *= -0.75;
+            item.x = Math.sign(item.x) * bounds;
+          }
+          if (Math.abs(item.y) > bounds) {
+            item.vy *= -0.75;
+            item.y = Math.sign(item.y) * bounds;
+          }
+        }
+
+        // Apply 2D Physics Transform to element
+        item.el.style.transform = `${item.origTransform} translate(${item.x}px, ${item.y}px) rotate(${item.rotation}deg)`;
+      });
+
+      animFrameRef.current = requestAnimationFrame(updatePhysics);
+    };
+
+    animFrameRef.current = requestAnimationFrame(updatePhysics);
+
+    // Countdown Timer
     const iv = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(iv);
+          cancelAnimationFrame(animFrameRef.current);
+          window.removeEventListener('mousedown', handleMouseDown);
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
+          window.removeEventListener('touchstart', handleMouseDown);
+          window.removeEventListener('touchmove', handleMouseMove);
+          window.removeEventListener('touchend', handleMouseUp);
+
+          // Restore Gravity: Smoothly return all elements back to original layout position
+          items.forEach(item => {
+            item.el.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            item.el.style.transform = item.origTransform;
+            item.el.style.cursor = '';
+            setTimeout(() => {
+              item.el.style.transition = '';
+            }, 800);
+          });
+
           setZeroGActive(false);
           document.body.classList.remove('zero-g-mode');
           playBeep(600, 0.1);
-          return 10;
+          return 15;
         }
         return prev - 1;
       });
     }, 1000);
   };
 
-  // Listen for custom trigger event from Work section or elsewhere
+  // Listen for custom trigger event from Work section or Broadcast Tower
   useEffect(() => {
     const handleZeroGEvent = () => triggerZeroG();
     window.addEventListener('trigger-zero-g', handleZeroGEvent);
@@ -146,7 +334,7 @@ export default function EasterEggs() {
 
           {/* Matrix Status HUD Toast */}
           <div
-            className="font-mono"
+            className="font-mono matrix-hud"
             style={{
               position: 'fixed',
               top: '20px',
@@ -170,10 +358,10 @@ export default function EasterEggs() {
         </div>
       )}
 
-      {/* ── ZERO-G PHYSICS HUD TOAST BANNER ── */}
+      {/* ── ZERO-G INTERACTIVE PHYSICS HUD TOAST ── */}
       {zeroGActive && (
         <div
-          className="font-mono"
+          className="font-mono zero-g-hud-toast"
           style={{
             position: 'fixed',
             top: '20px',
@@ -186,42 +374,21 @@ export default function EasterEggs() {
             padding: '0.5rem 1.25rem',
             fontSize: '11px',
             fontWeight: 700,
-            letterSpacing: '0.15em',
-            boxShadow: '0 0 30px rgba(200, 16, 46, 0.8)',
-            zIndex: 99999,
+            letterSpacing: '0.12em',
+            boxShadow: '0 0 35px rgba(200, 16, 46, 0.9)',
+            zIndex: 999999,
             pointerEvents: 'none',
             animation: 'pulse 0.8s infinite alternate',
           }}
         >
-          ⚡ ZERO-G PHYSICS SURGE ENGAGED // GRAVITY RESTORING IN {countdown}s
+          ⚡ ZERO-G TOSS PHYSICS SURGE // DRAG & THROW ELEMENTS ANYWHERE! ({countdown}s)
         </div>
       )}
 
-      {/* Zero-G Global CSS Keyframes & Styles */}
+      {/* Zero-G Body Styles */}
       <style>{`
-        body.zero-g-mode section,
-        body.zero-g-mode .project-card,
-        body.zero-g-mode .vault-card,
-        body.zero-g-mode button,
-        body.zero-g-mode h1,
-        body.zero-g-mode h2 {
-          animation: zeroGFloat 3.5s ease-in-out infinite alternate !important;
-          transition: transform 0.5s ease !important;
-        }
-
-        @keyframes zeroGFloat {
-          0% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          33% {
-            transform: translateY(-18px) rotate(2deg);
-          }
-          66% {
-            transform: translateY(12px) rotate(-2.5deg);
-          }
-          100% {
-            transform: translateY(-12px) rotate(1.5deg);
-          }
+        body.zero-g-mode {
+          overflow-x: hidden !important;
         }
       `}</style>
     </>
