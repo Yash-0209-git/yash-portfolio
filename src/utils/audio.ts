@@ -1,16 +1,17 @@
 // Web Audio API & Background Music Utility
-// Plays Sunflower Spiderman.mp3 gently as portfolio BGM (volume: ~0.16, mild & soothing)
+// Plays Sunflower Spiderman.mp3 as portfolio BGM (Default Volume: MAX 1.0, controlled via Entry amplitude slider)
 
 let audioCtx: AudioContext | null = null;
-let isMuted = true; // Default muted for UX, unmutes on first interaction or button click
+let isMuted = true; // Default muted for browser policies, un-mutes on user interaction
 let bgmAudio: HTMLAudioElement | null = null;
 let bgmStarted = false;
+let currentVolume = 1.0; // MAX DEFAULT VOLUME
 
 function initBgm() {
   if (typeof window === 'undefined' || bgmAudio) return;
   bgmAudio = new Audio('/bgm.mp3');
   bgmAudio.loop = true;
-  bgmAudio.volume = 0.16; // Mild, soothing volume level — audible but gentle
+  bgmAudio.volume = currentVolume; // MAX volume by default
 }
 
 function getAudioContext(): AudioContext | null {
@@ -29,6 +30,23 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
+export function setBgmVolume(val: number) {
+  initBgm();
+  currentVolume = Math.min(1.0, Math.max(0.0, val));
+  if (bgmAudio) {
+    bgmAudio.volume = currentVolume;
+  }
+  if (currentVolume > 0 && isMuted && bgmAudio) {
+    isMuted = false;
+    bgmAudio.play().catch(() => {});
+  }
+  return currentVolume;
+}
+
+export function getBgmVolume(): number {
+  return currentVolume;
+}
+
 // Global user interaction listener to start BGM smoothly when permitted by browser
 export function setupBgmAutoplay() {
   initBgm();
@@ -38,10 +56,10 @@ export function setupBgmAutoplay() {
     if (!bgmStarted && bgmAudio) {
       bgmStarted = true;
       isMuted = false;
+      bgmAudio.volume = currentVolume;
       bgmAudio.play().catch(() => {
         // Autoplay policy prevented playback
       });
-      // Remove listeners once started
       window.removeEventListener('click', handleUserInteraction);
       window.removeEventListener('keydown', handleUserInteraction);
       window.removeEventListener('touchstart', handleUserInteraction);
@@ -61,7 +79,7 @@ export function toggleAudioMute(): boolean {
     if (isMuted) {
       bgmAudio.pause();
     } else {
-      bgmAudio.volume = 0.16;
+      bgmAudio.volume = currentVolume;
       bgmAudio.play().catch(() => {});
       playBeep(880, 0.05, 0.05); // unmute chime
     }

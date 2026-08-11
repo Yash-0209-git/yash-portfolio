@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { setBgmVolume, getBgmVolume } from '../../utils/audio';
 
 const NAME = 'YASHWANTH';
 
@@ -45,7 +46,7 @@ const TERMINAL_LINES = [
 /* ═══════════════════════════════════════════════════════
    LIVE REACTIVE SIGNAL WAVEFORM CANVAS VISUALIZER
 ═══════════════════════════════════════════════════════ */
-const SignalWaveformCanvas: React.FC<{ mouseVelocity: number; surge: boolean }> = ({ mouseVelocity, surge }) => {
+const SignalWaveformCanvas: React.FC<{ mouseVelocity: number; surge: boolean; volume: number }> = ({ mouseVelocity, surge, volume }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -63,10 +64,11 @@ const SignalWaveformCanvas: React.FC<{ mouseVelocity: number; surge: boolean }> 
 
       ctx.clearRect(0, 0, w, h);
 
-      // Base parameters
+      // Base parameters scaled by volume (0.0 to 1.0)
       phase += 0.04 + mouseVelocity * 0.05 + (surge ? 0.12 : 0);
       const midY = h / 2;
-      const baseAmp = 25 + mouseVelocity * 40 + (surge ? 45 : 0);
+      const effectiveVol = Math.max(0.08, volume); // Minimum baseline height even at 0 volume
+      const baseAmp = (25 + mouseVelocity * 40 + (surge ? 45 : 0)) * effectiveVol;
 
       // 1. Draw secondary background glow wave
       ctx.beginPath();
@@ -142,11 +144,17 @@ const Entry: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [mouseVelocity, setMouseVelocity] = useState(0);
   const [surge, setSurge] = useState(false);
+  const [bgmVolumeState, setBgmVolumeState] = useState(() => getBgmVolume());
   const [objectActive, setObjectActive] = useState(false);
   const [objectClicked, setObjectClicked] = useState(false);
   const [signalBars, setSignalBars] = useState([0.4, 0.6, 0.8, 0.95, 1.0]);
   const [fragments, setFragments] = useState<Fragment[]>([]);
   const [freqReadout, setFreqReadout] = useState(440.0);
+
+  const handleVolumeChange = (val: number) => {
+    const updated = setBgmVolume(val);
+    setBgmVolumeState(updated);
+  };
 
   const sectionRef = useRef<HTMLElement>(null);
   const lastMousePos = useRef({ x: 0, y: 0 });
@@ -575,26 +583,55 @@ const Entry: React.FC = () => {
           transition: 'opacity 1s ease 0.6s',
           position: 'relative',
         }}>
-          <SignalWaveformCanvas mouseVelocity={mouseVelocity} surge={surge} />
+          <SignalWaveformCanvas mouseVelocity={mouseVelocity} surge={surge} volume={bgmVolumeState} />
 
-          {/* Waveform Telemetry HUD Strip */}
+          {/* Waveform Telemetry HUD Strip with BGM Amplitude Volume Control */}
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '0.4rem 1rem',
-            backgroundColor: 'rgba(10,5,5,0.75)',
-            border: '1px solid rgba(200,16,46,0.2)',
-            borderRadius: '3px',
+            padding: '0.5rem 1rem',
+            backgroundColor: 'rgba(10,5,5,0.85)',
+            border: '1px solid rgba(200,16,46,0.25)',
+            borderRadius: '4px',
             marginTop: '-0.5rem',
+            gap: '1rem',
+            flexWrap: 'wrap',
           }}>
-            <div className="font-mono" style={{ fontSize: '8px', color: 'var(--red)', letterSpacing: '0.15em', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: surge ? '#FF2A4B' : '#00FF66', boxShadow: '0 0 6px #00FF66' }} />
-              FREQUENCY: {freqReadout}Hz
+            <div className="font-mono" style={{ fontSize: '9px', color: 'var(--red)', letterSpacing: '0.15em', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: surge ? '#FF2A4B' : '#00FF66', boxShadow: '0 0 8px #00FF66' }} />
+              FREQ: {freqReadout}Hz
             </div>
-            <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(237,235,230,0.5)', letterSpacing: '0.12em' }}>
-              AMPLITUDE: {Math.round(40 + mouseVelocity * 50)}% {surge ? '⚡ SURGE' : ''}
+
+            {/* Interactive Amplitude & BGM Volume Slider */}
+            <div className="font-mono" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '9px', color: 'rgba(237,235,230,0.85)' }}>
+              <span>AMPLITUDE / BGM VOL:</span>
+              <button
+                onClick={() => handleVolumeChange(Math.max(0, bgmVolumeState - 0.1))}
+                style={{ background: 'rgba(200,16,46,0.2)', border: '1px solid var(--red)', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '2px', cursor: 'pointer', fontSize: '10px' }}
+              >-</button>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={bgmVolumeState}
+                onChange={e => handleVolumeChange(parseFloat(e.target.value))}
+                style={{
+                  width: '110px',
+                  accentColor: 'var(--red)',
+                  cursor: 'pointer',
+                }}
+              />
+              <button
+                onClick={() => handleVolumeChange(Math.min(1, bgmVolumeState + 0.1))}
+                style={{ background: 'rgba(200,16,46,0.2)', border: '1px solid var(--red)', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '2px', cursor: 'pointer', fontSize: '10px' }}
+              >+</button>
+              <span style={{ color: 'var(--red)', fontWeight: 700, minWidth: '36px' }}>
+                {Math.round(bgmVolumeState * 100)}%
+              </span>
             </div>
+
             <div className="font-mono" style={{ fontSize: '8px', color: 'rgba(200,16,46,0.6)', letterSpacing: '0.12em' }}>
               CLICK CANVAS TO SURGE ↵
             </div>
