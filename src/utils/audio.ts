@@ -9,9 +9,9 @@ export interface Track {
 }
 
 export const BGM_PLAYLIST: Track[] = [
+  { id: 'formula', title: 'Formula', artist: 'Labrinth', src: '/audio/formula.mp3' },
   { id: 'annihilate', title: 'Annihilate', artist: 'Metro Boomin', src: '/audio/annihilate.mp3' },
   { id: 'sunflower', title: 'Sunflower', artist: 'Post Malone & Swae Lee', src: '/audio/sunflower.mp3' },
-  { id: 'formula', title: 'Formula', artist: 'Labrinth', src: '/audio/formula.mp3' },
   { id: 'earned_it', title: 'Earned It', artist: 'The Weeknd', src: '/audio/earned_it.mp3' },
 ];
 
@@ -20,7 +20,7 @@ let isMuted = false; // Enabled by default; user can mute/unmute anytime
 let bgmAudio: HTMLAudioElement | null = null;
 let bgmStarted = false;
 let currentVolume = 0.34; // DEFAULT 34% VOLUME
-let currentTrackIndex = 0; // Default: Annihilate (index 0)
+let currentTrackIndex = 0; // Default: Formula (index 0)
 
 // Realtime Web Audio Analyser nodes
 let analyser: AnalyserNode | null = null;

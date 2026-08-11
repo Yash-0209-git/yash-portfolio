@@ -315,7 +315,7 @@ const Navigation: React.FC = () => {
                   >
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '11px', color: isActive ? 'white' : 'rgba(255,255,255,0.85)', fontWeight: isActive ? 700 : 500, fontFamily: 'Inter, sans-serif' }}>
-                        {track.title} {track.id === 'annihilate' ? '(Default)' : ''}
+                        {track.title} {track.id === 'formula' ? '(Default)' : ''}
                       </span>
                       <span className="font-mono" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>
                         {track.artist}
