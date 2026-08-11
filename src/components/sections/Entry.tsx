@@ -521,15 +521,15 @@ const Entry: React.FC = () => {
         />
 
         {/* Centered Name — two parallax layers */}
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
           <h1
-            className="font-orbitron"
+            className="font-share-tech"
             aria-hidden="true"
             style={{
               position: 'absolute',
               top: 0,
-              fontSize: 'clamp(44px, 8.5vw, 110px)',
-              fontWeight: 900,
+              fontSize: 'clamp(36px, 7vw, 96px)',
+              fontWeight: 400,
               color: 'var(--red)',
               lineHeight: 1.0,
               opacity: showContent ? 0.12 : 0,
@@ -538,25 +538,26 @@ const Entry: React.FC = () => {
               userSelect: 'none',
               pointerEvents: 'none',
               whiteSpace: 'nowrap',
-              letterSpacing: '0.14em',
+              letterSpacing: '0.12em',
             }}
           >
             {NAME}
           </h1>
           <h1
-            className="font-orbitron"
+            className="font-share-tech"
             style={{
-              fontSize: 'clamp(44px, 8.5vw, 110px)',
-              fontWeight: 900,
+              fontSize: 'clamp(36px, 7vw, 96px)',
+              fontWeight: 400,
               color: 'var(--text-primary)',
               lineHeight: 1.0,
               transform: `translate(${dx * -4}px, ${dy * -2.5}px)`,
               transition: 'transform 0.35s ease',
               display: 'flex',
               justifyContent: 'center',
-              flexWrap: 'wrap',
+              flexWrap: 'nowrap',
+              whiteSpace: 'nowrap',
               willChange: 'transform',
-              letterSpacing: '0.14em',
+              letterSpacing: '0.12em',
             }}
           >
             {NAME.split('').map((letter, i) => (
