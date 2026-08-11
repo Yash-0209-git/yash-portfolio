@@ -76,7 +76,7 @@ const CircularRadarCanvas: React.FC<{
 
     const render = () => {
       const w = (canvas.width = canvas.offsetWidth || 850);
-      const h = (canvas.height = canvas.offsetHeight || 160);
+      const h = (canvas.height = canvas.offsetHeight || 125);
 
       ctx.clearRect(0, 0, w, h);
 
@@ -88,9 +88,9 @@ const CircularRadarCanvas: React.FC<{
       const cx = w / 2;
       const cy = h / 2;
 
-      // Base radius expands dynamically on every bass drop / beat hit
+      // Scaled down base radius for a sleeker orb profile
       const beatLevel = isPlaying ? bass : Math.abs(Math.sin(phase * 1.5)) * 0.4;
-      const baseRadius = 42 + beatLevel * 38 + (surge ? 22 : 0);
+      const baseRadius = 26 + beatLevel * 22 + (surge ? 12 : 0);
 
       ctx.save();
       ctx.translate(cx, cy);
@@ -98,7 +98,7 @@ const CircularRadarCanvas: React.FC<{
       // ── 1. Outer Concentric Telemetry Target Orbit Rings ──
       // Outer dashed orbit ring 1
       ctx.beginPath();
-      ctx.arc(0, 0, baseRadius + 32, 0, Math.PI * 2);
+      ctx.arc(0, 0, baseRadius + 20, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(200, 16, 46, 0.2)';
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 6]);
@@ -107,7 +107,7 @@ const CircularRadarCanvas: React.FC<{
 
       // Outer thin orbit ring 2
       ctx.beginPath();
-      ctx.arc(0, 0, baseRadius + 54, 0, Math.PI * 2);
+      ctx.arc(0, 0, baseRadius + 36, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(200, 16, 46, 0.12)';
       ctx.lineWidth = 1;
       ctx.stroke();
@@ -116,8 +116,8 @@ const CircularRadarCanvas: React.FC<{
       ctx.strokeStyle = 'rgba(200, 16, 46, 0.5)';
       ctx.lineWidth = 1.5;
       [0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].forEach(angle => {
-        const r1 = baseRadius + 28;
-        const r2 = baseRadius + 38;
+        const r1 = baseRadius + 18;
+        const r2 = baseRadius + 26;
         ctx.beginPath();
         ctx.moveTo(Math.cos(angle) * r1, Math.sin(angle) * r1);
         ctx.lineTo(Math.cos(angle) * r2, Math.sin(angle) * r2);
@@ -190,7 +190,7 @@ const CircularRadarCanvas: React.FC<{
       ref={canvasRef}
       style={{
         width: '100%',
-        height: '160px',
+        height: '130px',
         display: 'block',
         pointerEvents: 'none',
       }}
