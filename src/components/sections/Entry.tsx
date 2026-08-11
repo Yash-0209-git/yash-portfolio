@@ -523,38 +523,40 @@ const Entry: React.FC = () => {
         {/* Centered Name — two parallax layers */}
         <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%' }}>
           <h1
-            className="font-bebas"
+            className="font-orbitron"
             aria-hidden="true"
             style={{
               position: 'absolute',
               top: 0,
-              fontSize: 'clamp(64px, 11vw, 140px)',
+              fontSize: 'clamp(44px, 8.5vw, 110px)',
+              fontWeight: 900,
               color: 'var(--red)',
-              lineHeight: 0.95,
-              opacity: showContent ? 0.08 : 0,
+              lineHeight: 1.0,
+              opacity: showContent ? 0.12 : 0,
               transform: `translate(${dx * 14}px, ${dy * 8}px)`,
               transition: 'transform 0.55s ease, opacity 0.9s ease',
               userSelect: 'none',
               pointerEvents: 'none',
               whiteSpace: 'nowrap',
-              letterSpacing: '0.04em',
+              letterSpacing: '0.14em',
             }}
           >
             {NAME}
           </h1>
           <h1
-            className="font-bebas"
+            className="font-orbitron"
             style={{
-              fontSize: 'clamp(64px, 11vw, 140px)',
+              fontSize: 'clamp(44px, 8.5vw, 110px)',
+              fontWeight: 900,
               color: 'var(--text-primary)',
-              lineHeight: 0.95,
+              lineHeight: 1.0,
               transform: `translate(${dx * -4}px, ${dy * -2.5}px)`,
               transition: 'transform 0.35s ease',
               display: 'flex',
               justifyContent: 'center',
               flexWrap: 'wrap',
               willChange: 'transform',
-              letterSpacing: '0.04em',
+              letterSpacing: '0.14em',
             }}
           >
             {NAME.split('').map((letter, i) => (
