@@ -31,7 +31,7 @@ export const STATIC_PROJECTS: Project[] = [
       'An intelligent Codebase Analysis & RAG Debugging Platform that extracts repository .zip files, detects project architecture, flags bugs & security issues, generates feature roadmaps, and provides an interactive Deep AI RAG assistant for full repository Q&A.',
     category: 'AI / Developer Tools',
     year: 2026,
-    status: 'completed',
+    status: 'in progress',
     github_url: 'https://github.com/Yash-0209-git/code-sage-ai.git',
     technologies: [
       'Python', 'FastAPI', 'React', 'TypeScript', 'RAG',
