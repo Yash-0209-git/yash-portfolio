@@ -46,7 +46,7 @@ const TERMINAL_LINES = [
 ];
 
 /* ═══════════════════════════════════════════════════════
-   OPTION 2: 360° CIRCULAR CYBER-RADAR FREQUENCY RING (JARVIS / SCI-FI CORE)
+   OPTION 2: 360° BEAT-SYNCED CYBER-RADAR ORB CORE (JARVIS / SCI-FI CORE)
 ═══════════════════════════════════════════════════════ */
 interface RealtimeTelemetry {
   bass: number;
@@ -62,7 +62,6 @@ const CircularRadarCanvas: React.FC<{
   onTelemetry: (t: RealtimeTelemetry) => void;
 }> = ({ mouseVelocity, surge, volume, onTelemetry }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const peaksRef = useRef<number[]>(new Array(64).fill(0));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -76,30 +75,29 @@ const CircularRadarCanvas: React.FC<{
 
     const render = () => {
       const w = (canvas.width = canvas.offsetWidth || 850);
-      const h = (canvas.height = canvas.offsetHeight || 180);
+      const h = (canvas.height = canvas.offsetHeight || 160);
 
       ctx.clearRect(0, 0, w, h);
 
       // Fetch 100% real-time Web Audio frequency data
-      const { freqData, bass, mid, treble, peak, isPlaying } = getRealtimeAudioData();
+      const { bass, mid, treble, peak, isPlaying } = getRealtimeAudioData();
       onTelemetry({ bass, mid, treble, peak });
 
       phase += 0.03 + mouseVelocity * 0.03 + (surge ? 0.08 : 0);
       const cx = w / 2;
       const cy = h / 2;
 
-      const effectiveVol = Math.max(0.12, volume);
-      const baseRadius = 38 + bass * 22 + (surge ? 15 : 0);
-      const numSpikes = 64;
-      const peaks = peaksRef.current;
+      // Base radius expands dynamically on every bass drop / beat hit
+      const beatLevel = isPlaying ? bass : Math.abs(Math.sin(phase * 1.5)) * 0.4;
+      const baseRadius = 42 + beatLevel * 38 + (surge ? 22 : 0);
 
-      // ── 1. Outer Concentric Telemetry Target Orbit Rings ──
       ctx.save();
       ctx.translate(cx, cy);
 
+      // ── 1. Outer Concentric Telemetry Target Orbit Rings ──
       // Outer dashed orbit ring 1
       ctx.beginPath();
-      ctx.arc(0, 0, baseRadius + 45, 0, Math.PI * 2);
+      ctx.arc(0, 0, baseRadius + 32, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(200, 16, 46, 0.2)';
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 6]);
@@ -108,7 +106,7 @@ const CircularRadarCanvas: React.FC<{
 
       // Outer thin orbit ring 2
       ctx.beginPath();
-      ctx.arc(0, 0, baseRadius + 68, 0, Math.PI * 2);
+      ctx.arc(0, 0, baseRadius + 54, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(200, 16, 46, 0.12)';
       ctx.lineWidth = 1;
       ctx.stroke();
@@ -116,102 +114,53 @@ const CircularRadarCanvas: React.FC<{
       // Cardinal direction ticks (N, S, E, W)
       ctx.strokeStyle = 'rgba(200, 16, 46, 0.5)';
       ctx.lineWidth = 1.5;
-      [0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map(angle => {
-        const r1 = baseRadius + 40;
-        const r2 = baseRadius + 50;
+      [0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].forEach(angle => {
+        const r1 = baseRadius + 28;
+        const r2 = baseRadius + 38;
         ctx.beginPath();
         ctx.moveTo(Math.cos(angle) * r1, Math.sin(angle) * r1);
         ctx.lineTo(Math.cos(angle) * r2, Math.sin(angle) * r2);
         ctx.stroke();
       });
 
-      // ── 2. Inner Glowing Core HUD Ring ──
+      // ── 2. Inner Glowing Core HUD Orb ──
       ctx.beginPath();
       ctx.arc(0, 0, baseRadius, 0, Math.PI * 2);
-      ctx.fillStyle = bass > 0.6 ? 'rgba(255, 42, 75, 0.18)' : 'rgba(200, 16, 46, 0.08)';
+      ctx.fillStyle = beatLevel > 0.5 ? 'rgba(255, 42, 75, 0.22)' : 'rgba(200, 16, 46, 0.09)';
       ctx.fill();
-      ctx.strokeStyle = surge || bass > 0.65 ? '#FF2A4B' : '#C8102E';
-      ctx.lineWidth = surge || bass > 0.65 ? 2.5 : 1.5;
+      ctx.strokeStyle = surge || beatLevel > 0.55 ? '#FF2A4B' : '#C8102E';
+      ctx.lineWidth = surge || beatLevel > 0.55 ? 3.0 : 1.5;
       ctx.shadowColor = '#C8102E';
-      ctx.shadowBlur = surge || bass > 0.65 ? 18 : 8;
+      ctx.shadowBlur = surge || beatLevel > 0.55 ? 24 : 10;
       ctx.stroke();
       ctx.shadowBlur = 0;
+
+      // Secondary Beat Pulse Aura Ring
+      ctx.beginPath();
+      ctx.arc(0, 0, baseRadius * 0.72, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 42, 75, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
       // Rotating inner dashed compass ring
       ctx.beginPath();
-      ctx.arc(0, 0, baseRadius - 8, phase * 0.5, phase * 0.5 + Math.PI * 1.5);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.arc(0, 0, baseRadius - 10, phase * 0.6, phase * 0.6 + Math.PI * 1.5);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
       ctx.lineWidth = 1;
-      ctx.setLineDash([2, 4]);
+      ctx.setLineDash([3, 5]);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Center Core Target Indicator Dot
+      // Center Core Target Pulse Dot
       ctx.beginPath();
-      ctx.arc(0, 0, 4 + bass * 4, 0, Math.PI * 2);
+      ctx.arc(0, 0, 5 + beatLevel * 6, 0, Math.PI * 2);
       ctx.fillStyle = '#FF2A4B';
       ctx.shadowColor = '#FF2A4B';
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // ── 3. 360° Polar Frequency Spikes & Hologram Peak Dots ──
-      for (let i = 0; i < numSpikes; i++) {
-        const angle = (i * 2 * Math.PI) / numSpikes - Math.PI / 2 + phase * 0.15;
-        let rawVal = 0;
-
-        if (isPlaying && freqData && freqData.length > 0) {
-          const sampleIdx = Math.floor((i / numSpikes) * freqData.length);
-          rawVal = freqData[sampleIdx] || 0;
-        } else {
-          // Ambient smooth breathing sine when idle
-          const wave = Math.sin(i * 0.25 + phase * 1.2);
-          rawVal = (Math.abs(wave) * 75 + 30) * effectiveVol;
-        }
-
-        // Calculate spike length
-        let spikeLen = (rawVal / 255) * 50 * effectiveVol + (surge ? 25 : 3);
-        spikeLen = Math.max(3, spikeLen);
-
-        // Inner and Outer coordinates
-        const rStart = baseRadius + 4;
-        const rEnd = rStart + spikeLen;
-
-        const x1 = Math.cos(angle) * rStart;
-        const y1 = Math.sin(angle) * rStart;
-        const x2 = Math.cos(angle) * rEnd;
-        const y2 = Math.sin(angle) * rEnd;
-
-        // Peak Hold Hologram Logic
-        if (spikeLen >= (peaks[i] || 0)) {
-          peaks[i] = spikeLen;
-        } else {
-          peaks[i] = Math.max(3, (peaks[i] || 0) - 1.2); // Gravity decay
-        }
-
-        // Draw Frequency Spike
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = surge || rawVal > 180 ? '#FF2A4B' : 'rgba(200, 16, 46, 0.85)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Draw Outer Hologram Peak Dot
-        const rPeak = rStart + peaks[i] + 3;
-        const px = Math.cos(angle) * rPeak;
-        const py = Math.sin(angle) * rPeak;
-
-        ctx.beginPath();
-        ctx.arc(px, py, 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.shadowColor = '#FF2A4B';
-        ctx.shadowBlur = 6;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-
-      // ── 4. Click Surge Shockwave Animation ──
+      // ── 3. Click Surge Shockwave Animation ──
       if (surge) {
         shockwaveR += 6;
         if (shockwaveR < 180) {
@@ -740,9 +689,9 @@ const Entry: React.FC = () => {
             boxShadow: telemetry.bass > 0.65 ? '0 0 20px rgba(200,16,46,0.4)' : 'none',
             transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
           }}>
-            <div className="font-mono" style={{ fontSize: '9px', color: 'var(--red)', letterSpacing: '0.12em', display: 'flex', gap: '0.45rem', alignItems: 'center' }}>
+            <div className="font-mono" style={{ fontSize: '9px', color: 'var(--red)', letterSpacing: '0.15em', display: 'flex', gap: '0.45rem', alignItems: 'center' }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: surge || telemetry.bass > 0.6 ? '#FF2A4B' : '#00FF66', boxShadow: '0 0 8px #00FF66' }} />
-              BASS:{Math.round(telemetry.bass * 100)}% · MID:{Math.round(telemetry.mid * 100)}% · TRBL:{Math.round(telemetry.treble * 100)}%
+              BGM BEAT SYNC ONLINE
             </div>
 
             {/* Interactive Amplitude & BGM Volume Slider */}
