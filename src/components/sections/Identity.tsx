@@ -217,21 +217,26 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
         })}
       </div>
 
-      {/* ── Central 3D Tilt Profile Photo Frame ── */}
+      {/* ── Central 3D Tilt Profile Photo Frame (Interactive Hover Core) ── */}
       <div
+        onMouseEnter={() => { setHovered(true); playBeep(920, 0.06); }}
         style={{
           position: 'relative',
           width: '210px',
           height: '210px',
           borderRadius: '50%',
           overflow: 'hidden',
-          border: '2px solid var(--red)',
-          boxShadow: '0 0 30px rgba(200, 16, 46, 0.45)',
-          transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale(${hovered ? 1.05 : 1})`,
-          transition: hovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease',
+          border: `2px solid ${hovered ? '#FF2A4B' : 'var(--red)'}`,
+          boxShadow: hovered
+            ? '0 0 50px rgba(200, 16, 46, 0.75), 0 0 20px rgba(255, 42, 75, 0.5)'
+            : '0 0 30px rgba(200, 16, 46, 0.45)',
+          transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale(${hovered ? 1.08 : 1})`,
+          transition: hovered ? 'transform 0.1s ease-out, border-color 0.3s ease, box-shadow 0.3s ease' : 'transform 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease',
           zIndex: 5,
+          cursor: 'pointer',
         }}
       >
+        {/* Photo with hover zoom & brightness filter */}
         <img
           src={src}
           alt="Yashwanth Profile"
@@ -239,28 +244,63 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            filter: 'contrast(1.05) brightness(0.95)',
+            filter: hovered
+              ? 'contrast(1.12) brightness(1.12) saturate(1.1)'
+              : 'contrast(1.05) brightness(0.95)',
+            transform: hovered ? 'scale(1.12)' : 'scale(1)',
+            transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s ease',
           }}
         />
 
-        {/* Live Scan Sweep Line */}
+        {/* Live Scan Sweep Line (Speed-boosted on hover) */}
         <div
           style={{
             position: 'absolute',
             left: 0,
             right: 0,
-            height: '2px',
+            height: hovered ? '3px' : '2px',
             background: 'linear-gradient(90deg, transparent, #FF2A4B, transparent)',
-            boxShadow: '0 0 8px #FF2A4B',
-            animation: 'photoScanSweep 2.8s ease-in-out infinite',
+            boxShadow: hovered ? '0 0 16px #FF2A4B' : '0 0 8px #FF2A4B',
+            animation: `photoScanSweep ${hovered ? '1.2s' : '2.8s'} ease-in-out infinite`,
           }}
         />
 
+        {/* Hover Target Lock Overlay */}
+        {hovered && (
+          <div
+            className="font-mono"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(200,16,46,0.12)',
+              pointerEvents: 'none',
+              animation: 'fadeIn 0.2s ease',
+            }}
+          >
+            <span style={{
+              fontSize: '8px',
+              color: 'white',
+              backgroundColor: 'rgba(10,5,5,0.85)',
+              border: '1px solid var(--red)',
+              padding: '0.2rem 0.5rem',
+              borderRadius: '2px',
+              letterSpacing: '0.12em',
+              fontWeight: 700,
+              boxShadow: '0 0 12px rgba(200,16,46,0.6)',
+            }}>
+              [TARGET LOCKED // YASHWANTH]
+            </span>
+          </div>
+        )}
+
         {/* Corner HUD Brackets */}
-        <div className="font-mono" style={{ position: 'absolute', top: 4, left: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>┌</div>
-        <div className="font-mono" style={{ position: 'absolute', top: 4, right: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>┐</div>
-        <div className="font-mono" style={{ position: 'absolute', bottom: 4, left: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>└</div>
-        <div className="font-mono" style={{ position: 'absolute', bottom: 4, right: 6, fontSize: '9px', color: 'var(--red)', pointerEvents: 'none' }}>┘</div>
+        <div className="font-mono" style={{ position: 'absolute', top: 4, left: 6, fontSize: '9px', color: hovered ? '#FF2A4B' : 'var(--red)', pointerEvents: 'none' }}>┌</div>
+        <div className="font-mono" style={{ position: 'absolute', top: 4, right: 6, fontSize: '9px', color: hovered ? '#FF2A4B' : 'var(--red)', pointerEvents: 'none' }}>┐</div>
+        <div className="font-mono" style={{ position: 'absolute', bottom: 4, left: 6, fontSize: '9px', color: hovered ? '#FF2A4B' : 'var(--red)', pointerEvents: 'none' }}>└</div>
+        <div className="font-mono" style={{ position: 'absolute', bottom: 4, right: 6, fontSize: '9px', color: hovered ? '#FF2A4B' : 'var(--red)', pointerEvents: 'none' }}>┘</div>
       </div>
 
       {/* Floating HUD status tags around frame */}
@@ -270,16 +310,18 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
           position: 'absolute',
           bottom: '-10px',
           fontSize: '8px',
-          color: 'var(--red)',
-          backgroundColor: 'rgba(10,5,5,0.9)',
+          color: hovered ? 'white' : 'var(--red)',
+          backgroundColor: hovered ? 'var(--red)' : 'rgba(10,5,5,0.9)',
           padding: '0.2rem 0.5rem',
           border: '1px solid rgba(200,16,46,0.4)',
           borderRadius: '3px',
           letterSpacing: '0.12em',
           zIndex: 10,
+          boxShadow: hovered ? '0 0 12px rgba(200,16,46,0.6)' : 'none',
+          transition: 'all 0.3s ease',
         }}
       >
-        ● TRANSMITTING // BASE: INDIA
+        {hovered ? '● SCAN ACTIVE // IDENTITY VERIFIED' : '● TRANSMITTING // BASE: INDIA'}
       </div>
 
       <style>{`
