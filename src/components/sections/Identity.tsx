@@ -77,8 +77,8 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
       onMouseLeave={handleMouseLeave}
       style={{
         position: 'relative',
-        width: '360px',
-        height: '360px',
+        width: '420px',
+        height: '420px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -89,8 +89,8 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
       <div
         style={{
           position: 'absolute',
-          width: '350px',
-          height: '350px',
+          width: '420px',
+          height: '420px',
           borderRadius: '50%',
           border: '1px dashed rgba(200, 16, 46, 0.25)',
           animation: 'spinClockwise 28s linear infinite',
@@ -108,7 +108,7 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                transform: `rotate(${angle}deg) translate(175px) rotate(-${angle}deg)`,
+                transform: `rotate(${angle}deg) translate(210px) rotate(-${angle}deg)`,
                 backgroundColor: activeNode === node ? 'var(--red)' : 'rgba(15,15,15,0.9)',
                 color: activeNode === node ? 'white' : 'rgba(200,16,46,0.85)',
                 border: '1px solid var(--red)',
@@ -134,8 +134,8 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
       <div
         style={{
           position: 'absolute',
-          width: '280px',
-          height: '280px',
+          width: '345px',
+          height: '345px',
           borderRadius: '50%',
           border: '1px solid rgba(200, 16, 46, 0.2)',
           animation: 'spinCounter 20s linear infinite',
@@ -153,7 +153,7 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                transform: `rotate(${angle}deg) translate(140px) rotate(-${angle}deg)`,
+                transform: `rotate(${angle}deg) translate(172px) rotate(-${angle}deg)`,
                 backgroundColor: activeNode === node ? 'var(--red)' : 'rgba(15,15,15,0.9)',
                 color: activeNode === node ? 'white' : 'rgba(255,255,255,0.7)',
                 border: '1px solid rgba(200,16,46,0.4)',
@@ -177,8 +177,8 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
       <div
         style={{
           position: 'absolute',
-          width: '210px',
-          height: '210px',
+          width: '270px',
+          height: '270px',
           borderRadius: '50%',
           border: '1px dashed rgba(200, 16, 46, 0.3)',
           animation: 'spinClockwise 14s linear infinite',
@@ -196,7 +196,7 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                transform: `rotate(${angle}deg) translate(105px) rotate(-${angle}deg)`,
+                transform: `rotate(${angle}deg) translate(135px) rotate(-${angle}deg)`,
                 backgroundColor: activeNode === node ? 'var(--red)' : 'rgba(20,20,25,0.95)',
                 color: activeNode === node ? 'white' : 'var(--red)',
                 border: '1px solid var(--red)',
@@ -221,12 +221,12 @@ const OrbitingNeuralCore: React.FC<{ src: string }> = ({ src }) => {
       <div
         style={{
           position: 'relative',
-          width: '155px',
-          height: '155px',
+          width: '210px',
+          height: '210px',
           borderRadius: '50%',
           overflow: 'hidden',
           border: '2px solid var(--red)',
-          boxShadow: '0 0 24px rgba(200, 16, 46, 0.4)',
+          boxShadow: '0 0 30px rgba(200, 16, 46, 0.45)',
           transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale(${hovered ? 1.05 : 1})`,
           transition: hovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease',
           zIndex: 5,
