@@ -46,7 +46,7 @@ const TERMINAL_LINES = [
 ];
 
 /* ═══════════════════════════════════════════════════════
-   OPTION 1: CYBERPUNK 64-BAND REALTIME EQUALIZER & PEAK HOLOGRAM
+   OPTION 2: 360° CIRCULAR CYBER-RADAR FREQUENCY RING (JARVIS / SCI-FI CORE)
 ═══════════════════════════════════════════════════════ */
 interface RealtimeTelemetry {
   bass: number;
@@ -55,7 +55,7 @@ interface RealtimeTelemetry {
   peak: number;
 }
 
-const RealtimeEqualizerCanvas: React.FC<{
+const CircularRadarCanvas: React.FC<{
   mouseVelocity: number;
   surge: boolean;
   volume: number;
@@ -72,84 +72,160 @@ const RealtimeEqualizerCanvas: React.FC<{
 
     let animId: number;
     let phase = 0;
+    let shockwaveR = 0;
 
     const render = () => {
-      const w = (canvas.width = canvas.offsetWidth || 800);
-      const h = (canvas.height = canvas.offsetHeight || 140);
+      const w = (canvas.width = canvas.offsetWidth || 850);
+      const h = (canvas.height = canvas.offsetHeight || 180);
 
       ctx.clearRect(0, 0, w, h);
 
       // Fetch 100% real-time Web Audio frequency data
       const { freqData, bass, mid, treble, peak, isPlaying } = getRealtimeAudioData();
-
-      // Pass telemetry up
       onTelemetry({ bass, mid, treble, peak });
 
-      phase += 0.05 + mouseVelocity * 0.04 + (surge ? 0.12 : 0);
-      const numBars = 64;
-      const gap = 3;
-      const barWidth = Math.max(2, (w - numBars * gap) / numBars);
+      phase += 0.03 + mouseVelocity * 0.03 + (surge ? 0.08 : 0);
+      const cx = w / 2;
+      const cy = h / 2;
 
       const effectiveVol = Math.max(0.12, volume);
+      const baseRadius = 38 + bass * 22 + (surge ? 15 : 0);
+      const numSpikes = 64;
       const peaks = peaksRef.current;
 
-      // Render 64-Band Equalizer Spectrum
-      for (let i = 0; i < numBars; i++) {
-        // Frequency value (0 to 255)
+      // ── 1. Outer Concentric Telemetry Target Orbit Rings ──
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // Outer dashed orbit ring 1
+      ctx.beginPath();
+      ctx.arc(0, 0, baseRadius + 45, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(200, 16, 46, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 6]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Outer thin orbit ring 2
+      ctx.beginPath();
+      ctx.arc(0, 0, baseRadius + 68, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(200, 16, 46, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Cardinal direction ticks (N, S, E, W)
+      ctx.strokeStyle = 'rgba(200, 16, 46, 0.5)';
+      ctx.lineWidth = 1.5;
+      [0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map(angle => {
+        const r1 = baseRadius + 40;
+        const r2 = baseRadius + 50;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(angle) * r1, Math.sin(angle) * r1);
+        ctx.lineTo(Math.cos(angle) * r2, Math.sin(angle) * r2);
+        ctx.stroke();
+      });
+
+      // ── 2. Inner Glowing Core HUD Ring ──
+      ctx.beginPath();
+      ctx.arc(0, 0, baseRadius, 0, Math.PI * 2);
+      ctx.fillStyle = bass > 0.6 ? 'rgba(255, 42, 75, 0.18)' : 'rgba(200, 16, 46, 0.08)';
+      ctx.fill();
+      ctx.strokeStyle = surge || bass > 0.65 ? '#FF2A4B' : '#C8102E';
+      ctx.lineWidth = surge || bass > 0.65 ? 2.5 : 1.5;
+      ctx.shadowColor = '#C8102E';
+      ctx.shadowBlur = surge || bass > 0.65 ? 18 : 8;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Rotating inner dashed compass ring
+      ctx.beginPath();
+      ctx.arc(0, 0, baseRadius - 8, phase * 0.5, phase * 0.5 + Math.PI * 1.5);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Center Core Target Indicator Dot
+      ctx.beginPath();
+      ctx.arc(0, 0, 4 + bass * 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#FF2A4B';
+      ctx.shadowColor = '#FF2A4B';
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // ── 3. 360° Polar Frequency Spikes & Hologram Peak Dots ──
+      for (let i = 0; i < numSpikes; i++) {
+        const angle = (i * 2 * Math.PI) / numSpikes - Math.PI / 2 + phase * 0.15;
         let rawVal = 0;
 
         if (isPlaying && freqData && freqData.length > 0) {
-          const sampleIdx = Math.floor((i / numBars) * freqData.length);
+          const sampleIdx = Math.floor((i / numSpikes) * freqData.length);
           rawVal = freqData[sampleIdx] || 0;
         } else {
-          // Fallback smooth ambient sine movement when paused/muted
-          const dist = Math.sin(i * 0.2 + phase);
-          rawVal = (Math.abs(dist) * 80 + Math.sin(i * 0.5 - phase) * 30 + 35) * effectiveVol;
+          // Ambient smooth breathing sine when idle
+          const wave = Math.sin(i * 0.25 + phase * 1.2);
+          rawVal = (Math.abs(wave) * 75 + 30) * effectiveVol;
         }
 
-        // Scale bar height
-        let barHeight = (rawVal / 255) * (h - 20) * effectiveVol + (surge ? 30 : 4);
-        barHeight = Math.min(h - 10, Math.max(3, barHeight));
+        // Calculate spike length
+        let spikeLen = (rawVal / 255) * 50 * effectiveVol + (surge ? 25 : 3);
+        spikeLen = Math.max(3, spikeLen);
 
-        const x = i * (barWidth + gap) + gap / 2;
-        const y = h - barHeight;
+        // Inner and Outer coordinates
+        const rStart = baseRadius + 4;
+        const rEnd = rStart + spikeLen;
+
+        const x1 = Math.cos(angle) * rStart;
+        const y1 = Math.sin(angle) * rStart;
+        const x2 = Math.cos(angle) * rEnd;
+        const y2 = Math.sin(angle) * rEnd;
 
         // Peak Hold Hologram Logic
-        if (barHeight >= (peaks[i] || 0)) {
-          peaks[i] = barHeight;
+        if (spikeLen >= (peaks[i] || 0)) {
+          peaks[i] = spikeLen;
         } else {
-          peaks[i] = Math.max(3, (peaks[i] || 0) - 1.6); // Gravity decay
+          peaks[i] = Math.max(3, (peaks[i] || 0) - 1.2); // Gravity decay
         }
 
-        // 1. Draw glowing vertical equalizer bar gradient
-        const grad = ctx.createLinearGradient(0, y, 0, h);
-        grad.addColorStop(0, surge ? '#FF2A4B' : '#FF1A3D');
-        grad.addColorStop(0.4, '#C8102E');
-        grad.addColorStop(1, 'rgba(200, 16, 46, 0.15)');
+        // Draw Frequency Spike
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = surge || rawVal > 180 ? '#FF2A4B' : 'rgba(200, 16, 46, 0.85)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
-        ctx.fillStyle = grad;
-        ctx.shadowColor = '#C8102E';
-        ctx.shadowBlur = surge ? 16 : 8;
+        // Draw Outer Hologram Peak Dot
+        const rPeak = rStart + peaks[i] + 3;
+        const px = Math.cos(angle) * rPeak;
+        const py = Math.sin(angle) * rPeak;
 
-        ctx.fillRect(x, y, barWidth, barHeight);
-
-        // 2. Draw Peak Hold Hologram Dot
-        const peakY = h - peaks[i];
+        ctx.beginPath();
+        ctx.arc(px, py, 1.2, 0, Math.PI * 2);
         ctx.fillStyle = '#FFFFFF';
         ctx.shadowColor = '#FF2A4B';
-        ctx.shadowBlur = 10;
-        ctx.fillRect(x, peakY - 3, barWidth, 2);
+        ctx.shadowBlur = 6;
+        ctx.fill();
+        ctx.shadowBlur = 0;
       }
 
-      ctx.shadowBlur = 0; // Reset shadow
+      // ── 4. Click Surge Shockwave Animation ──
+      if (surge) {
+        shockwaveR += 6;
+        if (shockwaveR < 180) {
+          ctx.beginPath();
+          ctx.arc(0, 0, shockwaveR, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255, 42, 75, ${1 - shockwaveR / 180})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      } else {
+        shockwaveR = baseRadius;
+      }
 
-      // Center baseline guide wire
-      ctx.strokeStyle = 'rgba(200,16,46,0.3)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, h - 1);
-      ctx.lineTo(w, h - 1);
-      ctx.stroke();
+      ctx.restore();
 
       animId = requestAnimationFrame(render);
     };
@@ -164,7 +240,7 @@ const RealtimeEqualizerCanvas: React.FC<{
       ref={canvasRef}
       style={{
         width: '100%',
-        height: '130px',
+        height: '160px',
         display: 'block',
         pointerEvents: 'none',
       }}
@@ -633,7 +709,7 @@ const Entry: React.FC = () => {
           </h1>
         </div>
 
-        {/* ── REALTIME 64-BAND AUDIO EQUALIZER SPECTRUM CANVAS ── */}
+        {/* ── REALTIME 360° CIRCULAR CYBER-RADAR FREQUENCY SPECTRUM CANVAS ── */}
         <div style={{
           width: '100%',
           maxWidth: '850px',
@@ -642,7 +718,7 @@ const Entry: React.FC = () => {
           transition: 'opacity 1s ease 0.6s',
           position: 'relative',
         }}>
-          <RealtimeEqualizerCanvas
+          <CircularRadarCanvas
             mouseVelocity={mouseVelocity}
             surge={surge}
             volume={bgmVolumeState}
