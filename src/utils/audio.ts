@@ -1,17 +1,17 @@
 // Web Audio API & Background Music Utility
-// Plays Sunflower Spiderman.mp3 as portfolio BGM (Default Volume: MAX 1.0, controlled via Entry amplitude slider)
+// Plays Annihilate.mp3 as portfolio BGM (Default Volume: 0.85, plays immediately on entry)
 
 let audioCtx: AudioContext | null = null;
-let isMuted = true; // Default muted for browser policies, un-mutes on user interaction
+let isMuted = false; // Enabled by default; user can mute/unmute anytime
 let bgmAudio: HTMLAudioElement | null = null;
 let bgmStarted = false;
-let currentVolume = 1.0; // MAX DEFAULT VOLUME
+let currentVolume = 0.85; // DEFAULT 85% VOLUME
 
 function initBgm() {
   if (typeof window === 'undefined' || bgmAudio) return;
   bgmAudio = new Audio('/bgm.mp3');
   bgmAudio.loop = true;
-  bgmAudio.volume = currentVolume; // MAX volume by default
+  bgmAudio.volume = currentVolume; // 0.85 Volume
 }
 
 function getAudioContext(): AudioContext | null {
@@ -47,28 +47,36 @@ export function getBgmVolume(): number {
   return currentVolume;
 }
 
-// Global user interaction listener to start BGM smoothly when permitted by browser
+// Global listener to start BGM right away / on first user gesture
 export function setupBgmAutoplay() {
   initBgm();
   if (typeof window === 'undefined') return;
 
-  const handleUserInteraction = () => {
-    if (!bgmStarted && bgmAudio) {
+  // Try playing immediately
+  if (bgmAudio && !bgmStarted && !isMuted) {
+    bgmAudio.play().then(() => {
       bgmStarted = true;
-      isMuted = false;
+    }).catch(() => {
+      // Browser autoplay policy required user gesture; listen for first interaction
+    });
+  }
+
+  const handleUserInteraction = () => {
+    if (!bgmStarted && bgmAudio && !isMuted) {
+      bgmStarted = true;
       bgmAudio.volume = currentVolume;
-      bgmAudio.play().catch(() => {
-        // Autoplay policy prevented playback
-      });
+      bgmAudio.play().catch(() => {});
       window.removeEventListener('click', handleUserInteraction);
       window.removeEventListener('keydown', handleUserInteraction);
       window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('scroll', handleUserInteraction);
     }
   };
 
   window.addEventListener('click', handleUserInteraction);
   window.addEventListener('keydown', handleUserInteraction);
   window.addEventListener('touchstart', handleUserInteraction);
+  window.addEventListener('scroll', handleUserInteraction);
 }
 
 export function toggleAudioMute(): boolean {

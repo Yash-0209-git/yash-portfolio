@@ -15,11 +15,13 @@ const Navigation: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [pulsing, setPulsing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(() => getAudioMuted());
   const pulseTimer = useRef<ReturnType<typeof setTimeout>>(setTimeout(() => {}, 0));
 
   useEffect(() => {
-    setMuted(getAudioMuted());
+    const syncAudioState = () => setMuted(getAudioMuted());
+    syncAudioState();
+    window.addEventListener('click', syncAudioState);
 
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
@@ -51,6 +53,7 @@ const Navigation: React.FC = () => {
 
     return () => {
       window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('click', syncAudioState);
       observers.forEach(o => o.disconnect());
       clearTimeout(pulseTimer.current);
     };
