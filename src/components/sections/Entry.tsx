@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { setBgmVolume, getBgmVolume, getRealtimeAudioData, playBeep } from '../../utils/audio';
+import { setBgmVolume, getBgmVolume, getRealtimeAudioData, playBeep, playTransmissionSound } from '../../utils/audio';
 import { ProposalEstimatorModal } from '../ui/ProposalEstimatorModal';
 
 const NAME = 'YASHWANTH';
@@ -212,9 +212,11 @@ const Entry: React.FC = () => {
   const [bgmVolumeState, setBgmVolumeState] = useState(() => getBgmVolume());
   const [telemetry, setTelemetry] = useState<RealtimeTelemetry>({ bass: 0, mid: 0, treble: 0, peak: 0 });
   const [estimatorOpen, setEstimatorOpen] = useState(false);
+  const [signalLevel, setSignalLevel] = useState(3);
+  const [empActive, setEmpActive] = useState(false);
+  const [overchargeToast, setOverchargeToast] = useState('');
   const [objectActive, setObjectActive] = useState(false);
   const [objectClicked, setObjectClicked] = useState(false);
-  const [signalBars, setSignalBars] = useState([0.4, 0.6, 0.8, 0.95, 1.0]);
   const [fragments, setFragments] = useState<Fragment[]>([]);
 
   const handleTelemetry = useCallback((t: RealtimeTelemetry) => {
@@ -224,6 +226,34 @@ const Entry: React.FC = () => {
   const handleVolumeChange = (val: number) => {
     const updated = setBgmVolume(val);
     setBgmVolumeState(updated);
+  };
+
+  const handleSignalClick = () => {
+    const nextLevel = signalLevel >= 5 ? 1 : signalLevel + 1;
+    setSignalLevel(nextLevel);
+    playBeep(350 + nextLevel * 180, 0.08, 0.05);
+
+    if (nextLevel === 5) {
+      playTransmissionSound();
+      setEmpActive(true);
+      setSurge(true);
+      setOverchargeToast('⚡ [ EMP SIGNAL OVERCHARGE // SYSTEM AT MAX CAPACITY ]');
+
+      setFragments(prev =>
+        prev.map(f => ({
+          ...f,
+          vx: (Math.random() - 0.5) * 1.8,
+          vy: (Math.random() - 0.5) * 1.8,
+          opacity: 1,
+        }))
+      );
+
+      setTimeout(() => {
+        setEmpActive(false);
+        setSurge(false);
+        setOverchargeToast('');
+      }, 4000);
+    }
   };
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -244,21 +274,9 @@ const Entry: React.FC = () => {
       }, 1400 + i * 500);
     });
 
-    // Signal bars animation
-    const barInterval = setInterval(() => {
-      setSignalBars([
-        0.3 + Math.random() * 0.4,
-        0.5 + Math.random() * 0.4,
-        0.6 + Math.random() * 0.35,
-        0.8 + Math.random() * 0.18,
-        0.92 + Math.random() * 0.08,
-      ]);
-    }, 1400);
-
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      clearInterval(barInterval);
     };
   }, []);
 
@@ -811,8 +829,11 @@ const Entry: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom-left: Signal strength bars */}
+      {/* Bottom-left: Interactive Signal Strength Widget (Option 5: EMP Overcharge Blast) */}
       <div
+        onClick={handleSignalClick}
+        data-cursor="pointer"
+        title="Click Signal Strength Bars to Overcharge System EMP Blast"
         style={{
           position: 'absolute',
           bottom: '2.5rem',
@@ -820,29 +841,78 @@ const Entry: React.FC = () => {
           zIndex: 6,
           opacity: showContent ? 1 : 0,
           transition: 'opacity 1s ease 2s',
+          cursor: 'pointer',
+          padding: '0.4rem 0.6rem',
+          backgroundColor: empActive ? 'rgba(255,42,75,0.18)' : 'rgba(10,5,5,0.4)',
+          border: `1px solid ${empActive ? '#FF2A4B' : 'rgba(200,16,46,0.25)'}`,
+          borderRadius: '4px',
+          boxShadow: empActive ? '0 0 24px rgba(255,42,75,0.4)' : 'none',
         }}
       >
         <div
           className="font-mono"
-          style={{ fontSize: '8px', color: 'rgba(200,16,46,0.3)', letterSpacing: '0.2em', marginBottom: '0.4rem' }}
+          style={{
+            fontSize: '8px',
+            color: empActive ? '#FF2A4B' : 'rgba(200,16,46,0.8)',
+            letterSpacing: '0.15em',
+            marginBottom: '0.35rem',
+            fontWeight: 700,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '0.6rem',
+          }}
         >
-          SIGNAL STRENGTH
+          <span>SIGNAL STRENGTH [{signalLevel}/5]</span>
+          <span style={{ fontSize: '7px', opacity: 0.6 }}>{empActive ? '⚡ OVERCHARGED' : 'TAP ⚡'}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '24px' }}>
-          {signalBars.map((h, i) => (
-            <div
-              key={i}
-              style={{
-                width: '5px',
-                height: `${h * 100}%`,
-                backgroundColor: `rgba(200,16,46,${0.4 + i * 0.12})`,
-                transition: 'height 0.8s ease',
-                minHeight: '2px',
-              }}
-            />
-          ))}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '24px' }}>
+          {[0, 1, 2, 3, 4].map(i => {
+            const isActive = i < signalLevel;
+            const barHeight = 20 + i * 20;
+            return (
+              <div
+                key={i}
+                style={{
+                  width: '6px',
+                  height: `${barHeight}%`,
+                  backgroundColor: isActive ? (empActive ? '#FF2A4B' : 'var(--red)') : 'rgba(200,16,46,0.18)',
+                  boxShadow: isActive ? (empActive ? '0 0 12px #FF2A4B' : '0 0 6px rgba(200,16,46,0.6)') : 'none',
+                  borderRadius: '1px',
+                  transition: 'all 0.25s ease',
+                  minHeight: '4px',
+                }}
+              />
+            );
+          })}
         </div>
       </div>
+
+      {/* Floating EMP Overcharge Toast Notification */}
+      {overchargeToast && (
+        <div
+          className="font-mono"
+          style={{
+            position: 'absolute',
+            top: '5.5rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            backgroundColor: 'rgba(255, 42, 75, 0.95)',
+            color: 'white',
+            padding: '0.6rem 1.2rem',
+            borderRadius: '6px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            boxShadow: '0 0 30px rgba(255, 42, 75, 0.7)',
+            animation: 'fadeIn 0.2s ease',
+            pointerEvents: 'none',
+          }}
+        >
+          {overchargeToast}
+        </div>
+      )}
 
       {/* Bottom-center: Cursor coords */}
       <div
