@@ -392,30 +392,44 @@ const Entry: React.FC = () => {
         </div>
         <div
           style={{
-            background: 'rgba(200,16,46,0.03)',
-            border: '1px solid rgba(200,16,46,0.1)',
-            padding: '0.6rem 0.9rem',
-            minWidth: '240px',
+            background: 'rgba(12, 6, 8, 0.88)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(200, 16, 46, 0.4)',
+            borderRadius: '4px',
+            padding: '0.75rem 1rem',
+            minWidth: '290px',
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(200, 16, 46, 0.15)',
           }}
         >
-          {terminalLines.map((line, i) => (
-            <div
-              key={i}
-              className="font-mono"
-              style={{
-                fontSize: '9px',
-                color: i === terminalLines.length - 1 ? 'var(--red)' : 'rgba(200,16,46,0.4)',
-                letterSpacing: '0.06em',
-                lineHeight: 1.7,
-                animation: 'typeIn 0.3s ease',
-              }}
-            >
-              {line}
-              {i === terminalLines.length - 1 && terminalLines.length < TERMINAL_LINES.length && (
-                <span style={{ animation: 'blink 1s infinite' }}>▋</span>
-              )}
-            </div>
-          ))}
+          {terminalLines.map((line, i) => {
+            const isHeader = line.includes('SHORTCUT COMMANDS');
+            const isShortcut = line.includes('[KONAMI') || line.includes('[PRESS') || line.includes('[CTRL');
+
+            return (
+              <div
+                key={i}
+                className="font-mono"
+                style={{
+                  fontSize: '9px',
+                  color: isHeader ? '#FF2A4B' : isShortcut ? 'rgba(255,255,255,0.95)' : 'rgba(200,16,46,0.6)',
+                  fontWeight: isHeader || isShortcut ? 700 : 400,
+                  letterSpacing: '0.06em',
+                  lineHeight: 1.8,
+                  animation: 'typeIn 0.3s ease',
+                  backgroundColor: isShortcut ? 'rgba(200,16,46,0.12)' : 'transparent',
+                  borderLeft: isShortcut ? '2px solid var(--red)' : 'none',
+                  paddingLeft: isShortcut ? '0.4rem' : '0',
+                  margin: isShortcut ? '0.2rem 0' : '0',
+                  borderRadius: isShortcut ? '0 3px 3px 0' : '0',
+                }}
+              >
+                {line}
+                {i === terminalLines.length - 1 && terminalLines.length < TERMINAL_LINES.length && (
+                  <span style={{ animation: 'blink 1s infinite', color: 'var(--red)' }}> ▋</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
