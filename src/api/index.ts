@@ -9,7 +9,7 @@ export const STATIC_PROJECTS: Project[] = [
       'An AI-powered Gym Management System that connects admins, trainers, and members through personalized fitness tracking, workout and diet management, AI-driven guidance, automated notifications, and real-time progress monitoring.',
     category: 'Web App',
     year: 2026,
-    status: 'completed',
+    status: 'in progress',
     github_url: 'https://github.com/Yash-0209-git/gym-management-system',
     technologies: [
       'Python', 'FastAPI', 'React', 'TypeScript', 'PostgreSQL', 'Supabase',

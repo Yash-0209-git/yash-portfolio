@@ -13,7 +13,7 @@ const FALLBACK_PROJECTS: Project[] = [
       'An AI-powered Gym Management System connecting admins, trainers, and members through personalized fitness tracking, AI-driven guidance, and real-time monitoring.',
     category: 'Web App',
     year: 2026,
-    status: 'completed',
+    status: 'in progress',
     github_url: 'https://github.com/Yash-0209-git/gym-management-system',
     technologies: ['Python', 'FastAPI', 'React', 'TypeScript', 'PostgreSQL', 'Supabase', 'Groq API', 'Google Gemini', 'SQLAlchemy', 'JWT Authentication', 'WhatsApp API'],
     featured: true, published: true, display_order: 0,
