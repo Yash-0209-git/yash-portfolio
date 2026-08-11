@@ -38,9 +38,11 @@ interface Fragment {
 const TERMINAL_LINES = [
   '> ESTABLISHING CONNECTION...',
   '> SIGNAL LOCKED ██████████ 100%',
-  '> IDENTITY LOADED',
-  '> PORTFOLIO ONLINE',
-  '> SECRET CODE: ↑ ↑ ↓ ↓ ← → ← → B A',
+  '> IDENTITY LOADED & PORTFOLIO ONLINE',
+  '> SHORTCUT COMMANDS & EASTER EGGS:',
+  '  [KONAMI CODE] : ↑ ↑ ↓ ↓ ← → ← → B A (YashOS)',
+  '  [PRESS "M"]    : MATRIX CODE RAIN MODE',
+  '  [CTRL+SHIFT+G]: ZERO-G PHYSICS SURGE',
 ];
 
 /* ═══════════════════════════════════════════════════════
