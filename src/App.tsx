@@ -14,7 +14,6 @@ import Certificates from './components/sections/Certificates';
 import Contact from './components/sections/Contact';
 
 import EasterEggs from './components/EasterEggs';
-import InteractionCounter from './components/InteractionCounter';
 import { setupBgmAutoplay } from './utils/audio';
 
 function App() {
@@ -64,7 +63,6 @@ function App() {
         <SignalField />
         <SideProgress />
         <EasterEggs />
-        <InteractionCounter />
 
         {overdrive && (
           <YashOSDesktop onClose={() => setOverdrive(false)} />
