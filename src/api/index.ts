@@ -51,27 +51,27 @@ export const STATIC_PROJECTS: Project[] = [
   {
     id: 'rag-tech-bot',
     slug: 'rag-tech-bot',
-    title: 'RAG-Tech Bot',
+    title: 'RAG-Tech Assistant',
     short_description:
-      'AI chatbot that answers technical questions using a custom knowledge base and RAG — delivering accurate, context-aware responses without relying on general LLM knowledge alone.',
-    category: 'AI / ML',
+      'A Domain-Grounded Technical AI Assistant powered by RAG (Retrieval-Augmented Generation) that answers complex technical troubleshooting queries exclusively from uploaded document knowledge bases with hands-free Voice Input & Synthesis.',
+    category: 'AI / RAG Architecture',
     year: 2025,
     status: 'completed',
     github_url: 'https://github.com/Yash-0209-git/rag-tech-bot.git',
     technologies: [
       'Python', 'FastAPI', 'FAISS', 'Sentence Transformers',
-      'Groq', 'Llama 3.3 70B', 'React', 'Vite', 'Three.js',
+      'Groq API', 'Llama 3.3 70B', 'React 18', 'TypeScript', 'Web Speech API',
       'Tailwind CSS', 'PyTorch',
     ],
     featured: true,
     published: true,
     display_order: 2,
     problem:
-      'Standard LLMs answer from general training data, producing hallucinations or outdated answers for domain-specific technical queries.',
+      'Standard LLMs produce hallucinations or lack specific context when answering specialized technical and network troubleshooting queries.',
     solution:
-      'Built a full RAG pipeline with query expansion, FAISS vector retrieval, reranking, and context boosting — served through a FastAPI backend and a React + Three.js frontend.',
+      'Engineered a complete RAG (Retrieval-Augmented Generation) system with multi-stage query expansion, FAISS vector retrieval, sentence transformer reranking, hands-free Voice Input & Speech Synthesis, and grounded generation via Llama 3.3 70B.',
     challenges:
-      'Improving retrieval accuracy on short queries, handling multi-stage RAG pipeline latency, and ensuring consistent grounded generation via Llama 3.3 70B.',
+      'Optimizing multi-stage RAG vector retrieval latency, improving sentence transformer reranking accuracy, and integrating low-latency Web Speech API voice synthesis.',
     thumbnail_url: '/projects/rag-tech-bot.png',
   },
 ];
