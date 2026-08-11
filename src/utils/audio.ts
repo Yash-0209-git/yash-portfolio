@@ -1,5 +1,5 @@
-// Web Audio API & Background Music Utility with Multi-Track Playlist
-// Default Track: Annihilate (Default Volume: 0.85, plays immediately on entry)
+// Web Audio API & Background Music Utility with Multi-Track Playlist & Realtime Analyser
+// Default Track: Annihilate (Default Volume: 0.34, plays immediately on entry)
 
 export interface Track {
   id: string;
@@ -22,12 +22,18 @@ let bgmStarted = false;
 let currentVolume = 0.34; // DEFAULT 34% VOLUME
 let currentTrackIndex = 0; // Default: Annihilate (index 0)
 
+// Realtime Web Audio Analyser nodes
+let analyser: AnalyserNode | null = null;
+let audioSourceNode: MediaElementAudioSourceNode | null = null;
+let freqDataArray: Uint8Array | null = null;
+
 function initBgm() {
   if (typeof window === 'undefined' || bgmAudio) return;
   const track = BGM_PLAYLIST[currentTrackIndex];
   bgmAudio = new Audio(track.src);
+  bgmAudio.crossOrigin = 'anonymous';
   bgmAudio.loop = true;
-  bgmAudio.volume = currentVolume; // 0.85 Volume
+  bgmAudio.volume = currentVolume;
 }
 
 function getAudioContext(): AudioContext | null {
@@ -44,6 +50,76 @@ function getAudioContext(): AudioContext | null {
     audioCtx.resume();
   }
   return audioCtx;
+}
+
+function setupAudioNodes() {
+  if (!bgmAudio) return;
+  const ctx = getAudioContext();
+  if (!ctx || audioSourceNode) return;
+
+  try {
+    audioSourceNode = ctx.createMediaElementSource(bgmAudio);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 128; // 64 frequency bins
+    freqDataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    audioSourceNode.connect(analyser);
+    analyser.connect(ctx.destination);
+  } catch (e) {
+    // MediaElementSource already connected or cross-origin fallback
+  }
+}
+
+export function getRealtimeAudioData() {
+  if (!analyser || !freqDataArray) {
+    setupAudioNodes();
+  }
+
+  const isPlaying = !!bgmAudio && !bgmAudio.paused && !isMuted;
+
+  if (analyser && freqDataArray && isPlaying) {
+    analyser.getByteFrequencyData(freqDataArray as unknown as Uint8Array<ArrayBuffer>);
+
+    let sumBass = 0, sumMid = 0, sumTreble = 0, sumAll = 0;
+    const len = freqDataArray.length;
+
+    for (let i = 0; i < len; i++) {
+      const v = freqDataArray[i];
+      sumAll += v;
+      if (i < 12) sumBass += v;
+      else if (i < 38) sumMid += v;
+      else sumTreble += v;
+    }
+
+    const bass = sumBass / 12 / 255;
+    const mid = sumMid / 26 / 255;
+    const treble = sumTreble / (len - 38) / 255;
+    let maxVal = 0;
+    for (let i = 0; i < len; i++) {
+      if (freqDataArray[i] > maxVal) maxVal = freqDataArray[i];
+    }
+    const peak = maxVal / 255;
+
+    return {
+      freqData: freqDataArray,
+      bass,
+      mid,
+      treble,
+      peak,
+      isPlaying: true,
+    };
+  }
+
+  // Simulated fallback values if audio context suspended / blocked
+  const fallback = new Uint8Array(64);
+  return {
+    freqData: fallback,
+    bass: 0,
+    mid: 0,
+    treble: 0,
+    peak: 0,
+    isPlaying: false,
+  };
 }
 
 export function getCurrentTrack(): Track {
@@ -75,6 +151,7 @@ export function selectTrack(indexOrId: number | string): Track {
     bgmAudio.load();
 
     if (wasPlaying || !isMuted) {
+      setupAudioNodes();
       bgmAudio.play().then(() => {
         bgmStarted = true;
       }).catch(() => {});
@@ -88,10 +165,6 @@ export function selectTrack(indexOrId: number | string): Track {
   return track;
 }
 
-export function nextTrack(): Track {
-  return selectTrack(currentTrackIndex + 1);
-}
-
 export function setBgmVolume(val: number) {
   initBgm();
   currentVolume = Math.min(1.0, Math.max(0.0, val));
@@ -100,6 +173,7 @@ export function setBgmVolume(val: number) {
   }
   if (currentVolume > 0 && isMuted && bgmAudio) {
     isMuted = false;
+    setupAudioNodes();
     bgmAudio.play().catch(() => {});
   }
   return currentVolume;
@@ -116,10 +190,11 @@ export function setupBgmAutoplay() {
 
   // Try playing immediately
   if (bgmAudio && !bgmStarted && !isMuted) {
+    setupAudioNodes();
     bgmAudio.play().then(() => {
       bgmStarted = true;
     }).catch(() => {
-      // Browser autoplay policy required user gesture; listen for first interaction
+      // Autoplay policy fallback
     });
   }
 
@@ -127,6 +202,7 @@ export function setupBgmAutoplay() {
     if (!bgmStarted && bgmAudio && !isMuted) {
       bgmStarted = true;
       bgmAudio.volume = currentVolume;
+      setupAudioNodes();
       bgmAudio.play().catch(() => {});
       window.removeEventListener('click', handleUserInteraction);
       window.removeEventListener('keydown', handleUserInteraction);
@@ -150,6 +226,7 @@ export function toggleAudioMute(): boolean {
       bgmAudio.pause();
     } else {
       bgmAudio.volume = currentVolume;
+      setupAudioNodes();
       bgmAudio.play().catch(() => {});
       playBeep(880, 0.05, 0.05); // unmute chime
     }

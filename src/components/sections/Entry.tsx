@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { setBgmVolume, getBgmVolume } from '../../utils/audio';
+import { setBgmVolume, getBgmVolume, getRealtimeAudioData } from '../../utils/audio';
 
 const NAME = 'YASHWANTH';
 
@@ -46,10 +46,23 @@ const TERMINAL_LINES = [
 ];
 
 /* ═══════════════════════════════════════════════════════
-   LIVE REACTIVE SIGNAL WAVEFORM CANVAS VISUALIZER
+   OPTION 1: CYBERPUNK 64-BAND REALTIME EQUALIZER & PEAK HOLOGRAM
 ═══════════════════════════════════════════════════════ */
-const SignalWaveformCanvas: React.FC<{ mouseVelocity: number; surge: boolean; volume: number }> = ({ mouseVelocity, surge, volume }) => {
+interface RealtimeTelemetry {
+  bass: number;
+  mid: number;
+  treble: number;
+  peak: number;
+}
+
+const RealtimeEqualizerCanvas: React.FC<{
+  mouseVelocity: number;
+  surge: boolean;
+  volume: number;
+  onTelemetry: (t: RealtimeTelemetry) => void;
+}> = ({ mouseVelocity, surge, volume, onTelemetry }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const peaksRef = useRef<number[]>(new Array(64).fill(0));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -66,53 +79,77 @@ const SignalWaveformCanvas: React.FC<{ mouseVelocity: number; surge: boolean; vo
 
       ctx.clearRect(0, 0, w, h);
 
-      // Base parameters scaled by volume (0.0 to 1.0)
-      phase += 0.04 + mouseVelocity * 0.05 + (surge ? 0.12 : 0);
-      const midY = h / 2;
-      const effectiveVol = Math.max(0.08, volume); // Minimum baseline height even at 0 volume
-      const baseAmp = (25 + mouseVelocity * 40 + (surge ? 45 : 0)) * effectiveVol;
+      // Fetch 100% real-time Web Audio frequency data
+      const { freqData, bass, mid, treble, peak, isPlaying } = getRealtimeAudioData();
 
-      // 1. Draw secondary background glow wave
-      ctx.beginPath();
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = 'rgba(200, 16, 46, 0.25)';
+      // Pass telemetry up
+      onTelemetry({ bass, mid, treble, peak });
 
-      for (let x = 0; x < w; x += 3) {
-        const freq1 = 0.008;
-        const freq2 = 0.018;
-        const y = midY + Math.sin(x * freq1 + phase) * (baseAmp * 0.6) + Math.cos(x * freq2 - phase * 0.8) * 12;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
+      phase += 0.05 + mouseVelocity * 0.04 + (surge ? 0.12 : 0);
+      const numBars = 64;
+      const gap = 3;
+      const barWidth = Math.max(2, (w - numBars * gap) / numBars);
 
-      // 2. Draw primary main signal wave (glowing red)
-      ctx.beginPath();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = surge ? '#FF2A4B' : '#C8102E';
-      ctx.shadowColor = '#C8102E';
-      ctx.shadowBlur = surge ? 22 : 12;
+      const effectiveVol = Math.max(0.12, volume);
+      const peaks = peaksRef.current;
 
-      for (let x = 0; x < w; x += 2) {
-        const distFromCenter = Math.abs(x - w / 2) / (w / 2);
-        const centerDampen = Math.cos(distFromCenter * (Math.PI / 2));
-        const freq = 0.012;
-        const y = midY + Math.sin(x * freq + phase) * baseAmp * centerDampen + Math.sin(x * 0.035 + phase * 1.4) * (surge ? 15 : 6);
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.shadowBlur = 0; // reset shadow
-
-      // 3. Draw vertical spectrum peak indicator lines
-      const numBars = 32;
-      const barSpacing = w / numBars;
+      // Render 64-Band Equalizer Spectrum
       for (let i = 0; i < numBars; i++) {
-        const bx = i * barSpacing + barSpacing / 2;
-        const barAmp = Math.abs(Math.sin(i * 0.4 + phase * 0.8)) * (baseAmp * 0.7) + 4;
-        ctx.fillStyle = i % 4 === 0 ? 'rgba(200,16,46,0.6)' : 'rgba(200,16,46,0.18)';
-        ctx.fillRect(bx - 1, midY - barAmp / 2, 2, barAmp);
+        // Frequency value (0 to 255)
+        let rawVal = 0;
+
+        if (isPlaying && freqData && freqData.length > 0) {
+          const sampleIdx = Math.floor((i / numBars) * freqData.length);
+          rawVal = freqData[sampleIdx] || 0;
+        } else {
+          // Fallback smooth ambient sine movement when paused/muted
+          const dist = Math.sin(i * 0.2 + phase);
+          rawVal = (Math.abs(dist) * 80 + Math.sin(i * 0.5 - phase) * 30 + 35) * effectiveVol;
+        }
+
+        // Scale bar height
+        let barHeight = (rawVal / 255) * (h - 20) * effectiveVol + (surge ? 30 : 4);
+        barHeight = Math.min(h - 10, Math.max(3, barHeight));
+
+        const x = i * (barWidth + gap) + gap / 2;
+        const y = h - barHeight;
+
+        // Peak Hold Hologram Logic
+        if (barHeight >= (peaks[i] || 0)) {
+          peaks[i] = barHeight;
+        } else {
+          peaks[i] = Math.max(3, (peaks[i] || 0) - 1.6); // Gravity decay
+        }
+
+        // 1. Draw glowing vertical equalizer bar gradient
+        const grad = ctx.createLinearGradient(0, y, 0, h);
+        grad.addColorStop(0, surge ? '#FF2A4B' : '#FF1A3D');
+        grad.addColorStop(0.4, '#C8102E');
+        grad.addColorStop(1, 'rgba(200, 16, 46, 0.15)');
+
+        ctx.fillStyle = grad;
+        ctx.shadowColor = '#C8102E';
+        ctx.shadowBlur = surge ? 16 : 8;
+
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // 2. Draw Peak Hold Hologram Dot
+        const peakY = h - peaks[i];
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = '#FF2A4B';
+        ctx.shadowBlur = 10;
+        ctx.fillRect(x, peakY - 3, barWidth, 2);
       }
+
+      ctx.shadowBlur = 0; // Reset shadow
+
+      // Center baseline guide wire
+      ctx.strokeStyle = 'rgba(200,16,46,0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, h - 1);
+      ctx.lineTo(w, h - 1);
+      ctx.stroke();
 
       animId = requestAnimationFrame(render);
     };
@@ -120,7 +157,7 @@ const SignalWaveformCanvas: React.FC<{ mouseVelocity: number; surge: boolean; vo
     render();
 
     return () => cancelAnimationFrame(animId);
-  }, [mouseVelocity, surge]);
+  }, [mouseVelocity, surge, volume, onTelemetry]);
 
   return (
     <canvas
@@ -147,11 +184,15 @@ const Entry: React.FC = () => {
   const [mouseVelocity, setMouseVelocity] = useState(0);
   const [surge, setSurge] = useState(false);
   const [bgmVolumeState, setBgmVolumeState] = useState(() => getBgmVolume());
+  const [telemetry, setTelemetry] = useState<RealtimeTelemetry>({ bass: 0, mid: 0, treble: 0, peak: 0 });
   const [objectActive, setObjectActive] = useState(false);
   const [objectClicked, setObjectClicked] = useState(false);
   const [signalBars, setSignalBars] = useState([0.4, 0.6, 0.8, 0.95, 1.0]);
   const [fragments, setFragments] = useState<Fragment[]>([]);
-  const [freqReadout, setFreqReadout] = useState(440.0);
+
+  const handleTelemetry = useCallback((t: RealtimeTelemetry) => {
+    setTelemetry(t);
+  }, []);
 
   const handleVolumeChange = (val: number) => {
     const updated = setBgmVolume(val);
@@ -185,7 +226,6 @@ const Entry: React.FC = () => {
         0.8 + Math.random() * 0.18,
         0.92 + Math.random() * 0.08,
       ]);
-      setFreqReadout(+(440.0 + (Math.random() - 0.5) * 8.4).toFixed(1));
     }, 1400);
 
     return () => {
@@ -593,7 +633,7 @@ const Entry: React.FC = () => {
           </h1>
         </div>
 
-        {/* ── LIVE INTERACTIVE SIGNAL WAVEFORM CANVAS ── */}
+        {/* ── REALTIME 64-BAND AUDIO EQUALIZER SPECTRUM CANVAS ── */}
         <div style={{
           width: '100%',
           maxWidth: '850px',
@@ -602,24 +642,31 @@ const Entry: React.FC = () => {
           transition: 'opacity 1s ease 0.6s',
           position: 'relative',
         }}>
-          <SignalWaveformCanvas mouseVelocity={mouseVelocity} surge={surge} volume={bgmVolumeState} />
+          <RealtimeEqualizerCanvas
+            mouseVelocity={mouseVelocity}
+            surge={surge}
+            volume={bgmVolumeState}
+            onTelemetry={handleTelemetry}
+          />
 
-          {/* Waveform Telemetry HUD Strip with BGM Amplitude Volume Control */}
+          {/* Realtime 64-Band Spectrum Telemetry HUD Strip */}
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '0.5rem 1rem',
-            backgroundColor: 'rgba(10,5,5,0.85)',
-            border: '1px solid rgba(200,16,46,0.25)',
+            backgroundColor: 'rgba(10,5,5,0.88)',
+            border: `1px solid ${telemetry.bass > 0.65 ? '#FF2A4B' : 'rgba(200,16,46,0.3)'}`,
             borderRadius: '4px',
             marginTop: '-0.5rem',
             gap: '1rem',
             flexWrap: 'wrap',
+            boxShadow: telemetry.bass > 0.65 ? '0 0 20px rgba(200,16,46,0.4)' : 'none',
+            transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
           }}>
-            <div className="font-mono" style={{ fontSize: '9px', color: 'var(--red)', letterSpacing: '0.15em', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: surge ? '#FF2A4B' : '#00FF66', boxShadow: '0 0 8px #00FF66' }} />
-              FREQ: {freqReadout}Hz
+            <div className="font-mono" style={{ fontSize: '9px', color: 'var(--red)', letterSpacing: '0.12em', display: 'flex', gap: '0.45rem', alignItems: 'center' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: surge || telemetry.bass > 0.6 ? '#FF2A4B' : '#00FF66', boxShadow: '0 0 8px #00FF66' }} />
+              BASS:{Math.round(telemetry.bass * 100)}% · MID:{Math.round(telemetry.mid * 100)}% · TRBL:{Math.round(telemetry.treble * 100)}%
             </div>
 
             {/* Interactive Amplitude & BGM Volume Slider */}
