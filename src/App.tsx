@@ -13,6 +13,7 @@ import Stack from './components/sections/Stack';
 import Certificates from './components/sections/Certificates';
 import Contact from './components/sections/Contact';
 
+import EasterEggs from './components/EasterEggs';
 import { setupBgmAutoplay } from './utils/audio';
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
         <ScrollProgress />
         <SignalField />
         <SideProgress />
+        <EasterEggs />
 
         {overdrive && (
           <YashOSDesktop onClose={() => setOverdrive(false)} />

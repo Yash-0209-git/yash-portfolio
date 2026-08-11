@@ -65,9 +65,21 @@ const BroadcastTower: React.FC<{ anyActive: boolean }> = ({ anyActive }) => {
   const col  = 'rgba(200,16,46,0.85)';
   const faint= 'rgba(200,16,46,0.28)';
   const mid  = 'rgba(200,16,46,0.50)';
+
+  const handleTowerClick = () => {
+    window.dispatchEvent(new CustomEvent('trigger-zero-g'));
+  };
+
   return (
-    <svg width="120" height="330" viewBox="0 0 120 330" fill="none"
+    <svg
+      width="120"
+      height="330"
+      viewBox="0 0 120 330"
+      fill="none"
+      onClick={handleTowerClick}
+      data-cursor="pointer"
       style={{ overflow: 'visible', display: 'block', filter: anyActive ? 'drop-shadow(0 0 10px rgba(200,16,46,0.5))' : 'drop-shadow(0 0 4px rgba(200,16,46,0.25))', transition: 'filter 0.4s ease' }}>
+      <title>Click to trigger Zero-G Physics Surge!</title>
 
       {/* Glow base */}
       <ellipse cx="60" cy="318" rx="48" ry="7" fill="rgba(200,16,46,0.18)" style={{ filter:'blur(6px)' }}/>
