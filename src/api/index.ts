@@ -99,6 +99,31 @@ export const STATIC_PROJECTS: Project[] = [
       'Managing relational Supabase state across vehicle-owner linkages, implementing client-side PDF document compilation with html2canvas and jsPDF, and optimizing real-time query caching with TanStack React Query v5.',
     thumbnail_url: '/projects/autotrack.png',
   },
+  {
+    id: 'neuro-ai',
+    slug: 'neuro-ai',
+    title: 'Neuro AI',
+    short_description:
+      'A cinematic 3D Synaptic Discovery Engine & Developer Brain Workspace featuring a volumetric 3D dual-hemisphere neural mesh, Groq Llama-3 repository evaluation, Rosetta Stone multi-language code translation with laser signals, and a 20-platform Career Synapse internship locator.',
+    category: 'AI / 3D Graphics',
+    year: 2026,
+    status: 'completed',
+    github_url: 'https://github.com/Yash-0209-git/neuro-ai.git',
+    technologies: [
+      'React 18', 'TypeScript', 'Three.js', 'React Three Fiber',
+      'FastAPI', 'Python', 'Groq API', 'Llama 3', 'Tailwind CSS', 'Vite',
+    ],
+    featured: true,
+    published: true,
+    display_order: 4,
+    problem:
+      'Beginners and students struggle to navigate complex open-source codebases, translate code across programming languages with architectural context, configure API keys, and discover active developer internships across fragmented portals.',
+    solution:
+      'Engineered NEURO — a volumetric 3D dual-hemisphere neural brain workspace featuring interactive 3D node network visualizers, Groq AI GitHub repository evaluation, Rosetta Stone multi-language syntax translation with laser Bezier signals, and a 20-platform Career Synapse internship scraper.',
+    challenges:
+      'Optimizing Three.js / React Three Fiber GPU particle performance for real-time 3D neural brain mesh deformation, decoding Base64 tracking redirects on the fly for direct internship links, and structuring low-latency Groq Llama-3 response streaming.',
+    thumbnail_url: '/projects/neuro-ai.png',
+  },
 ];
 
 export const STATIC_SKILLS: Skill[] = [
